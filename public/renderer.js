@@ -3,8 +3,9 @@ import {animationFrame,animationState} from './animation.js';
 import {collidersIn,terrainPassable} from './collisions.js';
 import {ABILITIES} from './data.js';
 import {advanceRemote} from './remote-motion.js';
+import {worldDaylight} from './day-night.js';
 export class Renderer {
- constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';element.append(this.overlays);this.resize();window.addEventListener('resize',()=>this.resize());}
+ constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';this.lighting=document.createElement('div');this.lighting.className='world-lighting';this.clock=document.createElement('div');this.clock.className='world-clock';element.append(this.lighting,this.overlays,this.clock);this.resize();window.addEventListener('resize',()=>this.resize());}
  resize(){this.width=innerWidth;this.height=innerHeight;}
  setZoom(value){this.zoom=Math.max(.55,Math.min(2.2,Number(value)||1.45));return this.zoom;}
  bossPose(e,time){const a=e.attackVfx,t=a?(time-a.start)/.65:2;if(t<0||t>1)return 'none';const pulse=Math.sin(t*Math.PI);
@@ -59,6 +60,8 @@ export class Renderer {
   if(p.evolutionUntil>this.sim.time)actors.push(this.effect('evolution',p.x,p.y,'evolve',this.sim.time-p.evolutionStart,100));
   this.effects=this.effects.filter(e=>this.sim.time-e.time<1.2);
   this.worldView.render(this.canvas,{...this.camera,zoom:this.zoom,width:this.width,height:this.height},{actors});
+  const cycle=worldDaylight(),opacity=cycle.darkness*.62;if(Math.abs(opacity-(this.lightOpacity||0))>.002){this.lighting.style.opacity=String(opacity);this.lightOpacity=opacity;}
+  const hours=String(Math.floor(cycle.hour)).padStart(2,'0'),minutes=String(Math.floor(cycle.hour%1*60)).padStart(2,'0'),clockText=`${cycle.isNight?'☾':'☀'} ${hours}:${minutes}`;if(this.clock.textContent!==clockText)this.clock.textContent=clockText;
   this.drawOverlays();
  }
  drawOverlays(){const sim=this.sim,p=sim.player,point=(x,y)=>({x:(x-this.camera.x)*this.zoom+this.width/2,y:(y-this.camera.y)*this.zoom+this.height/2});const markers=[];

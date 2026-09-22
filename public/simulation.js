@@ -9,6 +9,7 @@ import {starterAttackVisual} from './starter-attack-vfx.js';
 import {pokeballById,pokeballCaptureChance} from './pokeballs.js';
 import { applyStats, applyEvolutions, nextEvolution } from './progression.js';
 import { clearSegment, createMap, distance, findPath, findPathNearObstacle, followPath, lineOfSight, walkable } from './world.js';
+import {spawnAvailable} from './day-night.js';
 
 export const PLAYER_MOVEMENT_MULTIPLIER = 1.12;
 
@@ -17,7 +18,7 @@ export class Simulation {
     if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
     if (!Object.hasOwn(CREATURES, starter)) throw new RangeError('Criatura inicial inválida');
     this.definition = CREATURES[starter];
-    this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || []); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
+    this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || []); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
     this.quest = { id: 'clear-clareira', goal: 3, progress: 0, complete: false, rewardXp: 60, drops: [] };
     this.inventory=cleanInventory(options.inventory);
     this.pc=Array.isArray(options.pc)?options.pc:[];this.capturePlan=options.capturePlan&&typeof options.capturePlan==='object'?options.capturePlan:{enabled:false,speciesId:'caterpie'};this.captureSerial=Number(options.captureSerial)||this.pc.length;
@@ -364,8 +365,9 @@ export class Simulation {
     else if(enemy.state!=='Dead')enemy.hp=Math.max(0,Math.min(enemy.hp,state.hp));
   }
   streamCreatures() {
-    const p=this.player,near=[];
+    const p=this.player,near=[],now=this.worldNow();
     for(const e of this.enemies){
+      if(e.uid>=2000&&!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
       if(e.horde){if(distance(e.home,p)<1800)near.push(e);else e.unloadedAt=this.time;continue;}
       if(e.uid<2000||distance(e.home,p)<1800){near.push(e);continue;}
       this.dormant.set(e.uid,{hp:e.hp,state:e.state,timer:e.timer,unloaded:this.time});this.creaturePool.release(e);
@@ -378,7 +380,7 @@ export class Simulation {
       guard.unloadedAt=0;this.enemies.push(guard);ids.add(guard.uid);if(this.sharedWildStates.has(guard.uid))this.applySharedWildState(this.sharedWildStates.get(guard.uid));
     }
     for(let cy=Math.floor(p.y/cs)-2;cy<=Math.floor(p.y/cs)+2;cy++)for(let cx=Math.floor(p.x/cs)-2;cx<=Math.floor(p.x/cs)+2;cx++)for(const spawn of this.map.chunks.get(`${cx},${cy}`)?.spawns||[]){
-      if(this.enemies.length>=48||ids.has(spawn.uid)||distance(spawn,p)>1500)continue;
+      if(this.enemies.length>=48||ids.has(spawn.uid)||distance(spawn,p)>1500||!spawnAvailable(spawn,now))continue;
       const saved=this.dormant.get(spawn.uid),species=WILD_POKEMON.find(s=>s.id===spawn.species)||{...WILD_POKEMON[0],...CREATURES[spawn.species],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
       const stats=encounterStats(species,this.map,spawn,spawn.uid),hp=stats.maxHp;
       const dead=saved?.state==='Dead'&&this.time-saved.unloaded<saved.timer;
