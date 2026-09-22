@@ -117,7 +117,7 @@ export class RealtimeOnline {
     if(!safe(self)&&!['heal','buff','rolling','teleport'].includes(ability.behavior))for(const target of this.players){
       if(target.id===this.id||target.scene!==self.scene||safe(target)||this.guildId&&this.guildId===target.guildId)continue;
       const along=(target.x-self.x)*unit.x+(target.y-self.y)*unit.y,cross=Math.abs((target.x-self.x)*unit.y-(target.y-self.y)*unit.x),behavior=ability.behavior;
-      const hit=['area','zone','debuff'].includes(behavior)?distance(target,impact)<=(ability.radius||30)+14:behavior==='direct'?distance(self,target)<=range+14&&cross<32:along>=0&&along<=range+14&&cross<(behavior==='channel'?26+along*.32:behavior==='wave'?(ability.width||40)+14:behavior==='beam'?35:behavior==='whip'?37:23);
+      const hit=['area','zone','debuff'].includes(behavior)?distance(target,impact)<=(ability.radius||30)+14:behavior==='direct'?along>=0&&along<=range+14&&distance(self,target)<=range+14&&cross<32:along>=0&&along<=range+14&&cross<(behavior==='channel'?26+along*.32:behavior==='wave'?(ability.width||40)+14:behavior==='beam'?35:behavior==='whip'?37:23);
       if(!hit)continue;
       if(behavior==='debuff'){victims.push({id:target.id,damage:0});await this.send('pvp-status',{nick:self.nick,ability:ability.id},target.id);continue;}
       const raw=effectiveness(ability.type||'Normal',CREATURES[target.pokemon]?.element||'Normal');if(raw===0)continue;

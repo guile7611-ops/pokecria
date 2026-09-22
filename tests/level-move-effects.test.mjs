@@ -28,6 +28,15 @@ test('Hypnosis stops movement, Toxic damages over time, and Leech Seed restores 
  assert.ok(sim.player.hp>sim.player.maxHp-40);
 });
 
+test('Poison Powder inflicts poison over time instead of instant damage',()=>{
+ const {sim,foe}=encounter(),hp=foe.hp;
+ assert.equal(sim.cast(ABILITIES.poisonPowder,{x:foe.x,y:foe.y}),true);
+ assert.equal(foe.hp,hp);
+ assert.ok(foe.poison?.until>sim.time);
+ for(let i=0;i<25;i++)sim.step(.05);
+ assert.ok(foe.hp<hp);
+});
+
 test('new level moves have individual sheets and are learned only by species that list them',()=>{
  assert.ok(CANONICAL_LEARNSETS.bulbasaur.some(row=>row.ability==='growl'));
  assert.ok(CANONICAL_LEARNSETS.mareep.some(row=>row.ability==='thunderShock'));

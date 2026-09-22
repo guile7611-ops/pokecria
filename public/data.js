@@ -89,7 +89,7 @@ Object.assign(ABILITIES, {
   waterPulse: { ...ABILITIES.water, id: 'waterPulse', name: 'Pulso d’água', damage: 20, description: 'Projétil aquático reforçado de Wartortle.' },
   hydroPump: { ...ABILITIES.water, id: 'hydroPump', name: 'Hidro bomba', damage: 35, range: 350, description: 'Disparo aquático poderoso de Blastoise.' },
   growth:{id:'growth',name:'Crescimento',behavior:'buff',type:'Normal',cooldown:12,duration:8,attackMultiplier:1.3,color:'#79c95a',vfx:'buff',description:'Aumenta o poder dos ataques em 30% por 8 segundos.'},
-  poisonPowder:{id:'poisonPowder',name:'Pó Venenoso',behavior:'area',type:'Poison',damage:16,radius:105,range:250,cooldown:7,color:'#ba65d2',vfx:'debuff',description:'Espalha pó venenoso em uma área ao redor do alvo.'},
+  poisonPowder:{id:'poisonPowder',name:'Pó Venenoso',behavior:'debuff',type:'Poison',poison:true,duration:8,radius:105,range:250,cooldown:7,color:'#ba65d2',vfx:'debuff',description:'Espalha pó que envenena os alvos na área por 8 segundos.'},
   smokescreen:{id:'smokescreen',name:'Cortina de Fumaça',behavior:'buff',type:'Normal',cooldown:12,duration:7,defenseBonus:5,color:'#8b8c91',vfx:'buff',description:'Cria fumaça e aumenta a defesa em 5 por 7 segundos.'},
   fireSpin:{id:'fireSpin',name:'Giro de Fogo',behavior:'area',type:'Fire',damage:25,radius:115,range:285,cooldown:8,color:'#ff7950',vfx:'fire',description:'Forma um círculo de fogo que atinge todos na área.'},
   tailWhip:{id:'tailWhip',name:'Chicote de Cauda',behavior:'buff',type:'Normal',cooldown:11,duration:7,attackMultiplier:1.18,speedMultiplier:1.18,color:'#e5c78d',vfx:'buff',description:'Aumenta ataque e velocidade em 18% por 7 segundos.'},

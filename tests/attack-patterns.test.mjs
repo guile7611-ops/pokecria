@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Simulation} from '../public/simulation.js';
 import {ABILITIES} from '../public/data.js';
+import {existsSync} from 'node:fs';
 
 function setup(starter='charmander',offsets=[70]){
  const sim=new Simulation(starter),p=sim.player;
@@ -48,6 +49,33 @@ test('a new movement command cancels a queued melee skill',()=>{
  sim.command({type:'move',x:p.x,y:p.y+70});
  assert.equal(p.pendingCast,null);
  assert.equal(p.target,null);
+});
+
+test('every configured move can be equipped, cast through the player command, and load its effect',()=>{
+ for(const id of Object.keys(ABILITIES).filter(id=>id!=='basic')){
+  const a=ABILITIES[id];assert.ok(a,`${id} must have a combat definition`);
+  assert.ok(existsSync(new URL(`../public/assets/sprites/vfx/${a.vfx}.png`,import.meta.url)),`${id} must have an effect sprite`);
+  const {sim,p,enemies:[e]}=setup('swampert',[58]);
+  sim.updateEnemy=()=>{};p.level=100;p.knownMoves=[id];
+  assert.equal(sim.equipMove(id,0),true,`${id} must equip`);
+  if(a.behavior==='heal')p.hp=p.maxHp-40;
+  const aim=a.behavior==='teleport'?{x:p.x+100,y:p.y}:{x:e.x,y:e.y};
+  assert.equal(sim.command({type:'cast',slot:0,...aim,targetId:e.uid}),true,`${id} must cast from Q`);
+  assert.ok(p.cooldowns[id]>0,`${id} must start cooldown`);
+  assert.ok(sim.events.some(event=>event.type==='cast'&&event.ability===id),`${id} must report a cast`);
+ }
+});
+
+test('all contact moves approach a distant selected enemy',()=>{
+ for(const id of Object.keys(ABILITIES)){
+  if(ABILITIES[id]?.behavior!=='direct')continue;
+  const {sim,p,enemies:[e]}=setup('swampert',[170]);
+  sim.updateEnemy=()=>{};e.element='Fire';p.level=100;p.slots[0]=id;
+  const initial=e.hp;
+  assert.equal(sim.command({type:'cast',slot:0,x:e.x,y:e.y,targetId:e.uid}),'queued',`${id} should queue while out of range`);
+  for(let i=0;i<120&&e.hp===initial;i++)sim.step(.05);
+  assert.ok(e.hp<initial,`${id} should hit after approaching`);
+ }
 });
 
 test('Flamethrower is a sustained cone with repeat hits and no projectile',()=>{
