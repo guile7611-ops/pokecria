@@ -21,7 +21,7 @@ try{
   },{nick,spawnEpoch});
   const firstId=await join(first,'SmokeA',123);
   const secondId=await join(second,'SmokeB',124);
-  await Promise.all([first.waitForFunction(()=>window.smokeOnline.players.length===2,{timeout:12000}),second.waitForFunction(()=>window.smokeOnline.players.length===2,{timeout:12000})]);
+  await Promise.all([first.waitForFunction(id=>window.smokeOnline.players.some(player=>player.id===id),secondId,{timeout:12000}),second.waitForFunction(id=>window.smokeOnline.players.some(player=>player.id===id),firstId,{timeout:12000})]);
   const a=await first.evaluate(()=>({players:window.smokeOnline.players.map(p=>p.id),epoch:window.smokeOnline.state.spawnEpoch}));
   const b=await second.evaluate(()=>({players:window.smokeOnline.players.map(p=>p.id),epoch:window.smokeOnline.state.spawnEpoch}));
   assert.ok(a.players.includes(secondId)&&b.players.includes(firstId));

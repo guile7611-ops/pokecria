@@ -15,7 +15,7 @@ export class RealtimeOnline {
     const entries=Object.values(this.channel.presenceState()).flat().filter(player=>player?.id),now=Date.now();
     const present=new Map(entries.map(player=>[player.id,player]));
     for(const [id,player] of this.remoteStates)if(!present.has(id)&&now-player.seenAt>15000)this.remoteStates.delete(id);
-    this.players=[...new Map([...entries.map(player=>[player.id,{...player,...this.remoteStates.get(player.id),guildId:player.guildId||this.remoteStates.get(player.id)?.guildId||null,spawnEpoch:player.spawnEpoch}]),...this.remoteStates.entries()].map(([id,player])=>[id,{...present.get(id),...player}])).values()];
+    this.players=[...entries.map(player=>{const remote=this.remoteStates.get(player.id);return {...player,...remote,guildId:player.guildId||remote?.guildId||null,spawnEpoch:player.spawnEpoch};}),...[...this.remoteStates.values()].filter(player=>!present.has(player.id))];
     const self=this.players.find(player=>player.id===this.id);
     if(self?.guildId)this.guildId=self.guildId;
     const epochs=this.players.filter(player=>player.scene==='world'&&Number.isInteger(player.spawnEpoch)).map(player=>player.spawnEpoch);
