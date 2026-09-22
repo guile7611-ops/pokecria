@@ -97,11 +97,14 @@ test('every configured move can be cast and produces its declared combat effect'
   e.element='Fogo';
   sim.updateEnemy=()=>{};
   if(a.behavior==='heal')p.hp=p.maxHp-50;
-  const startHp=e.hp,playerHp=p.hp;
+  const startHp=e.hp,playerHp=p.hp,startX=p.x;
   assert.equal(sim.cast(a,{x:e.x,y:e.y}),true,`${id} should cast`);
+  if(a.behavior==='buff')assert.ok(p.buffs.some(buff=>buff.id===id),`${id} should apply a buff`);
+  if(a.behavior==='debuff')assert.ok(e.debuffs?.some(effect=>effect.id===id)||e.sleepUntil||e.yawnAt||e.poison||e.leech||e.slowUntil||e.staggerUntil,`${id} should apply a condition`);
   step(sim,2);
   if(a.behavior==='heal')assert.ok(p.hp>playerHp,`${id} should heal`);
-  else if(a.behavior==='buff')assert.ok(p.buffs.some(buff=>buff.id===id),`${id} should apply a buff`);
+  else if(['buff','debuff'].includes(a.behavior))continue;
+  else if(a.behavior==='teleport')assert.notEqual(p.x,startX,`${id} should relocate the player`);
   else assert.ok(e.hp<startHp,`${id} should damage a target in range`);
  }
 });

@@ -15,7 +15,7 @@ try{
     const {RealtimeOnline}=await import('/realtime-online.js');
     cloud.session={user:{id:nick}};
     window.smokeEvents=[];
-    window.smokeOnline=new RealtimeOnline({world:({spawnEpoch})=>{window.smokeEpoch=spawnEpoch;},'pvp-hit':event=>window.smokeEvents.push(event),'boss-state':event=>window.smokeEvents.push(event)});
+    window.smokeOnline=new RealtimeOnline({world:({spawnEpoch})=>{window.smokeEpoch=spawnEpoch;},'pvp-hit':event=>window.smokeEvents.push(event),'pvp-status':event=>window.smokeEvents.push(event),'boss-state':event=>window.smokeEvents.push(event)});
     await window.smokeOnline.join({nick,pokemon:'bulbasaur',spawnEpoch});
     return window.smokeOnline.id;
   },{nick,spawnEpoch});
@@ -32,6 +32,10 @@ try{
   await first.evaluate(id=>window.smokeOnline.request('pvp',{targetId:id}),secondId);
   await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='pvp-hit'));
   assert.ok(await second.evaluate(()=>window.smokeOnline.state.hp<100));
+  const hpAfterAttack=await second.evaluate(()=>window.smokeOnline.state.hp);
+  await first.evaluate(()=>window.smokeOnline.request('skill',{ability:'growl',x:960,y:560}));
+  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='pvp-status'&&event.ability==='growl'));
+  assert.equal(await second.evaluate(()=>window.smokeOnline.state.hp),hpAfterAttack);
   await first.evaluate(()=>window.smokeOnline.request('wild-hit',{uid:1000,damage:30,isBoss:true,hp:390,maxHp:420,respawn:45}));
   await second.waitForFunction(()=>window.smokeEvents.some(event=>event.uid===1000&&event.hp===390));
   await first.evaluate(id=>window.smokeOnline.request('guild/invite',{targetId:id}),secondId);

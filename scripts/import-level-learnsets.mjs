@@ -1,11 +1,11 @@
 import {writeFile} from 'node:fs/promises';
 import {CREATURES} from '../public/data.js';
 
-// Snapshot of Scarlet/Violet level-up learnsets. Run again when adding species.
+// Snapshot of the latest available level-up learnset per playable species.
 // https://pokeapi.co/docs/v2#pokemon
-const version='scarlet-violet';
+const preferredVersions=['scarlet-violet','legends-za','brilliant-diamond-shining-pearl','sword-shield','lets-go-pikachu-lets-go-eevee','legends-arceus','ultra-sun-ultra-moon','sun-moon','omega-ruby-alpha-sapphire','x-y','black-2-white-2','black-white','heartgold-soulsilver','platinum','diamond-pearl','emerald','firered-leafgreen','ruby-sapphire','crystal','gold-silver','yellow','red-blue'];
 const species=Object.keys(CREATURES).sort();
-const result={};
+const result={},versions={};
 let cursor=0;
 async function worker(){
   while(cursor<species.length){
@@ -13,6 +13,11 @@ async function worker(){
     const response=await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
     if(!response.ok)throw Error(`${id}: HTTP ${response.status}`);
     const pokemon=await response.json();
+    const available=new Set(pokemon.moves.flatMap(({version_group_details})=>version_group_details
+      .filter(detail=>detail.move_learn_method.name==='level-up').map(detail=>detail.version_group.name)));
+    const version=preferredVersions.find(name=>available.has(name));
+    if(!version)throw Error(`${id}: no level-up learnset found`);
+    versions[id]=version;
     result[id]=pokemon.moves.flatMap(({move,version_group_details})=>version_group_details
       .filter(detail=>detail.version_group.name===version&&detail.move_learn_method.name==='level-up')
       .map(detail=>({level:detail.level_learned_at,move:move.name})))
@@ -21,7 +26,7 @@ async function worker(){
 }
 await Promise.all(Array.from({length:8},worker));
 const ordered=Object.fromEntries(species.map(id=>[id,result[id]]));
-await writeFile('public/level-learnsets-gen9.js',`// Generated from PokéAPI ${version} level-up data. Do not edit by hand.\nexport const LEVEL_LEARNSETS_GEN9 = ${JSON.stringify(ordered,null,2)};\n`);
+await writeFile('public/level-learnsets.js',`// Generated from the latest available PokéAPI level-up data per species. Do not edit by hand.\nexport const LEVEL_LEARNSETS = ${JSON.stringify(ordered,null,2)};\nexport const LEVEL_LEARNSET_VERSIONS = ${JSON.stringify(Object.fromEntries(species.map(id=>[id,versions[id]])),null,2)};\n`);
 const moveNames=[...new Set(Object.values(ordered).flat().map(row=>row.move))].sort();
 const moveData={};cursor=0;
 async function moveWorker(){
@@ -37,5 +42,5 @@ async function moveWorker(){
   }
 }
 await Promise.all(Array.from({length:8},moveWorker));
-await writeFile('public/level-move-metadata-gen9.js',`// Generated from PokéAPI move data for the ${version} level-up catalogue.\nexport const LEVEL_MOVE_METADATA_GEN9 = ${JSON.stringify(Object.fromEntries(moveNames.map(name=>[name,moveData[name]])),null,2)};\n`);
+await writeFile('public/level-move-metadata.js',`// Generated from PokéAPI move data for the level-up catalogue.\nexport const LEVEL_MOVE_METADATA = ${JSON.stringify(Object.fromEntries(moveNames.map(name=>[name,moveData[name]])),null,2)};\n`);
 console.log(`Imported ${species.length} species, ${moveNames.length} distinct level-up moves and their combat metadata.`);

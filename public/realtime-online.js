@@ -114,11 +114,12 @@ export class RealtimeOnline {
     const distanceToAim=Math.hypot(data.x-self.x,data.y-self.y),unit={x:(data.x-self.x)/Math.max(1,distanceToAim),y:(data.y-self.y)/Math.max(1,distanceToAim)},range=ability.range||150,reach=Math.min(range,distanceToAim);
     const impact=ability.selfCentered?{x:self.x,y:self.y}:{x:self.x+unit.x*reach,y:self.y+unit.y*reach};
     const victims=[];
-    if(!safe(self)&&!['heal','buff','rolling'].includes(ability.behavior))for(const target of this.players){
+    if(!safe(self)&&!['heal','buff','rolling','teleport'].includes(ability.behavior))for(const target of this.players){
       if(target.id===this.id||target.scene!==self.scene||safe(target)||this.guildId&&this.guildId===target.guildId)continue;
       const along=(target.x-self.x)*unit.x+(target.y-self.y)*unit.y,cross=Math.abs((target.x-self.x)*unit.y-(target.y-self.y)*unit.x),behavior=ability.behavior;
-      const hit=['area','zone'].includes(behavior)?distance(target,impact)<=(ability.radius||30)+14:behavior==='direct'?distance(self,target)<=range+14&&cross<32:along>=0&&along<=range+14&&cross<(behavior==='channel'?26+along*.32:behavior==='wave'?(ability.width||40)+14:behavior==='beam'?35:behavior==='whip'?37:23);
+      const hit=['area','zone','debuff'].includes(behavior)?distance(target,impact)<=(ability.radius||30)+14:behavior==='direct'?distance(self,target)<=range+14&&cross<32:along>=0&&along<=range+14&&cross<(behavior==='channel'?26+along*.32:behavior==='wave'?(ability.width||40)+14:behavior==='beam'?35:behavior==='whip'?37:23);
       if(!hit)continue;
+      if(behavior==='debuff'){victims.push({id:target.id,damage:0});await this.send('pvp-status',{nick:self.nick,ability:ability.id},target.id);continue;}
       const raw=effectiveness(ability.type||'Normal',CREATURES[target.pokemon]?.element||'Normal');if(raw===0)continue;
       const damage=Math.max(1,Math.min(180,Math.round(((CREATURES[self.pokemon]?.attack||13)+self.level*2+(ability.damage||0))*combatEffectiveness(raw)-(CREATURES[target.pokemon]?.defense||2))));
       victims.push({id:target.id,damage});await this.send('pvp-hit',{nick:self.nick,damage,ability:ability.id},target.id);

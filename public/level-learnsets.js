@@ -1,8 +1,139 @@
-// Generated from PokéAPI scarlet-violet level-up data. Do not edit by hand.
-export const LEVEL_LEARNSETS_GEN9 = {
-  "abra": [],
-  "aggron": [],
-  "alakazam": [],
+// Generated from the latest available PokéAPI level-up data per species. Do not edit by hand.
+export const LEVEL_LEARNSETS = {
+  "abra": [
+    {
+      "level": 1,
+      "move": "teleport"
+    }
+  ],
+  "aggron": [
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "metal-claw"
+    },
+    {
+      "level": 1,
+      "move": "rock-tomb"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 12,
+      "move": "roar"
+    },
+    {
+      "level": 16,
+      "move": "headbutt"
+    },
+    {
+      "level": 20,
+      "move": "protect"
+    },
+    {
+      "level": 24,
+      "move": "rock-slide"
+    },
+    {
+      "level": 28,
+      "move": "iron-head"
+    },
+    {
+      "level": 35,
+      "move": "metal-sound"
+    },
+    {
+      "level": 40,
+      "move": "take-down"
+    },
+    {
+      "level": 48,
+      "move": "autotomize"
+    },
+    {
+      "level": 56,
+      "move": "iron-tail"
+    },
+    {
+      "level": 64,
+      "move": "iron-defense"
+    },
+    {
+      "level": 72,
+      "move": "heavy-slam"
+    },
+    {
+      "level": 80,
+      "move": "double-edge"
+    },
+    {
+      "level": 88,
+      "move": "metal-burst"
+    }
+  ],
+  "alakazam": [
+    {
+      "level": 1,
+      "move": "confusion"
+    },
+    {
+      "level": 1,
+      "move": "disable"
+    },
+    {
+      "level": 1,
+      "move": "kinesis"
+    },
+    {
+      "level": 1,
+      "move": "teleport"
+    },
+    {
+      "level": 5,
+      "move": "psybeam"
+    },
+    {
+      "level": 10,
+      "move": "reflect"
+    },
+    {
+      "level": 15,
+      "move": "ally-switch"
+    },
+    {
+      "level": 20,
+      "move": "psycho-cut"
+    },
+    {
+      "level": 25,
+      "move": "recover"
+    },
+    {
+      "level": 30,
+      "move": "psyshock"
+    },
+    {
+      "level": 35,
+      "move": "psychic"
+    },
+    {
+      "level": 40,
+      "move": "role-play"
+    },
+    {
+      "level": 45,
+      "move": "future-sight"
+    },
+    {
+      "level": 50,
+      "move": "calm-mind"
+    }
+  ],
   "ampharos": [
     {
       "level": 0,
@@ -167,7 +298,76 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "toxic-thread"
     }
   ],
-  "aron": [],
+  "aron": [
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 4,
+      "move": "metal-claw"
+    },
+    {
+      "level": 8,
+      "move": "rock-tomb"
+    },
+    {
+      "level": 12,
+      "move": "roar"
+    },
+    {
+      "level": 16,
+      "move": "headbutt"
+    },
+    {
+      "level": 20,
+      "move": "protect"
+    },
+    {
+      "level": 24,
+      "move": "rock-slide"
+    },
+    {
+      "level": 28,
+      "move": "iron-head"
+    },
+    {
+      "level": 33,
+      "move": "metal-sound"
+    },
+    {
+      "level": 36,
+      "move": "take-down"
+    },
+    {
+      "level": 40,
+      "move": "autotomize"
+    },
+    {
+      "level": 44,
+      "move": "iron-tail"
+    },
+    {
+      "level": 48,
+      "move": "iron-defense"
+    },
+    {
+      "level": 52,
+      "move": "heavy-slam"
+    },
+    {
+      "level": 56,
+      "move": "double-edge"
+    },
+    {
+      "level": 60,
+      "move": "metal-burst"
+    }
+  ],
   "bayleef": [
     {
       "level": 1,
@@ -226,7 +426,80 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "solar-beam"
     }
   ],
-  "beedrill": [],
+  "beedrill": [
+    {
+      "level": 0,
+      "move": "fury-attack"
+    },
+    {
+      "level": 1,
+      "move": "bug-bite"
+    },
+    {
+      "level": 1,
+      "move": "fury-attack"
+    },
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "poison-sting"
+    },
+    {
+      "level": 1,
+      "move": "string-shot"
+    },
+    {
+      "level": 11,
+      "move": "fury-cutter"
+    },
+    {
+      "level": 14,
+      "move": "laser-focus"
+    },
+    {
+      "level": 17,
+      "move": "poison-sting"
+    },
+    {
+      "level": 20,
+      "move": "focus-energy"
+    },
+    {
+      "level": 23,
+      "move": "venoshock"
+    },
+    {
+      "level": 26,
+      "move": "assurance"
+    },
+    {
+      "level": 29,
+      "move": "toxic-spikes"
+    },
+    {
+      "level": 32,
+      "move": "pin-missile"
+    },
+    {
+      "level": 35,
+      "move": "poison-jab"
+    },
+    {
+      "level": 38,
+      "move": "agility"
+    },
+    {
+      "level": 41,
+      "move": "endeavor"
+    },
+    {
+      "level": 44,
+      "move": "fell-stinger"
+    }
+  ],
   "bellossom": [
     {
       "level": 0,
@@ -557,7 +830,84 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "solar-beam"
     }
   ],
-  "butterfree": [],
+  "butterfree": [
+    {
+      "level": 0,
+      "move": "gust"
+    },
+    {
+      "level": 1,
+      "move": "bug-bite"
+    },
+    {
+      "level": 1,
+      "move": "gust"
+    },
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "string-shot"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 4,
+      "move": "supersonic"
+    },
+    {
+      "level": 8,
+      "move": "confusion"
+    },
+    {
+      "level": 12,
+      "move": "poison-powder"
+    },
+    {
+      "level": 12,
+      "move": "sleep-powder"
+    },
+    {
+      "level": 12,
+      "move": "stun-spore"
+    },
+    {
+      "level": 16,
+      "move": "psybeam"
+    },
+    {
+      "level": 20,
+      "move": "whirlwind"
+    },
+    {
+      "level": 24,
+      "move": "air-slash"
+    },
+    {
+      "level": 28,
+      "move": "safeguard"
+    },
+    {
+      "level": 32,
+      "move": "bug-buzz"
+    },
+    {
+      "level": 36,
+      "move": "tailwind"
+    },
+    {
+      "level": 40,
+      "move": "rage-powder"
+    },
+    {
+      "level": 44,
+      "move": "quiver-dance"
+    }
+  ],
   "camerupt": [
     {
       "level": 0,
@@ -624,8 +974,74 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "earthquake"
     }
   ],
-  "carvanha": [],
-  "caterpie": [],
+  "carvanha": [
+    {
+      "level": 1,
+      "move": "aqua-jet"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 4,
+      "move": "poison-fang"
+    },
+    {
+      "level": 8,
+      "move": "focus-energy"
+    },
+    {
+      "level": 12,
+      "move": "scary-face"
+    },
+    {
+      "level": 16,
+      "move": "bite"
+    },
+    {
+      "level": 20,
+      "move": "ice-fang"
+    },
+    {
+      "level": 24,
+      "move": "screech"
+    },
+    {
+      "level": 28,
+      "move": "swagger"
+    },
+    {
+      "level": 32,
+      "move": "crunch"
+    },
+    {
+      "level": 36,
+      "move": "agility"
+    },
+    {
+      "level": 40,
+      "move": "liquidation"
+    },
+    {
+      "level": 44,
+      "move": "take-down"
+    }
+  ],
+  "caterpie": [
+    {
+      "level": 1,
+      "move": "string-shot"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 9,
+      "move": "bug-bite"
+    }
+  ],
   "charizard": [
     {
       "level": 0,
@@ -908,7 +1324,80 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "flare-blitz"
     }
   ],
-  "crobat": [],
+  "crobat": [
+    {
+      "level": 0,
+      "move": "cross-poison"
+    },
+    {
+      "level": 1,
+      "move": "absorb"
+    },
+    {
+      "level": 1,
+      "move": "astonish"
+    },
+    {
+      "level": 1,
+      "move": "cross-poison"
+    },
+    {
+      "level": 1,
+      "move": "mean-look"
+    },
+    {
+      "level": 1,
+      "move": "screech"
+    },
+    {
+      "level": 1,
+      "move": "supersonic"
+    },
+    {
+      "level": 1,
+      "move": "tailwind"
+    },
+    {
+      "level": 1,
+      "move": "toxic"
+    },
+    {
+      "level": 15,
+      "move": "poison-fang"
+    },
+    {
+      "level": 20,
+      "move": "quick-guard"
+    },
+    {
+      "level": 27,
+      "move": "air-cutter"
+    },
+    {
+      "level": 34,
+      "move": "bite"
+    },
+    {
+      "level": 41,
+      "move": "haze"
+    },
+    {
+      "level": 48,
+      "move": "venoshock"
+    },
+    {
+      "level": 55,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 62,
+      "move": "air-slash"
+    },
+    {
+      "level": 69,
+      "move": "leech-life"
+    }
+  ],
   "croconaw": [
     {
       "level": 1,
@@ -967,7 +1456,64 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "hydro-pump"
     }
   ],
-  "cubone": [],
+  "cubone": [
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "mud-slap"
+    },
+    {
+      "level": 4,
+      "move": "tail-whip"
+    },
+    {
+      "level": 8,
+      "move": "false-swipe"
+    },
+    {
+      "level": 12,
+      "move": "headbutt"
+    },
+    {
+      "level": 16,
+      "move": "retaliate"
+    },
+    {
+      "level": 20,
+      "move": "fling"
+    },
+    {
+      "level": 24,
+      "move": "stomping-tantrum"
+    },
+    {
+      "level": 29,
+      "move": "bone-rush"
+    },
+    {
+      "level": 32,
+      "move": "focus-energy"
+    },
+    {
+      "level": 36,
+      "move": "endeavor"
+    },
+    {
+      "level": 40,
+      "move": "bonemerang"
+    },
+    {
+      "level": 44,
+      "move": "thrash"
+    },
+    {
+      "level": 48,
+      "move": "double-edge"
+    }
+  ],
   "cyndaquil": [
     {
       "level": 1,
@@ -1166,7 +1712,72 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "mirror-coat"
     }
   ],
-  "fearow": [],
+  "fearow": [
+    {
+      "level": 1,
+      "move": "drill-run"
+    },
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "peck"
+    },
+    {
+      "level": 1,
+      "move": "pluck"
+    },
+    {
+      "level": 4,
+      "move": "leer"
+    },
+    {
+      "level": 8,
+      "move": "assurance"
+    },
+    {
+      "level": 11,
+      "move": "fury-attack"
+    },
+    {
+      "level": 15,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 18,
+      "move": "wing-attack"
+    },
+    {
+      "level": 23,
+      "move": "take-down"
+    },
+    {
+      "level": 27,
+      "move": "agility"
+    },
+    {
+      "level": 32,
+      "move": "focus-energy"
+    },
+    {
+      "level": 36,
+      "move": "roost"
+    },
+    {
+      "level": 41,
+      "move": "drill-peck"
+    },
+    {
+      "level": 45,
+      "move": "drill-run"
+    }
+  ],
   "feraligatr": [
     {
       "level": 1,
@@ -1683,7 +2294,64 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "petal-dance"
     }
   ],
-  "golbat": [],
+  "golbat": [
+    {
+      "level": 1,
+      "move": "absorb"
+    },
+    {
+      "level": 1,
+      "move": "astonish"
+    },
+    {
+      "level": 1,
+      "move": "mean-look"
+    },
+    {
+      "level": 1,
+      "move": "screech"
+    },
+    {
+      "level": 1,
+      "move": "supersonic"
+    },
+    {
+      "level": 15,
+      "move": "poison-fang"
+    },
+    {
+      "level": 20,
+      "move": "quick-guard"
+    },
+    {
+      "level": 27,
+      "move": "air-cutter"
+    },
+    {
+      "level": 34,
+      "move": "bite"
+    },
+    {
+      "level": 41,
+      "move": "haze"
+    },
+    {
+      "level": 48,
+      "move": "venoshock"
+    },
+    {
+      "level": 55,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 62,
+      "move": "air-slash"
+    },
+    {
+      "level": 69,
+      "move": "leech-life"
+    }
+  ],
   "golduck": [
     {
       "level": 1,
@@ -2490,8 +3158,78 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "solar-beam"
     }
   ],
-  "kadabra": [],
-  "kakuna": [],
+  "kadabra": [
+    {
+      "level": 0,
+      "move": "confusion"
+    },
+    {
+      "level": 1,
+      "move": "confusion"
+    },
+    {
+      "level": 1,
+      "move": "disable"
+    },
+    {
+      "level": 1,
+      "move": "kinesis"
+    },
+    {
+      "level": 1,
+      "move": "teleport"
+    },
+    {
+      "level": 5,
+      "move": "psybeam"
+    },
+    {
+      "level": 10,
+      "move": "reflect"
+    },
+    {
+      "level": 15,
+      "move": "ally-switch"
+    },
+    {
+      "level": 20,
+      "move": "psycho-cut"
+    },
+    {
+      "level": 25,
+      "move": "recover"
+    },
+    {
+      "level": 30,
+      "move": "psyshock"
+    },
+    {
+      "level": 35,
+      "move": "psychic"
+    },
+    {
+      "level": 40,
+      "move": "role-play"
+    },
+    {
+      "level": 45,
+      "move": "future-sight"
+    },
+    {
+      "level": 50,
+      "move": "calm-mind"
+    }
+  ],
+  "kakuna": [
+    {
+      "level": 0,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "harden"
+    }
+  ],
   "kingdra": [
     {
       "level": 1,
@@ -2558,7 +3296,72 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "wave-crash"
     }
   ],
-  "kingler": [],
+  "kingler": [
+    {
+      "level": 1,
+      "move": "hammer-arm"
+    },
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "metal-claw"
+    },
+    {
+      "level": 1,
+      "move": "water-gun"
+    },
+    {
+      "level": 1,
+      "move": "wide-guard"
+    },
+    {
+      "level": 12,
+      "move": "mud-shot"
+    },
+    {
+      "level": 16,
+      "move": "protect"
+    },
+    {
+      "level": 20,
+      "move": "bubble-beam"
+    },
+    {
+      "level": 24,
+      "move": "stomp"
+    },
+    {
+      "level": 31,
+      "move": "flail"
+    },
+    {
+      "level": 36,
+      "move": "razor-shell"
+    },
+    {
+      "level": 42,
+      "move": "slam"
+    },
+    {
+      "level": 48,
+      "move": "swords-dance"
+    },
+    {
+      "level": 54,
+      "move": "crabhammer"
+    },
+    {
+      "level": 60,
+      "move": "guillotine"
+    }
+  ],
   "kirlia": [
     {
       "level": 1,
@@ -2621,8 +3424,134 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "future-sight"
     }
   ],
-  "krabby": [],
-  "lairon": [],
+  "krabby": [
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "water-gun"
+    },
+    {
+      "level": 4,
+      "move": "harden"
+    },
+    {
+      "level": 8,
+      "move": "metal-claw"
+    },
+    {
+      "level": 12,
+      "move": "mud-shot"
+    },
+    {
+      "level": 16,
+      "move": "protect"
+    },
+    {
+      "level": 20,
+      "move": "bubble-beam"
+    },
+    {
+      "level": 24,
+      "move": "stomp"
+    },
+    {
+      "level": 29,
+      "move": "flail"
+    },
+    {
+      "level": 32,
+      "move": "razor-shell"
+    },
+    {
+      "level": 36,
+      "move": "slam"
+    },
+    {
+      "level": 40,
+      "move": "swords-dance"
+    },
+    {
+      "level": 44,
+      "move": "crabhammer"
+    },
+    {
+      "level": 48,
+      "move": "guillotine"
+    }
+  ],
+  "lairon": [
+    {
+      "level": 1,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "metal-claw"
+    },
+    {
+      "level": 1,
+      "move": "rock-tomb"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 12,
+      "move": "roar"
+    },
+    {
+      "level": 16,
+      "move": "headbutt"
+    },
+    {
+      "level": 20,
+      "move": "protect"
+    },
+    {
+      "level": 24,
+      "move": "rock-slide"
+    },
+    {
+      "level": 28,
+      "move": "iron-head"
+    },
+    {
+      "level": 35,
+      "move": "metal-sound"
+    },
+    {
+      "level": 40,
+      "move": "take-down"
+    },
+    {
+      "level": 46,
+      "move": "autotomize"
+    },
+    {
+      "level": 52,
+      "move": "iron-tail"
+    },
+    {
+      "level": 58,
+      "move": "iron-defense"
+    },
+    {
+      "level": 64,
+      "move": "heavy-slam"
+    },
+    {
+      "level": 70,
+      "move": "double-edge"
+    },
+    {
+      "level": 76,
+      "move": "metal-burst"
+    }
+  ],
   "larvitar": [
     {
       "level": 1,
@@ -2827,9 +3756,196 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "rain-dance"
     }
   ],
-  "machamp": [],
-  "machoke": [],
-  "machop": [],
+  "machamp": [
+    {
+      "level": 1,
+      "move": "focus-energy"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "low-kick"
+    },
+    {
+      "level": 1,
+      "move": "revenge"
+    },
+    {
+      "level": 1,
+      "move": "wide-guard"
+    },
+    {
+      "level": 12,
+      "move": "low-sweep"
+    },
+    {
+      "level": 16,
+      "move": "knock-off"
+    },
+    {
+      "level": 20,
+      "move": "scary-face"
+    },
+    {
+      "level": 24,
+      "move": "vital-throw"
+    },
+    {
+      "level": 31,
+      "move": "strength"
+    },
+    {
+      "level": 36,
+      "move": "dual-chop"
+    },
+    {
+      "level": 42,
+      "move": "bulk-up"
+    },
+    {
+      "level": 48,
+      "move": "seismic-toss"
+    },
+    {
+      "level": 54,
+      "move": "dynamic-punch"
+    },
+    {
+      "level": 60,
+      "move": "cross-chop"
+    },
+    {
+      "level": 66,
+      "move": "double-edge"
+    }
+  ],
+  "machoke": [
+    {
+      "level": 1,
+      "move": "focus-energy"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "low-kick"
+    },
+    {
+      "level": 1,
+      "move": "revenge"
+    },
+    {
+      "level": 12,
+      "move": "low-sweep"
+    },
+    {
+      "level": 16,
+      "move": "knock-off"
+    },
+    {
+      "level": 20,
+      "move": "scary-face"
+    },
+    {
+      "level": 24,
+      "move": "vital-throw"
+    },
+    {
+      "level": 31,
+      "move": "strength"
+    },
+    {
+      "level": 36,
+      "move": "dual-chop"
+    },
+    {
+      "level": 42,
+      "move": "bulk-up"
+    },
+    {
+      "level": 48,
+      "move": "seismic-toss"
+    },
+    {
+      "level": 54,
+      "move": "dynamic-punch"
+    },
+    {
+      "level": 60,
+      "move": "cross-chop"
+    },
+    {
+      "level": 66,
+      "move": "double-edge"
+    }
+  ],
+  "machop": [
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "low-kick"
+    },
+    {
+      "level": 4,
+      "move": "focus-energy"
+    },
+    {
+      "level": 8,
+      "move": "revenge"
+    },
+    {
+      "level": 12,
+      "move": "low-sweep"
+    },
+    {
+      "level": 16,
+      "move": "knock-off"
+    },
+    {
+      "level": 20,
+      "move": "scary-face"
+    },
+    {
+      "level": 24,
+      "move": "vital-throw"
+    },
+    {
+      "level": 29,
+      "move": "strength"
+    },
+    {
+      "level": 32,
+      "move": "dual-chop"
+    },
+    {
+      "level": 36,
+      "move": "bulk-up"
+    },
+    {
+      "level": 40,
+      "move": "seismic-toss"
+    },
+    {
+      "level": 44,
+      "move": "dynamic-punch"
+    },
+    {
+      "level": 48,
+      "move": "cross-chop"
+    },
+    {
+      "level": 52,
+      "move": "double-edge"
+    }
+  ],
   "magcargo": [
     {
       "level": 0,
@@ -3238,7 +4354,64 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "thunder"
     }
   ],
-  "marowak": [],
+  "marowak": [
+    {
+      "level": 1,
+      "move": "false-swipe"
+    },
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "mud-slap"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 12,
+      "move": "headbutt"
+    },
+    {
+      "level": 16,
+      "move": "retaliate"
+    },
+    {
+      "level": 20,
+      "move": "fling"
+    },
+    {
+      "level": 24,
+      "move": "stomping-tantrum"
+    },
+    {
+      "level": 31,
+      "move": "bone-rush"
+    },
+    {
+      "level": 36,
+      "move": "focus-energy"
+    },
+    {
+      "level": 42,
+      "move": "endeavor"
+    },
+    {
+      "level": 48,
+      "move": "bonemerang"
+    },
+    {
+      "level": 54,
+      "move": "thrash"
+    },
+    {
+      "level": 60,
+      "move": "double-edge"
+    }
+  ],
   "marshtomp": [
     {
       "level": 0,
@@ -3367,7 +4540,16 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "solar-beam"
     }
   ],
-  "metapod": [],
+  "metapod": [
+    {
+      "level": 0,
+      "move": "harden"
+    },
+    {
+      "level": 1,
+      "move": "harden"
+    }
+  ],
   "mightyena": [
     {
       "level": 0,
@@ -3744,11 +4926,320 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "petal-dance"
     }
   ],
-  "paras": [],
-  "parasect": [],
-  "pidgeot": [],
-  "pidgeotto": [],
-  "pidgey": [],
+  "paras": [
+    {
+      "level": 1,
+      "move": "scratch"
+    },
+    {
+      "level": 6,
+      "move": "poison-powder"
+    },
+    {
+      "level": 6,
+      "move": "stun-spore"
+    },
+    {
+      "level": 11,
+      "move": "absorb"
+    },
+    {
+      "level": 17,
+      "move": "fury-cutter"
+    },
+    {
+      "level": 22,
+      "move": "spore"
+    },
+    {
+      "level": 27,
+      "move": "slash"
+    },
+    {
+      "level": 33,
+      "move": "growth"
+    },
+    {
+      "level": 38,
+      "move": "giga-drain"
+    },
+    {
+      "level": 43,
+      "move": "aromatherapy"
+    },
+    {
+      "level": 49,
+      "move": "rage-powder"
+    },
+    {
+      "level": 54,
+      "move": "x-scissor"
+    }
+  ],
+  "parasect": [
+    {
+      "level": 1,
+      "move": "absorb"
+    },
+    {
+      "level": 1,
+      "move": "cross-poison"
+    },
+    {
+      "level": 1,
+      "move": "poison-powder"
+    },
+    {
+      "level": 1,
+      "move": "scratch"
+    },
+    {
+      "level": 1,
+      "move": "stun-spore"
+    },
+    {
+      "level": 6,
+      "move": "poison-powder"
+    },
+    {
+      "level": 6,
+      "move": "stun-spore"
+    },
+    {
+      "level": 11,
+      "move": "absorb"
+    },
+    {
+      "level": 17,
+      "move": "fury-cutter"
+    },
+    {
+      "level": 22,
+      "move": "spore"
+    },
+    {
+      "level": 29,
+      "move": "slash"
+    },
+    {
+      "level": 37,
+      "move": "growth"
+    },
+    {
+      "level": 44,
+      "move": "giga-drain"
+    },
+    {
+      "level": 51,
+      "move": "aromatherapy"
+    },
+    {
+      "level": 59,
+      "move": "rage-powder"
+    },
+    {
+      "level": 66,
+      "move": "x-scissor"
+    }
+  ],
+  "pidgeot": [
+    {
+      "level": 1,
+      "move": "gust"
+    },
+    {
+      "level": 1,
+      "move": "hurricane"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "sand-attack"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 5,
+      "move": "sand-attack"
+    },
+    {
+      "level": 9,
+      "move": "gust"
+    },
+    {
+      "level": 13,
+      "move": "quick-attack"
+    },
+    {
+      "level": 17,
+      "move": "whirlwind"
+    },
+    {
+      "level": 22,
+      "move": "twister"
+    },
+    {
+      "level": 27,
+      "move": "feather-dance"
+    },
+    {
+      "level": 32,
+      "move": "agility"
+    },
+    {
+      "level": 38,
+      "move": "wing-attack"
+    },
+    {
+      "level": 44,
+      "move": "roost"
+    },
+    {
+      "level": 50,
+      "move": "tailwind"
+    },
+    {
+      "level": 56,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 62,
+      "move": "air-slash"
+    },
+    {
+      "level": 68,
+      "move": "hurricane"
+    }
+  ],
+  "pidgeotto": [
+    {
+      "level": 1,
+      "move": "gust"
+    },
+    {
+      "level": 1,
+      "move": "sand-attack"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 5,
+      "move": "sand-attack"
+    },
+    {
+      "level": 9,
+      "move": "gust"
+    },
+    {
+      "level": 13,
+      "move": "quick-attack"
+    },
+    {
+      "level": 17,
+      "move": "whirlwind"
+    },
+    {
+      "level": 22,
+      "move": "twister"
+    },
+    {
+      "level": 27,
+      "move": "feather-dance"
+    },
+    {
+      "level": 32,
+      "move": "agility"
+    },
+    {
+      "level": 37,
+      "move": "wing-attack"
+    },
+    {
+      "level": 42,
+      "move": "roost"
+    },
+    {
+      "level": 47,
+      "move": "tailwind"
+    },
+    {
+      "level": 52,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 57,
+      "move": "air-slash"
+    },
+    {
+      "level": 62,
+      "move": "hurricane"
+    }
+  ],
+  "pidgey": [
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 5,
+      "move": "sand-attack"
+    },
+    {
+      "level": 9,
+      "move": "gust"
+    },
+    {
+      "level": 13,
+      "move": "quick-attack"
+    },
+    {
+      "level": 17,
+      "move": "whirlwind"
+    },
+    {
+      "level": 21,
+      "move": "twister"
+    },
+    {
+      "level": 25,
+      "move": "feather-dance"
+    },
+    {
+      "level": 29,
+      "move": "agility"
+    },
+    {
+      "level": 33,
+      "move": "wing-attack"
+    },
+    {
+      "level": 37,
+      "move": "roost"
+    },
+    {
+      "level": 41,
+      "move": "tailwind"
+    },
+    {
+      "level": 45,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 49,
+      "move": "air-slash"
+    },
+    {
+      "level": 53,
+      "move": "hurricane"
+    }
+  ],
   "politoed": [
     {
       "level": 0,
@@ -4253,8 +5744,134 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "future-sight"
     }
   ],
-  "raticate": [],
-  "rattata": [],
+  "raticate": [
+    {
+      "level": 0,
+      "move": "scary-face"
+    },
+    {
+      "level": 1,
+      "move": "focus-energy"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "scary-face"
+    },
+    {
+      "level": 1,
+      "move": "swords-dance"
+    },
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 4,
+      "move": "quick-attack"
+    },
+    {
+      "level": 7,
+      "move": "focus-energy"
+    },
+    {
+      "level": 10,
+      "move": "bite"
+    },
+    {
+      "level": 13,
+      "move": "laser-focus"
+    },
+    {
+      "level": 16,
+      "move": "take-down"
+    },
+    {
+      "level": 19,
+      "move": "assurance"
+    },
+    {
+      "level": 24,
+      "move": "crunch"
+    },
+    {
+      "level": 29,
+      "move": "sucker-punch"
+    },
+    {
+      "level": 34,
+      "move": "super-fang"
+    },
+    {
+      "level": 39,
+      "move": "double-edge"
+    },
+    {
+      "level": 44,
+      "move": "endeavor"
+    }
+  ],
+  "rattata": [
+    {
+      "level": 1,
+      "move": "tackle"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 4,
+      "move": "quick-attack"
+    },
+    {
+      "level": 7,
+      "move": "focus-energy"
+    },
+    {
+      "level": 10,
+      "move": "bite"
+    },
+    {
+      "level": 13,
+      "move": "laser-focus"
+    },
+    {
+      "level": 16,
+      "move": "take-down"
+    },
+    {
+      "level": 19,
+      "move": "assurance"
+    },
+    {
+      "level": 22,
+      "move": "crunch"
+    },
+    {
+      "level": 25,
+      "move": "sucker-punch"
+    },
+    {
+      "level": 28,
+      "move": "super-fang"
+    },
+    {
+      "level": 31,
+      "move": "double-edge"
+    },
+    {
+      "level": 34,
+      "move": "endeavor"
+    }
+  ],
   "sceptile": [
     {
       "level": 0,
@@ -4425,7 +6042,72 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "hyper-voice"
     }
   ],
-  "sharpedo": [],
+  "sharpedo": [
+    {
+      "level": 0,
+      "move": "slash"
+    },
+    {
+      "level": 1,
+      "move": "aqua-jet"
+    },
+    {
+      "level": 1,
+      "move": "focus-energy"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "night-slash"
+    },
+    {
+      "level": 1,
+      "move": "poison-fang"
+    },
+    {
+      "level": 1,
+      "move": "slash"
+    },
+    {
+      "level": 12,
+      "move": "scary-face"
+    },
+    {
+      "level": 16,
+      "move": "bite"
+    },
+    {
+      "level": 20,
+      "move": "ice-fang"
+    },
+    {
+      "level": 24,
+      "move": "screech"
+    },
+    {
+      "level": 28,
+      "move": "swagger"
+    },
+    {
+      "level": 34,
+      "move": "crunch"
+    },
+    {
+      "level": 40,
+      "move": "agility"
+    },
+    {
+      "level": 46,
+      "move": "liquidation"
+    },
+    {
+      "level": 52,
+      "move": "take-down"
+    }
+  ],
   "shroomish": [
     {
       "level": 1,
@@ -4538,7 +6220,56 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "earth-power"
     }
   ],
-  "spearow": [],
+  "spearow": [
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "peck"
+    },
+    {
+      "level": 4,
+      "move": "leer"
+    },
+    {
+      "level": 8,
+      "move": "assurance"
+    },
+    {
+      "level": 11,
+      "move": "fury-attack"
+    },
+    {
+      "level": 15,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 18,
+      "move": "wing-attack"
+    },
+    {
+      "level": 22,
+      "move": "take-down"
+    },
+    {
+      "level": 25,
+      "move": "agility"
+    },
+    {
+      "level": 29,
+      "move": "focus-energy"
+    },
+    {
+      "level": 32,
+      "move": "roost"
+    },
+    {
+      "level": 36,
+      "move": "drill-peck"
+    }
+  ],
   "spinarak": [
     {
       "level": 1,
@@ -5343,8 +7074,146 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "mirror-coat"
     }
   ],
-  "wailmer": [],
-  "wailord": [],
+  "wailmer": [
+    {
+      "level": 1,
+      "move": "splash"
+    },
+    {
+      "level": 3,
+      "move": "growl"
+    },
+    {
+      "level": 6,
+      "move": "astonish"
+    },
+    {
+      "level": 12,
+      "move": "water-gun"
+    },
+    {
+      "level": 15,
+      "move": "mist"
+    },
+    {
+      "level": 18,
+      "move": "water-pulse"
+    },
+    {
+      "level": 21,
+      "move": "heavy-slam"
+    },
+    {
+      "level": 24,
+      "move": "brine"
+    },
+    {
+      "level": 27,
+      "move": "whirlpool"
+    },
+    {
+      "level": 30,
+      "move": "dive"
+    },
+    {
+      "level": 33,
+      "move": "bounce"
+    },
+    {
+      "level": 36,
+      "move": "body-slam"
+    },
+    {
+      "level": 39,
+      "move": "rest"
+    },
+    {
+      "level": 42,
+      "move": "amnesia"
+    },
+    {
+      "level": 45,
+      "move": "hydro-pump"
+    },
+    {
+      "level": 48,
+      "move": "water-spout"
+    }
+  ],
+  "wailord": [
+    {
+      "level": 1,
+      "move": "astonish"
+    },
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "noble-roar"
+    },
+    {
+      "level": 1,
+      "move": "soak"
+    },
+    {
+      "level": 1,
+      "move": "splash"
+    },
+    {
+      "level": 1,
+      "move": "water-gun"
+    },
+    {
+      "level": 15,
+      "move": "mist"
+    },
+    {
+      "level": 18,
+      "move": "water-pulse"
+    },
+    {
+      "level": 21,
+      "move": "heavy-slam"
+    },
+    {
+      "level": 24,
+      "move": "brine"
+    },
+    {
+      "level": 27,
+      "move": "whirlpool"
+    },
+    {
+      "level": 30,
+      "move": "dive"
+    },
+    {
+      "level": 33,
+      "move": "bounce"
+    },
+    {
+      "level": 36,
+      "move": "body-slam"
+    },
+    {
+      "level": 39,
+      "move": "rest"
+    },
+    {
+      "level": 44,
+      "move": "amnesia"
+    },
+    {
+      "level": 49,
+      "move": "hydro-pump"
+    },
+    {
+      "level": 54,
+      "move": "water-spout"
+    }
+  ],
   "wartortle": [
     {
       "level": 1,
@@ -5403,7 +7272,20 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "wave-crash"
     }
   ],
-  "weedle": [],
+  "weedle": [
+    {
+      "level": 1,
+      "move": "poison-sting"
+    },
+    {
+      "level": 1,
+      "move": "string-shot"
+    },
+    {
+      "level": 9,
+      "move": "bug-bite"
+    }
+  ],
   "wooper": [
     {
       "level": 1,
@@ -5458,5 +7340,183 @@ export const LEVEL_LEARNSETS_GEN9 = {
       "move": "earthquake"
     }
   ],
-  "zubat": []
+  "zubat": [
+    {
+      "level": 1,
+      "move": "absorb"
+    },
+    {
+      "level": 1,
+      "move": "supersonic"
+    },
+    {
+      "level": 5,
+      "move": "astonish"
+    },
+    {
+      "level": 10,
+      "move": "mean-look"
+    },
+    {
+      "level": 15,
+      "move": "poison-fang"
+    },
+    {
+      "level": 20,
+      "move": "quick-guard"
+    },
+    {
+      "level": 25,
+      "move": "air-cutter"
+    },
+    {
+      "level": 30,
+      "move": "bite"
+    },
+    {
+      "level": 35,
+      "move": "haze"
+    },
+    {
+      "level": 40,
+      "move": "venoshock"
+    },
+    {
+      "level": 45,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 50,
+      "move": "air-slash"
+    },
+    {
+      "level": 55,
+      "move": "leech-life"
+    }
+  ]
+};
+export const LEVEL_LEARNSET_VERSIONS = {
+  "abra": "brilliant-diamond-shining-pearl",
+  "aggron": "brilliant-diamond-shining-pearl",
+  "alakazam": "brilliant-diamond-shining-pearl",
+  "ampharos": "scarlet-violet",
+  "ariados": "scarlet-violet",
+  "aron": "brilliant-diamond-shining-pearl",
+  "bayleef": "scarlet-violet",
+  "beedrill": "brilliant-diamond-shining-pearl",
+  "bellossom": "scarlet-violet",
+  "blastoise": "scarlet-violet",
+  "blaziken": "scarlet-violet",
+  "breloom": "scarlet-violet",
+  "bulbasaur": "scarlet-violet",
+  "butterfree": "brilliant-diamond-shining-pearl",
+  "camerupt": "scarlet-violet",
+  "carvanha": "brilliant-diamond-shining-pearl",
+  "caterpie": "brilliant-diamond-shining-pearl",
+  "charizard": "scarlet-violet",
+  "charmander": "scarlet-violet",
+  "charmeleon": "scarlet-violet",
+  "chikorita": "scarlet-violet",
+  "combusken": "scarlet-violet",
+  "crobat": "brilliant-diamond-shining-pearl",
+  "croconaw": "scarlet-violet",
+  "cubone": "brilliant-diamond-shining-pearl",
+  "cyndaquil": "scarlet-violet",
+  "drowzee": "scarlet-violet",
+  "electrode": "scarlet-violet",
+  "fearow": "brilliant-diamond-shining-pearl",
+  "feraligatr": "scarlet-violet",
+  "flaaffy": "scarlet-violet",
+  "furret": "scarlet-violet",
+  "gardevoir": "scarlet-violet",
+  "gastly": "scarlet-violet",
+  "gengar": "scarlet-violet",
+  "geodude": "scarlet-violet",
+  "gloom": "scarlet-violet",
+  "golbat": "brilliant-diamond-shining-pearl",
+  "golduck": "scarlet-violet",
+  "golem": "scarlet-violet",
+  "graveler": "scarlet-violet",
+  "grovyle": "scarlet-violet",
+  "hariyama": "scarlet-violet",
+  "haunter": "scarlet-violet",
+  "honchkrow": "scarlet-violet",
+  "hoothoot": "scarlet-violet",
+  "horsea": "scarlet-violet",
+  "houndoom": "scarlet-violet",
+  "houndour": "scarlet-violet",
+  "hypno": "scarlet-violet",
+  "ivysaur": "scarlet-violet",
+  "kadabra": "brilliant-diamond-shining-pearl",
+  "kakuna": "brilliant-diamond-shining-pearl",
+  "kingdra": "scarlet-violet",
+  "kingler": "brilliant-diamond-shining-pearl",
+  "kirlia": "scarlet-violet",
+  "krabby": "brilliant-diamond-shining-pearl",
+  "lairon": "brilliant-diamond-shining-pearl",
+  "larvitar": "scarlet-violet",
+  "lombre": "scarlet-violet",
+  "lotad": "scarlet-violet",
+  "ludicolo": "scarlet-violet",
+  "machamp": "brilliant-diamond-shining-pearl",
+  "machoke": "brilliant-diamond-shining-pearl",
+  "machop": "brilliant-diamond-shining-pearl",
+  "magcargo": "scarlet-violet",
+  "magnemite": "scarlet-violet",
+  "magneton": "scarlet-violet",
+  "magnezone": "scarlet-violet",
+  "makuhita": "scarlet-violet",
+  "mareep": "scarlet-violet",
+  "marowak": "brilliant-diamond-shining-pearl",
+  "marshtomp": "scarlet-violet",
+  "meganium": "scarlet-violet",
+  "metapod": "brilliant-diamond-shining-pearl",
+  "mightyena": "scarlet-violet",
+  "mudkip": "scarlet-violet",
+  "murkrow": "scarlet-violet",
+  "noctowl": "scarlet-violet",
+  "numel": "scarlet-violet",
+  "oddish": "scarlet-violet",
+  "paras": "brilliant-diamond-shining-pearl",
+  "parasect": "brilliant-diamond-shining-pearl",
+  "pidgeot": "brilliant-diamond-shining-pearl",
+  "pidgeotto": "brilliant-diamond-shining-pearl",
+  "pidgey": "brilliant-diamond-shining-pearl",
+  "politoed": "scarlet-violet",
+  "poliwag": "scarlet-violet",
+  "poliwhirl": "scarlet-violet",
+  "poliwrath": "scarlet-violet",
+  "poochyena": "scarlet-violet",
+  "psyduck": "scarlet-violet",
+  "pupitar": "scarlet-violet",
+  "quagsire": "scarlet-violet",
+  "quilava": "scarlet-violet",
+  "ralts": "scarlet-violet",
+  "raticate": "brilliant-diamond-shining-pearl",
+  "rattata": "brilliant-diamond-shining-pearl",
+  "sceptile": "scarlet-violet",
+  "seadra": "scarlet-violet",
+  "sentret": "scarlet-violet",
+  "sharpedo": "brilliant-diamond-shining-pearl",
+  "shroomish": "scarlet-violet",
+  "slugma": "scarlet-violet",
+  "spearow": "brilliant-diamond-shining-pearl",
+  "spinarak": "scarlet-violet",
+  "squirtle": "scarlet-violet",
+  "swampert": "scarlet-violet",
+  "torchic": "scarlet-violet",
+  "torkoal": "scarlet-violet",
+  "totodile": "scarlet-violet",
+  "treecko": "scarlet-violet",
+  "typhlosion": "scarlet-violet",
+  "tyranitar": "scarlet-violet",
+  "venusaur": "scarlet-violet",
+  "vileplume": "scarlet-violet",
+  "voltorb": "scarlet-violet",
+  "wailmer": "brilliant-diamond-shining-pearl",
+  "wailord": "brilliant-diamond-shining-pearl",
+  "wartortle": "scarlet-violet",
+  "weedle": "brilliant-diamond-shining-pearl",
+  "wooper": "scarlet-violet",
+  "zubat": "brilliant-diamond-shining-pearl"
 };

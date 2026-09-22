@@ -1,5 +1,6 @@
 import {MOVE_CATALOG} from './move-catalog.js';
-import {LEVEL_LEARNSETS_GEN9} from './level-learnsets-gen9.js';
+import {LEVEL_LEARNSETS} from './level-learnsets.js';
+import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
@@ -122,6 +123,7 @@ Object.assign(ABILITIES, {
  impact:{...ABILITIES.vineBurst,id:'impact',name:'Impacto',type:'Normal',color:'#ffd77a',description:'Um golpe concentrado de grande força.'},
  starBurst:{...ABILITIES.solarBeam,id:'starBurst',name:'Explosão Estelar',type:'Normal',color:'#fff2a8',description:'Ultimate: libera uma poderosa rajada de energia.'},
 });
+for(const move of LEVEL_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
 for(const move of MOVE_CATALOG)ABILITIES[move.id]={...move,vfx:`moves/${move.id}`,catalogOnly:true,color:'#d9e8ff'};
 // Each equipped move has its own pre-rendered animation sheet, including
 // legacy starter moves. The catalog uses the same path convention.
@@ -240,14 +242,16 @@ const canonicalMoveIds={
 };
 for(const id of Object.keys(ABILITIES))canonicalMoveIds[id.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)]??=id;
 for(const move of MOVE_CATALOG)canonicalMoveIds[move.officialName.toLowerCase().replaceAll(' ','-')]=move.id;
-export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEVEL_LEARNSETS_GEN9).map(([id,rows])=>[
+export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEVEL_LEARNSETS).map(([id,rows])=>[
   id,rows.map(row=>({...row,ability:canonicalMoveIds[row.move]}))
 ]));
 for(const [id,rows] of Object.entries(CANONICAL_LEARNSETS)){
   if(!LEARNSETS[id])continue;
   const existing=new Set(LEARNSETS[id].map(row=>`${row.level}:${row.ability}`));
   for(const row of rows){
-    if(!row.ability||!ABILITIES[row.ability]||existing.has(`${row.level}:${row.ability}`))continue;
+    if(!row.ability||!ABILITIES[row.ability])continue;
+    ABILITIES[row.ability].catalogOnly=false;
+    if(existing.has(`${row.level}:${row.ability}`))continue;
     LEARNSETS[id].push({level:row.level,ability:row.ability,canonical:true});
     existing.add(`${row.level}:${row.ability}`);
   }

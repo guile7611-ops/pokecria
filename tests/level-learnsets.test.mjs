@@ -1,17 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ABILITIES,CANONICAL_LEARNSETS,CREATURES,LEARNSETS,XP_CURVE} from '../public/data.js';
-import {LEVEL_LEARNSETS_GEN9} from '../public/level-learnsets-gen9.js';
-import {LEVEL_MOVE_METADATA_GEN9} from '../public/level-move-metadata-gen9.js';
+import {LEVEL_LEARNSETS,LEVEL_LEARNSET_VERSIONS} from '../public/level-learnsets.js';
+import {LEVEL_MOVE_METADATA} from '../public/level-move-metadata.js';
 import {Simulation} from '../public/simulation.js';
 
 const levelTo=(sim,level)=>{while(sim.player.level<level)sim.gainXP(XP_CURVE[sim.player.level]);};
 
-test('Gen 9 level tables cover every playable species and retain move types beyond its own',()=>{
- assert.deepEqual(Object.keys(LEVEL_LEARNSETS_GEN9).sort(),Object.keys(CREATURES).sort());
- assert.deepEqual(Object.keys(LEVEL_MOVE_METADATA_GEN9).sort(),[...new Set(Object.values(LEVEL_LEARNSETS_GEN9).flat().map(row=>row.move))].sort());
- assert.equal(LEVEL_MOVE_METADATA_GEN9['double-kick'].type,'fighting');
- assert.equal(LEVEL_MOVE_METADATA_GEN9['mud-shot'].type,'ground');
+test('latest available level tables cover every playable species and retain move types beyond its own',()=>{
+ assert.deepEqual(Object.keys(LEVEL_LEARNSETS).sort(),Object.keys(CREATURES).sort());
+ assert.ok(Object.values(LEVEL_LEARNSETS).every(rows=>rows.length>0));
+ assert.deepEqual(Object.keys(LEVEL_MOVE_METADATA).sort(),[...new Set(Object.values(LEVEL_LEARNSETS).flat().map(row=>row.move))].sort());
+ assert.equal(LEVEL_MOVE_METADATA['double-kick'].type,'fighting');
+ assert.equal(LEVEL_MOVE_METADATA['mud-shot'].type,'ground');
+ assert.equal(LEVEL_LEARNSET_VERSIONS.pidgey,'brilliant-diamond-shining-pearl');
  assert.ok(CANONICAL_LEARNSETS.blaziken.some(row=>row.move==='double-kick'&&row.ability==='doubleKick'));
  assert.ok(CANONICAL_LEARNSETS.swampert.some(row=>row.move==='mud-shot'&&row.ability==='mudShot'));
  for(const [id,rows] of Object.entries(LEARNSETS))for(const row of rows)assert.ok(ABILITIES[row.ability],`${id}: ${row.ability}`);

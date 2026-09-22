@@ -68,9 +68,22 @@ export class Simulation {
     }
   }
   investAttribute(name){if(!['vitality','power','guard','agility'].includes(name)||this.player.attributePoints<1)return false;this.player.attributePoints--;this.player.attributes[name]++;applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,this.player.hp+(name==='vitality'?8:0));this.emit('attribute',{name});return true;}
+  applyPlayerStatus(a){
+    if(!a||a.behavior!=='debuff')return false;
+    const p=this.player;
+    p.buffs=(p.buffs||[]).filter(b=>b.id!==`pvp-${a.id}`);
+    if(a.attackMultiplier||a.defenseMultiplier||a.speedMultiplier)p.buffs.push({id:`pvp-${a.id}`,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseMultiplier?-(p.defense*(1-a.defenseMultiplier)):0,speedMultiplier:a.speedMultiplier});
+    if(a.sleep)p.sleepUntil=this.time+a.duration;
+    if(a.yawn)p.yawnAt=this.time+1.2;
+    if(a.poison)p.poison={until:this.time+a.duration,nextTick:this.time+1,stacks:0};
+    if(a.leech)p.leech={until:this.time+a.duration,nextTick:this.time+1};
+    if(a.ailment==='paralysis')p.buffs.push({id:`pvp-${a.id}`,remaining:a.duration||3,speedMultiplier:.55});
+    if(a.ailment==='confusion')p.sleepUntil=Math.max(p.sleepUntil||0,this.time+.6);
+    return true;
+  }
   command(command) {
     const p = this.player;
-    if (!command || p.dead || p.evolutionUntil>this.time) return false;
+    if (!command || p.dead || p.evolutionUntil>this.time || p.sleepUntil>this.time) return false;
     if(command.type==='interact'){const target=command.id?this.map.interactions.find(i=>i.id===command.id):this.map.interactions.find(i=>distance(i,p)<i.radius);if(!target)return false;if(distance(target,p)<=target.radius){this.interact(target);return true;}p.target=null;p.path=findPath(this.map,p,target);this.pendingInteraction=p.path.length?target:null;return p.path.length>0;}
     if (command.type === 'move') {
       this.pendingInteraction=null;
@@ -93,10 +106,22 @@ export class Simulation {
   }
   cast(a, aim, remoteTarget = null) {
     const p = this.player;
-    if (p.dead || (p.cooldowns[a.id] || 0) > 0) return false;
+    if (p.dead || p.sleepUntil>this.time || (p.cooldowns[a.id] || 0) > 0) return false;
     const visual=starterAttackVisual(p.baseCreature||p.id,a.id);
-    const attackMultiplier=(p.buffs||[]).reduce((value,b)=>value*(b.attackMultiplier||1),1);
-    if (a.behavior === 'heal') {
+    const attackMultiplier=(p.buffs||[]).reduce((value,b)=>value*(b.attackMultiplier||1)*(b.typeBoost?.[a.type]||1),1);
+    if(a.behavior==='teleport'){
+      const d=distance(p,aim);if(d<4)return false;
+      const wanted={x:p.x+(aim.x-p.x)/d*Math.min(d,a.range),y:p.y+(aim.y-p.y)/d*Math.min(d,a.range)};
+      let landing=null;
+      for(let radius=0;radius<=64&&!landing;radius+=16)for(let angle=0;angle<8;angle++){
+        const x=wanted.x+Math.cos(angle*Math.PI/4)*radius,y=wanted.y+Math.sin(angle*Math.PI/4)*radius;
+        if(walkable(this.map,x,y,p.radius)){landing={x,y};break;}
+      }
+      if(!landing)return false;
+      this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
+      Object.assign(p,landing,{path:[],target:null,moving:false});
+      this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
+    } else if (a.behavior === 'heal') {
       if (p.hp === p.maxHp) return false;
       const healing = Math.min(a.healing, p.maxHp - p.hp); p.hp += healing; this.emit('heal', { x: p.x, y: p.y, amount: healing, vfx:a.vfx||'heal' });
     } else if (a.behavior === 'projectile'||a.behavior==='wave') {
@@ -111,11 +136,11 @@ export class Simulation {
       if(!target||distance(p,target)>a.range||!lineOfSight(this.map,p,target))return false;
       if(a.lunge){const length=Math.min(a.lunge,Math.max(0,distance(p,target)-p.radius-(target.radius||12)-2)),d=Math.max(1,distance(p,target)),dx=(target.x-p.x)/d,dy=(target.y-p.y)/d;for(let step=4;step<=length;step+=4){const x=p.x+dx*4,y=p.y+dy*4;if(!walkable(this.map,x,y,p.radius))break;p.x=x;p.y=y;}p.path=[];p.target=null;}
       if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*attackMultiplier/(a.hits||1),a.type||'Normal');if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));
-        if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}
+        if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}this.applyEnemyEffect(e,a);
         for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,effectiveness:effectivenessText(mult)});
       }else this.emit('slash',{x:target.x,y:target.y,vfx:a.vfx||`moves/${a.id}`,size:78});
     } else if(a.behavior==='area'){
-      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*attackMultiplier,a.type||'Normal');hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits});
+      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*attackMultiplier,a.type||'Normal');this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits});
     } else if(a.behavior==='rolling'){
       p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,speedMultiplier:a.speedMultiplier,hitAt:{}});
       this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
@@ -127,8 +152,14 @@ export class Simulation {
       let x=aim.x,y=aim.y;const d=distance(p,aim);if(d>a.range){x=p.x+(aim.x-p.x)/d*a.range;y=p.y+(aim.y-p.y)/d*a.range;}
       if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,{x,y}))return false;
       this.zones.push({uid:this.nextId++,id:a.id,x,y,visual,until:this.time+a.duration,nextTick:this.time,attackMultiplier});
+    } else if(a.behavior==='debuff'){
+      let x=aim.x,y=aim.y,d=distance(p,aim);if(d>a.range){x=p.x+(x-p.x)/d*a.range;y=p.y+(y-p.y)/d*a.range;}const center={x,y};if(!lineOfSight(this.map,p,center))return false;
+      const targets=this.enemies.filter(e=>e.state!=='Dead'&&!e.defeated&&distance(e,center)<=a.radius+(e.radius||12)&&lineOfSight(this.map,center,e));
+      if(!targets.length)return false;
+      for(const e of targets)this.applyEnemyEffect(e,a,true);
+      this.emit('area',{x,y,size:a.radius*2,vfx:a.vfx,hits:targets.length});
     } else if(a.behavior==='buff'){
-      p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseBonus,speedMultiplier:a.speedMultiplier});this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx||'buff',name:a.name});
+      p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseBonus,speedMultiplier:a.speedMultiplier,typeBoost:a.typeBoost});this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx||'buff',name:a.name});
     }
     if (!['heal','buff'].includes(a.behavior)) {
       const target = aim;
@@ -139,6 +170,36 @@ export class Simulation {
     p.attackAnimation = ['direct','area','rolling','whip'].includes(a.behavior) ? 'Attack' : 'Shoot'; p.attackUntil = this.time + (a.charge||.45);
     if(visual)this.emit('castVisual',{x:p.x,y:p.y,vfx:visual.cast,size:visual.castSize});
     this.emit('cast', { ability: a.id }); return true;
+  }
+  applyEnemyEffect(e,a,guaranteed=false){
+    if(e.state==='Dead'||e.defeated)return;
+    const chance=a.chance||100,roll=(Math.imul((e.uid||1)+Math.floor(this.time*1000)+a.id.length*31,2654435761)>>>0)%100;
+    if(!guaranteed&&roll>=chance)return;
+    if(a.attackMultiplier||a.defenseMultiplier||a.speedMultiplier){
+      e.debuffs=(e.debuffs||[]).filter(b=>b.id!==a.id&&b.until>this.time);
+      e.debuffs.push({id:a.id,until:this.time+(a.duration||6),attackMultiplier:a.attackMultiplier||1,defenseMultiplier:a.defenseMultiplier||1,speedMultiplier:a.speedMultiplier||1});
+    }
+    if(e.isBoss&&['sleep','yawn'].some(key=>a[key]))return;
+    if(a.sleep)e.sleepUntil=this.time+a.duration;
+    if(a.yawn)e.yawnAt=this.time+1.2;
+    if(a.poison||a.ailment==='poison')e.poison={until:this.time+(a.duration||7),nextTick:this.time+1,stacks:0};
+    if(a.leech)e.leech={until:this.time+a.duration,nextTick:this.time+1};
+    if(a.ailment==='burn')e.burn={until:this.time+6,nextTick:this.time+1};
+    if(a.ailment==='paralysis')e.slowUntil=Math.max(e.slowUntil||0,this.time+3);
+    if(a.ailment==='confusion')e.staggerUntil=Math.max(e.staggerUntil||0,this.time+.6);
+    if(a.ailment||a.sleep||a.poison||a.leech||a.yawn)this.emit('status',{x:e.x,y:e.y,uid:e.uid,name:a.name,vfx:a.vfx});
+  }
+  updateEnemyConditions(e){
+    if(e.yawnAt&&this.time>=e.yawnAt){e.sleepUntil=this.time+2.5;e.yawnAt=0;}
+    for(const [key,rate] of [['poison',.025],['burn',.018],['leech',.025]]){
+      const condition=e[key];if(!condition)continue;if(this.time>=condition.until){e[key]=null;continue;}
+      if(this.time<condition.nextTick)continue;condition.nextTick=this.time+1;
+      if(key==='poison')condition.stacks=Math.min(4,(condition.stacks||0)+1);
+      const conditionRate=e.isBoss?rate*.2:rate;
+      const dealt=this.damage(e,Math.max(2,Math.ceil(e.maxHp*conditionRate*(key==='poison'?condition.stacks:1))+e.defense));
+      if(key==='leech'&&dealt&&!this.player.dead)this.player.hp=Math.min(this.player.maxHp,this.player.hp+dealt);
+      if(e.state==='Dead')break;
+    }
   }
   spawnShots(a,direction,visual,attackMultiplier=1){
     const p=this.player,count=a.pellets||1,baseAngle=Math.atan2(direction.y,direction.x);
@@ -176,7 +237,8 @@ export class Simulation {
   damage(e, amount) {
     if (e.state === 'Dead' || e.defeated) return 0;
     if (!Number.isFinite(amount) || amount <= 0) return 0;
-    const damage = Math.max(1, Math.round(amount - e.defense)); e.hp = Math.max(0, e.hp - damage);
+    const defenseMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.defenseMultiplier||1),1);
+    const damage = Math.max(1, Math.round(amount - e.defense*defenseMultiplier)); e.hp = Math.max(0, e.hp - damage);
     this.emit('damage', { x: e.x, y: e.y, uid:e.uid, amount: damage }); e.hitUntil = this.time + .16;
     if (e.hp === 0) {
       e.deathStart=this.time;e.state = 'Dead'; e.path = []; this.kills++; this.gainXP(e.xp); this.emit('kill', { x: e.x, y: e.y, uid:e.uid, xp: e.xp });
@@ -213,6 +275,9 @@ export class Simulation {
     if (!Number.isFinite(dt) || dt <= 0) return;
     dt = Math.min(dt, .05); this.time += dt;
     const p = this.player;
+    if(p.yawnAt&&this.time>=p.yawnAt){p.sleepUntil=this.time+2.5;p.yawnAt=0;}
+    for(const key of ['poison','burn','leech']){const condition=p[key];if(!condition)continue;if(this.time>=condition.until){p[key]=null;continue;}if(this.time<condition.nextTick)continue;condition.nextTick=this.time+1;if(key==='poison')condition.stacks=Math.min(4,(condition.stacks||0)+1);const amount=Math.max(1,Math.ceil(p.maxHp*(key==='poison'?.018*condition.stacks:.018)));p.hp=Math.max(0,p.hp-amount);this.emit('hurt',{x:p.x,y:p.y,amount});}
+    if(p.hp===0&&!p.dead){p.dead=true;p.respawnIn=3;p.path=[];p.target=null;this.emit('death');}
     const pendingEvolution=nextEvolution(p.id);
     if(pendingEvolution&&p.level>=pendingEvolution.requiredLevel){for(const evolution of applyEvolutions(p,this.time))this.emit('evolve',evolution);this.definition=CREATURES[p.id];this.learn();}
     p.buffs=(p.buffs||[]).map(b=>({...b,remaining:b.remaining-dt})).filter(b=>b.remaining>0);
@@ -220,7 +285,7 @@ export class Simulation {
     if (p.dead) {
       p.respawnIn -= dt;
       if (p.respawnIn <= 0) { if(this.outdoor)this.exitInterior();Object.assign(p, REGION.spawn, { dead: false, hp: p.maxHp, path: [], target: null }); this.emit('respawn'); }
-    } else if(p.evolutionUntil>this.time){
+    } else if(p.evolutionUntil>this.time||p.sleepUntil>this.time){
       p.path=[];p.target=null;p.moving=false;this.pendingInteraction=null;
     } else {
       if(!this.inputVector){
@@ -242,7 +307,7 @@ export class Simulation {
         shot.x += shot.vx * dt / steps; shot.y += shot.vy * dt / steps; shot.remaining -= length / steps;
         if (!walkable(this.map, shot.x, shot.y, 0)) { shot.remaining = 0; break; }
         const hit = this.enemies.find(e => e.state !== 'Dead'&&!e.defeated&&!shot.hitIds.has(e.uid)&&distance(e, shot) < (e.hurtbox?.radius||e.radius||12) + shot.hitbox.radius);
-        if (hit) {shot.hitIds.add(hit.uid);const mult=effectiveness(a.type||'Normal',hit.element),dealt=this.damage(hit, Math.round((p.attack + a.damage)*(shot.bonusDamage||1)*combatEffectiveness(mult)),a.type||'Normal');if(a.slow&&!hit.isBoss&&hit.state!=='Dead')hit.slowUntil=this.time+a.slow;if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal)); if(mult!==1)this.emit('typeEffect',{message:effectivenessText(mult),x:hit.x,y:hit.y});
+        if (hit) {shot.hitIds.add(hit.uid);const mult=effectiveness(a.type||'Normal',hit.element),speedBonus=a.speedScaling?Math.max(.75,Math.min(2,p.speed/Math.max(1,hit.speed||60))):1,dealt=this.damage(hit, Math.round((p.attack + a.damage)*(shot.bonusDamage||1)*speedBonus*combatEffectiveness(mult)),a.type||'Normal');if(a.slow&&!hit.isBoss&&hit.state!=='Dead')hit.slowUntil=this.time+a.slow;this.applyEnemyEffect(hit,a);if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal)); if(mult!==1)this.emit('typeEffect',{message:effectivenessText(mult),x:hit.x,y:hit.y});
           if(a.behavior==='wave'){this.emit('impact',{x:hit.x,y:hit.y,vfx:'pmd/0021',size:82});const x=hit.x+shot.vx/a.speed*22,y=hit.y+shot.vy/a.speed*22;if(!hit.isBoss&&walkable(this.map,x,y,hit.radius||12)){hit.x=x;hit.y=y;hit.path=[];hit.staggerUntil=this.time+.28;}}
           else shot.remaining=0;
         }
@@ -318,13 +383,15 @@ export class Simulation {
     });
   }
   updateEnemy(e, dt) {
-    const p = this.player; e.timer -= dt; e.cooldown = Math.max(0, e.cooldown - dt);const moveDt=this.time<(e.slowUntil||0)?dt*.52:dt;
+    const p = this.player; e.timer -= dt; e.cooldown = Math.max(0, e.cooldown - dt);const speedMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.speedMultiplier||1),1),moveDt=(this.time<(e.slowUntil||0)?dt*.52:dt)*speedMultiplier;
     if (e.state === 'Dead') {
       if (e.isBoss && e.defeated && e.timer <= 0) { Object.assign(e, e.home, { hp: e.maxHp, state: 'Idle', phase: 1, defeated: false, timer: 2, path: [], telegraph: null, attackIndex:0, attackVfx:null, attackUntil:0 }); this.emit('bossRespawn'); }
       else if (e.isBoss) return;
       if (e.timer <= 0 && distance(p, e.home) > 170) {const home=this.randomRespawnPoint(e);const species=WILD_POKEMON.find(s=>s.id===e.id)||e;const stats=encounterStats(species,this.map,{...e,...home},e.uid,{horde:e.horde,respawn:e.respawnSerial||0});Object.assign(e,home,stats,{home:{...home},hp:stats.maxHp,skills:enemySkillSet(e.element,stats.level),state:'Idle',timer:2,path:[]});}
       return;
     }
+    this.updateEnemyConditions(e);if(e.state==='Dead')return;
+    if(!e.isBoss&&this.time<(e.sleepUntil||0)){e.moving=false;e.path=[];return;}
     if(!e.isBoss&&this.time<(e.staggerUntil||0)){e.moving=false;e.path=[];return;}
     const d = distance(p, e);
     if (e.isBoss) { this.updateBoss(e, dt, d); return; }
@@ -342,7 +409,7 @@ export class Simulation {
       if (d > (e.chaseRange||400) || p.dead) { e.state = 'ReturnToSpawn'; e.path = []; return; }
       if (d <= e.range && lineOfSight(this.map, e, p)) {
         e.state = 'Attack'; e.path = []; e.moving = false;
-        if (e.cooldown === 0) { const buffDefense=(p.buffs||[]).reduce((sum,b)=>sum+(b.defenseBonus||0),0),skill=e.skills?.length&&((e.attackCount||0)+1)%3===0?e.skills[Math.floor((e.attackCount||0)/3)%e.skills.length]:null;e.attackCount=(e.attackCount||0)+1;if(skill){this.emit('castVisual',{x:e.x,y:e.y,vfx:skill.vfx,size:66});if(skill.kind==='heal')e.hp=Math.min(e.maxHp,e.hp+Math.round(e.maxHp*.08));}if(e.ranged){const dx=p.x-e.x,dy=p.y-e.y,length=Math.max(1,Math.hypot(dx,dy));this.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/length,vy:dy/length,speed:270,remaining:e.range+32,damage:e.attack*(skill?.power||1),vfx:skill?.vfx||e.projectileVfx||'energy'});e.cooldown=e.cooldownMax||1.7;this.emit('castVisual',{x:e.x,y:e.y,vfx:skill?.vfx||e.projectileVfx||'energy',size:48});return;}if(skill)this.emit('impact',{x:p.x,y:p.y,vfx:skill.vfx,size:skill.kind==='area'?90:60});let amount = Math.max(1, e.attack*(skill?.power||1) - p.defense-buffDefense); if(p.nature==='Calma'&&p.hp/p.maxHp>.7)amount=Math.ceil(amount*.9); if(p.ability==='Couraça Torrencial'&&p.hp/p.maxHp<.35)amount=Math.ceil(amount*.8); p.hp = Math.max(0, p.hp - amount); e.cooldown = e.cooldown || e.cooldownMax || 1.25; this.emit('hurt', { x: p.x, y: p.y, amount });
+        if (e.cooldown === 0) { const buffDefense=(p.buffs||[]).reduce((sum,b)=>sum+(b.defenseBonus||0),0),enemyAttackMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.attackMultiplier||1),1),skill=e.skills?.length&&((e.attackCount||0)+1)%3===0?e.skills[Math.floor((e.attackCount||0)/3)%e.skills.length]:null;e.attackCount=(e.attackCount||0)+1;if(skill){this.emit('castVisual',{x:e.x,y:e.y,vfx:skill.vfx,size:66});if(skill.kind==='heal')e.hp=Math.min(e.maxHp,e.hp+Math.round(e.maxHp*.08));}if(e.ranged){const dx=p.x-e.x,dy=p.y-e.y,length=Math.max(1,Math.hypot(dx,dy));this.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/length,vy:dy/length,speed:270,remaining:e.range+32,damage:e.attack*enemyAttackMultiplier*(skill?.power||1),vfx:skill?.vfx||e.projectileVfx||'energy'});e.cooldown=e.cooldownMax||1.7;this.emit('castVisual',{x:e.x,y:e.y,vfx:skill?.vfx||e.projectileVfx||'energy',size:48});return;}if(skill)this.emit('impact',{x:p.x,y:p.y,vfx:skill.vfx,size:skill.kind==='area'?90:60});let amount = Math.max(1, e.attack*enemyAttackMultiplier*(skill?.power||1) - p.defense-buffDefense); if(p.nature==='Calma'&&p.hp/p.maxHp>.7)amount=Math.ceil(amount*.9); if(p.ability==='Couraça Torrencial'&&p.hp/p.maxHp<.35)amount=Math.ceil(amount*.8); p.hp = Math.max(0, p.hp - amount); e.cooldown = e.cooldown || e.cooldownMax || 1.25; this.emit('hurt', { x: p.x, y: p.y, amount });
           p.hitStart = this.time; p.hitUntil = this.time + .2;
           if (p.hp === 0) { p.dead = true; p.deathStart = this.time; p.respawnIn = 3; p.path = []; p.moving = false; p.target = null; this.projectiles = []; this.emit('death'); }
         }
