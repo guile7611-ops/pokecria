@@ -13,3 +13,17 @@ test('presence retains remote players through a brief gap and keeps their curren
  online.roster();
  assert.equal(online.players.find(player=>player.id==='friend')?.x,100);
 });
+
+test('newer presence position replaces stale broadcasts across the bridge',()=>{
+ const online=new RealtimeOnline(),id='friend';
+ online.remoteStates.set(id,{id,nick:'Amigo',x:752,y:560,scene:'world',seq:5,seenAt:Date.now()});
+ let presence={a:[{id,nick:'Amigo',x:1088,y:560,scene:'world',seq:12,spawnEpoch:0}]};
+ online.channel={presenceState:()=>presence};
+ online.roster();
+ assert.equal(online.players.find(player=>player.id===id)?.x,1088);
+ online.receive({type:'player-state',from:id,state:{id,x:800,y:560,scene:'world',seq:7}});
+ assert.equal(online.players.find(player=>player.id===id)?.x,1088);
+ presence={a:[{id,nick:'Amigo',x:900,y:560,scene:'world',seq:9,spawnEpoch:0}]};
+ online.roster();
+ assert.equal(online.players.find(player=>player.id===id)?.x,1088);
+});

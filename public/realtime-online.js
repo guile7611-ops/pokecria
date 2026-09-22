@@ -9,13 +9,14 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
 
 export class RealtimeOnline {
-  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.lastTrack=0;this.lastBroadcast=0;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
+  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
   roster(){
     if(!this.channel)return;
-    const entries=Object.values(this.channel.presenceState()).flat().filter(player=>player?.id),now=Date.now();
-    const present=new Map(entries.map(player=>[player.id,player]));
+    const version=player=>Number.isSafeInteger(player?.seq)?player.seq:-1;
+    const now=Date.now(),present=new Map();
+    for(const player of Object.values(this.channel.presenceState()).flat())if(player?.id&&version(player)>=version(present.get(player.id)))present.set(player.id,player);
     for(const [id,player] of this.remoteStates)if(!present.has(id)&&now-player.seenAt>15000)this.remoteStates.delete(id);
-    this.players=[...entries.map(player=>{const remote=this.remoteStates.get(player.id);return {...player,...remote,guildId:player.guildId||remote?.guildId||null,spawnEpoch:player.spawnEpoch};}),...[...this.remoteStates.values()].filter(player=>!present.has(player.id))];
+    this.players=[...[...present.values()].map(player=>{let remote=this.remoteStates.get(player.id);if(version(player)>version(remote)){remote={...player,seenAt:now};this.remoteStates.set(player.id,remote);}const latest=version(remote)>=version(player)?remote:player;return {...player,...latest,guildId:player.guildId||remote?.guildId||null,spawnEpoch:player.spawnEpoch};}),...[...this.remoteStates.values()].filter(player=>!present.has(player.id))];
     const self=this.players.find(player=>player.id===this.id);
     if(self?.guildId)this.guildId=self.guildId;
     const epochs=this.players.filter(player=>player.scene==='world'&&Number.isInteger(player.spawnEpoch)).map(player=>player.spawnEpoch);
@@ -27,7 +28,7 @@ export class RealtimeOnline {
     if(!cloud.session?.user?.id)throw Error('Entre na sua conta para jogar online.');
     const {createClient}=await import('/vendor/supabase.js');
     this.client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-    this.state={id:this.id,nick:clean(state.nick),pokemon:state.pokemon,level:1,x:REGION.spawn.x,y:REGION.spawn.y,hp:100,maxHp:100,scene:'world',moving:false,facing:{x:0,y:1},guildId:null,spawnEpoch:0};
+    this.state={id:this.id,nick:clean(state.nick),pokemon:state.pokemon,level:1,x:REGION.spawn.x,y:REGION.spawn.y,hp:100,maxHp:100,scene:'world',moving:false,facing:{x:0,y:1},guildId:null,spawnEpoch:0,seq:0};
     this.channel=this.client.channel('aurora-world-v2',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
     this.channel.on('presence',{event:'sync'},()=>this.roster());
     this.channel.on('broadcast',{event:'game'},({payload})=>this.receive(payload));
@@ -42,12 +43,12 @@ export class RealtimeOnline {
   }
   async track(force=false){
     if(!this.channel||!this.state)return;
-    if(!force&&Date.now()-this.lastTrack<5000)return;
+    if(!force&&Date.now()-this.lastTrack<1000)return;
     this.lastTrack=Date.now();
     const result=await this.channel.track({...this.state,guildId:this.guildId});
     if(result!=='ok'){this.handlers.error?.();throw Error('Não foi possível anunciar sua presença online.');}
   }
-  update(state){if(!this.token)return;Object.assign(this.state,state,{guildId:this.guildId});const self=this.players.find(player=>player.id===this.id);if(self)Object.assign(self,this.state);const time=Date.now();if(time-this.lastBroadcast>=160){this.lastBroadcast=time;this.send('player-state',{state:this.state}).catch(()=>this.handlers.error?.());}this.track().catch(()=>this.handlers.error?.());}
+  update(state){if(!this.token)return;Object.assign(this.state,state,{guildId:this.guildId,seq:++this.stateSeq});const self=this.players.find(player=>player.id===this.id);if(self)Object.assign(self,this.state);const time=Date.now();if(time-this.lastBroadcast>=100){this.lastBroadcast=time;this.send('player-state',{state:{...this.state}}).catch(()=>this.handlers.error?.());}this.track().catch(()=>this.handlers.error?.());}
   async send(type,data={},targetId=null){
     if(!this.channel)throw Error('Você está desconectado.');
     const result=await this.channel.send({type:'broadcast',event:'game',payload:{type,from:this.id,targetId,...data}});
@@ -57,6 +58,7 @@ export class RealtimeOnline {
     if(!message||message.from===this.id||message.targetId&&message.targetId!==this.id)return;
     const sender=this.players.find(player=>player.id===message.from);
     if(message.type==='player-state'){
+      if(Number.isSafeInteger(message.state?.seq)&&message.state.seq<(this.remoteStates.get(message.from)?.seq??-1))return;
       const state={...sender,...message.state,id:message.from,seenAt:Date.now()};this.remoteStates.set(message.from,state);
       if(sender)Object.assign(sender,state);else this.players.push(state);
       this.handlers.roster?.({players:this.players,safeRadius:340});return;

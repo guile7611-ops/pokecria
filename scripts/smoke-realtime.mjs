@@ -33,6 +33,10 @@ try{
   await first.evaluate(async()=>{for(const x of [752,800,848,896,944,992,1040,1088]){window.smokeOnline.update({x,y:560,moving:true});await new Promise(resolve=>setTimeout(resolve,180));}});
   await second.waitForFunction(id=>window.smokeOnline.players.find(p=>p.id===id)?.x===1088,firstId);
   assert.ok(await second.evaluate(()=>new Set(window.smokePositions.filter(x=>x>=752&&x<=1088)).size>=4),'positions must continue across the bridge');
+  await second.evaluate(id=>{const online=window.smokeOnline;window.smokeReceive=online.receive.bind(online);online.receive=message=>{if(message.type==='player-state'&&message.from===id)return;window.smokeReceive(message);};},firstId);
+  await first.evaluate(async()=>{window.smokeOnline.update({x:700,y:560,moving:false});await new Promise(resolve=>setTimeout(resolve,1300));window.smokeOnline.update({x:700,y:560,moving:false});});
+  await second.waitForFunction(id=>window.smokeOnline.players.find(player=>player.id===id)?.x===700,firstId,{timeout:15000});
+  await second.evaluate(()=>{window.smokeOnline.receive=window.smokeReceive;});
   await first.evaluate(()=>window.smokeOnline.update({x:900,y:560,moving:false}));
   await second.waitForFunction(id=>window.smokeOnline.players.find(p=>p.id===id)?.x===900,firstId);
   const retained=await second.evaluate(id=>{const online=window.smokeOnline,original=online.channel.presenceState;online.channel.presenceState=()=>({});online.roster();const visible=online.players.some(player=>player.id===id);online.channel.presenceState=original;return visible;},firstId);
