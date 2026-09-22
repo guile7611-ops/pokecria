@@ -40,6 +40,9 @@ test('directional movement is continuous and click navigation remains available'
  await expect.poll(()=>page.evaluate(()=>window.fluencyRenderer.sim.player.path.length)).toBeGreaterThan(0);
  await page.keyboard.press('s');
  await expect.poll(()=>page.evaluate(()=>window.fluencyRenderer.sim.player.path.length)).toBe(0);
+ await page.mouse.click(720,500,{button:'right'});
+ await expect.poll(()=>page.evaluate(()=>window.fluencyRenderer.sim.player.path.length)).toBeGreaterThan(0);
+ await page.keyboard.press('s');
  const enemyPoint=await page.evaluate(()=>{const r=window.fluencyRenderer,p=r.sim.player,e=r.sim.enemies.find(v=>!v.isBoss&&v.state!=='Dead');Object.assign(e,{x:p.x+70,y:p.y,hp:999,maxHp:999,state:'Idle',home:{x:p.x+70,y:p.y}});return {x:(e.x-r.camera.x)*r.zoom+r.width/2,y:(e.y-16-r.camera.y)*r.zoom+r.height/2};});
  await page.mouse.move(enemyPoint.x,enemyPoint.y);
  await expect(page.locator('#world')).toHaveClass(/attack-cursor/);

@@ -271,9 +271,10 @@ function moveAtPointer(select = true) {
   else if (sim.command({ type: 'move', ...aim })) moved = true;
 }
 $('world').addEventListener('pointerdown', e => {
-  if (!started || paused || maps.expanded || sim.player.dead || e.button !== 0) return;
+  if (!started || paused || maps.expanded || sim.player.dead || ![0,2].includes(e.button)) return;
+  if(e.button===2)e.preventDefault();
   arrows.clear(); pointer = { x: e.clientX, y: e.clientY }; pointerDirty = false;
-  held = true; lastMove = sim.time; $('world').setPointerCapture(e.pointerId); moveAtPointer();
+  held = true; lastMove = sim.time; $('world').setPointerCapture(e.pointerId); moveAtPointer(e.button===0);
 });
 window.addEventListener('pointerup', () => { held = false; });
 window.addEventListener('pointercancel', () => { held = false; pointerDirty = false; });
