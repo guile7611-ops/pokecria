@@ -9,7 +9,7 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
 
 export class RealtimeOnline {
-  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
+  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastInboundAt=0;this.lastReconnectAt=0;this.reconnecting=null;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
   roster(){
     if(!this.channel)return;
     const version=player=>Number.isSafeInteger(player?.seq)?player.seq:-1;
@@ -29,17 +29,40 @@ export class RealtimeOnline {
     const {createClient}=await import('/vendor/supabase.js');
     this.client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
     this.state={id:this.id,nick:clean(state.nick),pokemon:state.pokemon,level:1,x:REGION.spawn.x,y:REGION.spawn.y,hp:100,maxHp:100,scene:'world',moving:false,facing:{x:0,y:1},guildId:null,spawnEpoch:0,seq:0};
-    this.channel=this.client.channel('aurora-world-v2',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
-    this.channel.on('presence',{event:'sync'},()=>this.roster());
-    this.channel.on('broadcast',{event:'game'},({payload})=>this.receive(payload));
     try{
-      await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('Tempo esgotado ao conectar ao mundo.')),12000);this.channel.subscribe(status=>{if(status==='SUBSCRIBED'){clearTimeout(timeout);resolve();}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){clearTimeout(timeout);reject(Error('Canal online indisponível.'));}});});
+      await this.openChannel();
       this.token=this.id;
       await this.track(true);
       this.roster();
       this.send('boss-sync-request',{}).catch(()=>{});
       this.send('wild-sync-request',{}).catch(()=>{});
     }catch(error){this.token=null;await this.client.removeChannel(this.channel).catch(()=>{});this.channel=null;throw error;}
+  }
+  async openChannel(){
+    const channel=this.client.channel('aurora-world-v2',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
+    this.channel=channel;
+    channel.on('presence',{event:'sync'},()=>{if(this.channel!==channel)return;this.lastInboundAt=Date.now();this.roster();});
+    channel.on('broadcast',{event:'game'},({payload})=>{if(this.channel!==channel)return;this.lastInboundAt=Date.now();this.receive(payload);});
+    await new Promise((resolve,reject)=>{let settled=false;const timeout=setTimeout(()=>{if(!settled){settled=true;reject(Error('Tempo esgotado ao conectar ao mundo.'));}},12000);channel.subscribe(status=>{
+      if(this.channel!==channel)return;
+      if(status==='SUBSCRIBED'){this.lastInboundAt=Date.now();if(!settled){settled=true;clearTimeout(timeout);resolve();}else if(this.token)this.track(true).catch(()=>this.handlers.error?.());}
+      else if((status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED')&&!settled){settled=true;clearTimeout(timeout);reject(Error('Canal online indisponível.'));}
+    });});
+  }
+  watchdog(){
+    if(!this.token||this.reconnecting)return;
+    const now=Date.now(),stalePeer=this.players.some(player=>player.id!==this.id&&now-(this.remoteStates.get(player.id)?.seenAt??this.lastInboundAt)>5000);
+    if(now-this.lastReconnectAt<8000)return;
+    if(this.channel?.state==='joined'&&!stalePeer)return;
+    this.lastReconnectAt=now;
+    this.reconnecting=(async()=>{
+      const old=this.channel;this.channel=null;
+      if(old)await this.client.removeChannel(old).catch(()=>{});
+      if(!this.token)return;
+      await this.openChannel();await this.track(true);this.roster();
+      this.send('boss-sync-request',{}).catch(()=>{});
+      this.send('wild-sync-request',{}).catch(()=>{});
+    })().catch(()=>this.handlers.error?.()).finally(()=>{this.reconnecting=null;});
   }
   async track(force=false){
     if(!this.channel||!this.state)return;
@@ -48,7 +71,7 @@ export class RealtimeOnline {
     const result=await this.channel.track({...this.state,guildId:this.guildId});
     if(result!=='ok'){this.handlers.error?.();throw Error('Não foi possível anunciar sua presença online.');}
   }
-  update(state){if(!this.token)return;Object.assign(this.state,state,{guildId:this.guildId,seq:++this.stateSeq});const self=this.players.find(player=>player.id===this.id);if(self)Object.assign(self,this.state);const time=Date.now();if(time-this.lastBroadcast>=100){this.lastBroadcast=time;this.send('player-state',{state:{...this.state}}).catch(()=>this.handlers.error?.());}this.track().catch(()=>this.handlers.error?.());}
+  update(state){if(!this.token)return;Object.assign(this.state,state,{guildId:this.guildId,seq:++this.stateSeq});const self=this.players.find(player=>player.id===this.id);if(self)Object.assign(self,this.state);this.watchdog();const time=Date.now();if(this.channel&&time-this.lastBroadcast>=100){this.lastBroadcast=time;this.send('player-state',{state:{...this.state}}).catch(()=>this.handlers.error?.());}if(this.channel)this.track().catch(()=>this.handlers.error?.());}
   async send(type,data={},targetId=null){
     if(!this.channel)throw Error('Você está desconectado.');
     const result=await this.channel.send({type:'broadcast',event:'game',payload:{type,from:this.id,targetId,...data}});
@@ -137,5 +160,5 @@ export class RealtimeOnline {
     await this.send('combat',{ability:ability.id,behavior:ability.behavior,vfx:visual?.travel||ability.vfx||`moves/${ability.id}`,castVfx:visual?.cast,impactVfx:visual?.impact,castSize:visual?.castSize,travelSize:visual?.travelSize,impactSize:visual?.impactSize,duration:ability.duration||0,charge:ability.charge||0,x:self.x,y:self.y,aimX:impact.x,aimY:impact.y,radius:ability.radius||0,targets:victims.map(v=>v.id)});
     return {ok:true,victims};
   }
-  async leave(){if(!this.token)return;this.token=null;try{await this.channel?.untrack();await this.client?.removeChannel(this.channel);}finally{this.channel=null;this.client=null;this.players=[];this.remoteStates.clear();this.wilds.clear();this.guildId=null;this.pendingInvite=null;}}
+  async leave(){if(!this.token)return;this.token=null;try{await this.channel?.untrack();if(this.channel)await this.client?.removeChannel(this.channel);}finally{this.channel=null;this.client=null;this.players=[];this.remoteStates.clear();this.wilds.clear();this.guildId=null;this.pendingInvite=null;}}
 }

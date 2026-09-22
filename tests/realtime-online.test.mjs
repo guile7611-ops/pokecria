@@ -27,3 +27,25 @@ test('newer presence position replaces stale broadcasts across the bridge',()=>{
  online.roster();
  assert.equal(online.players.find(player=>player.id===id)?.x,1088);
 });
+
+test('a stale peer causes the realtime channel to be rebuilt',async()=>{
+ const online=new RealtimeOnline(),old={state:'joined'};
+ online.token=online.id;online.channel=old;online.players=[{id:'friend'}];
+ online.remoteStates.set('friend',{id:'friend',seenAt:Date.now()-6000});
+ const calls=[];
+ online.client={removeChannel:async channel=>{calls.push(channel);}};
+ online.openChannel=async()=>{online.channel={state:'joined'};calls.push('opened');};
+ online.track=async()=>{calls.push('tracked');};
+ online.roster=()=>{};online.send=async()=>{};
+ online.watchdog();await online.reconnecting;
+ assert.deepEqual(calls,[old,'opened','tracked']);
+ assert.equal(online.channel.state,'joined');
+});
+
+test('fresh peer updates do not rebuild a healthy channel',()=>{
+ const online=new RealtimeOnline();
+ online.token=online.id;online.channel={state:'joined'};online.players=[{id:'friend'}];
+ online.remoteStates.set('friend',{id:'friend',seenAt:Date.now()});
+ online.watchdog();
+ assert.equal(online.reconnecting,null);
+});
