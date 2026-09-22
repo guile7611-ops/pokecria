@@ -371,7 +371,7 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
 #hud .mini-heading{display:flex;align-items:center;margin:0 0 8px;padding:0 0 6px;border-bottom:2px solid #ba965d;color:#254a62;font:900 9px "Courier New",monospace;letter-spacing:.9px}
 #hud .mini-heading img{width:23px;height:23px}
 #hud .mini-heading kbd{border:2px solid #31556a;border-radius:2px;background:#f9efd6;color:#27465a;font:900 9px "Courier New",monospace}
-#hud .minimap #minimap{width:192px;height:136px;border:2px solid #1f4256!important;border-radius:1px;box-shadow:0 0 0 2px #d4b980}
+#hud .minimap:not(.map-expanded) #minimap{width:100%!important;height:136px;border:2px solid #1f4256!important;border-radius:1px;box-shadow:0 0 0 2px #d4b980}
 #hud .missions-toggle{margin:0;padding:9px 11px;min-height:37px;background:linear-gradient(#335c75,#214357);border:2px solid #c1a064;border-radius:4px;box-shadow:inset 0 0 0 1px #698fa0,2px 2px #112d3b;color:#fff1cf;font:900 10px "Courier New",monospace}
 #hud .missions-toggle:hover{background:#426c82;border-color:#f0d293;color:#fff}
 #hud .missions-toggle b{color:#ead39f;font:900 8px "Courier New",monospace}
@@ -444,7 +444,7 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
  #hud .player-panel{width:215px;padding:7px}
  #hud .portrait{display:none}
  #hud .minimap{width:145px}
- #hud .minimap #minimap{width:121px;height:auto}
+ #hud .minimap:not(.map-expanded) #minimap{height:96px}
  #hud .mini-heading img{width:19px;height:19px}
  #hud .hotbar{gap:4px;padding:6px}
  #hud .slot{width:66px;height:70px}
