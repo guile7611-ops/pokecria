@@ -14,7 +14,7 @@ function release(){active--;waiting.shift()?.();}
 export async function composeChunk({seed,cx,cy,lod=0,layer='ground',scene=''}){
  const key=[seed,cx,cy,lod,layer,scene].join(':');if(completed.has(key)){const v=completed.get(key);completed.delete(key);completed.set(key,v);return v;}if(inFlight.has(key))return inFlight.get(key);
  const job=(async()=>{await acquire();try{
-  const world=createMap(seed),source=scene&&world.interactions.find(p=>p.id===scene);if(scene&&!source)throw new Error('Unknown scene');const map=source?createInterior(source,seed):world;
+  const world=createMap(seed),source=scene&&world.interactions.find(p=>p.id===scene||p.sceneId===scene);if(scene&&!source)throw new Error('Unknown scene');const map=source?createInterior(source,seed,world):world;
   if(cx<0||cy<0||cx>=Math.ceil(map.cols/24)||cy>=Math.ceil(map.rows/24))throw new Error('Invalid chunk');
   const res=lod===0?32:lod===1?8:4;const tiles=await loadAssets(res),side=res*24,sheet=Buffer.alloc(side*4*side*4),descriptor=[];
   for(let y=0;y<24;y++)for(let x=0;x<24;x++)descriptor.push(tileAt(map,cx*24+x,cy*24+y));

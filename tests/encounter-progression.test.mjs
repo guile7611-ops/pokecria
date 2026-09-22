@@ -1,17 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {levelRangeAt} from '../public/world-navigation.js';
 import {Simulation} from '../public/simulation.js';
 import {encounterStats} from '../public/encounters.js';
 import {enemySkillCount,enemySkillSet} from '../public/enemy-skills.js';
 import {WILD_POKEMON} from '../public/data.js';
 
-test('volcanic wild levels vary broadly while evolved species remain level 40–80',()=>{
+test('volcanic wild levels vary within their walking-distance band and respect evolution minima',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:777});
  const spawns=sim.map.spawns.filter(s=>s.zoneId==='vulcao');
  const levels=spawns.map(s=>encounterStats(WILD_POKEMON.find(p=>p.id===s.species),sim.map,s,s.uid).level);
- assert.ok(new Set(levels).size>=8);
- assert.ok(levels.every(level=>level>=40&&level<=80));
- for(const spawn of spawns.filter(s=>s.minLevel>1)){const level=encounterStats(WILD_POKEMON.find(p=>p.id===spawn.species),sim.map,spawn,spawn.uid).level;assert.ok(level>=40&&level<=80);}
+ assert.ok(new Set(levels).size>=3);
+ for(let i=0;i<spawns.length;i++){const [low,high]=levelRangeAt(sim.map,spawns[i]);assert.ok(levels[i]>=low&&levels[i]<=Math.max(high,spawns[i].minLevel));}
+ for(const spawn of spawns.filter(s=>s.minLevel>1)){const level=encounterStats(WILD_POKEMON.find(p=>p.id===spawn.species),sim.map,spawn,spawn.uid).level;assert.ok(level>=spawn.minLevel);}
 });
 test('respawn rerolls level and stronger wild Pokémon pay more XP and coins',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:777}),spawn=sim.map.spawns.find(s=>s.zoneId==='vulcao'),species=WILD_POKEMON.find(p=>p.id===spawn.species);

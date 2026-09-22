@@ -54,7 +54,7 @@ const online = new OnlineClient({
   world:({spawnEpoch})=>{
     if(sim.spawnEpoch===spawnEpoch)return;
     sim.syncActivePokemon();const previous=sim.player;
-    const next=new Simulation(previous.id,{seed:REGION.seed,spawnEpoch,seen:[...sim.discovery.seen],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()});
+    const next=new Simulation(previous.id,{seed:REGION.seed,spawnEpoch,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()});
     Object.assign(next.player,previous,{path:[],target:null,moving:false});
     sim=next;for(const state of online.wilds.values())sim.applySharedWildState(state);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
   },
@@ -73,6 +73,7 @@ const online = new OnlineClient({
   combat:({from,ability,behavior,vfx,castVfx,impactVfx,castSize,travelSize,impactSize,duration:effectDuration,charge,x,y,aimX,aimY,radius,targets})=>{
     if(from===online.id)return;
     const entity=renderer.remoteEntities.get(from);
+    if(!entity||entity.scene!==(sim.map.scene||'world'))return;
     if(entity){entity.attackStart=sim.time;entity.attackUntil=sim.time+.45;entity.attackAnimation=['area','direct'].includes(behavior)?'Attack':'Shoot';entity.attackFacing={x:(aimX-x)/Math.max(1,Math.hypot(aimX-x,aimY-y)),y:(aimY-y)/Math.max(1,Math.hypot(aimX-x,aimY-y))};}
     const moving=['projectile','wave'].includes(behavior),duration=moving?Math.max(.25,Math.min(1.6,Math.hypot(aimX-x,aimY-y)/(ABILITIES[ability]?.speed||400))):.55;
     if(['channel','beam','whip','zone'].includes(behavior)){renderer.networkEffects.push({from,ability,behavior,vfx,castVfx,impactVfx,x,y,aimX,aimY,time:sim.time,duration:behavior==='beam'?(charge||.7)+.42:effectDuration||.4,charge:charge||0,size:travelSize||64,impactSize:impactSize||100,castSize:castSize||75});return;}
@@ -240,7 +241,7 @@ for(const button of document.querySelectorAll('[data-egg]'))button.onclick=()=>{
   selectedStarter=starter.id;account={createdAt:Date.now(),starterId:starter.id,egg:Number(button.dataset.egg),nick};
   renderer.playerNick=nick;
   localStorage.setItem('aurora-account',JSON.stringify(account));
-  sim=new Simulation(starter.id,{seed:worldSave.seed,seen:worldSave.seen,inventory:worldSave.inventory,pc:worldSave.pc||[]});
+  sim=new Simulation(starter.id,{seed:worldSave.seed,seen:worldSave.seen,discoveryCols:worldSave.discoveryCols,inventory:worldSave.inventory,pc:worldSave.pc||[]});
   sim.player.captureId=`starter-${starter.id}`;sim.pc.unshift({...sim.activeSnapshot(),captureId:sim.player.captureId});
   renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);
   $('egg-result').hidden=false;$('egg-result').innerHTML=`<img src="/assets/pokemon/${starter.id}/portrait.png" alt=""><div><small>SEU OVO CHOCOU!</small><strong>${starter.name}</strong><span>${starter.element}</span></div>`;
@@ -248,7 +249,7 @@ for(const button of document.querySelectorAll('[data-egg]'))button.onclick=()=>{
 };
 renderHub();
 function resetSession() {
-  sim.syncActivePokemon();selectedStarter=sim.player.id;worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; sim = new Simulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
+  sim.syncActivePokemon();selectedStarter=sim.player.id;worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; sim = new Simulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
   moved = false; paused = false; accumulator = 0; held = false; pointerDirty = false; lastMove = 0; arrows.clear();
   renderer.playerNick=account?.nick||credentials?.username||'Treinador';$('player-name').textContent = renderer.playerNick; $('player-element').textContent = `✦ ${sim.player.name.toUpperCase()} · ${sim.player.element.toUpperCase()}`;
   $('player-portrait').src = `/assets/pokemon/${selectedStarter}/portrait.png`; $('player-portrait').alt = sim.player.name;

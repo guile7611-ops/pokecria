@@ -5,7 +5,7 @@ import {ABILITIES} from './data.js';
 import {advanceRemote} from './remote-motion.js';
 import {nightVision,worldDaylight} from './day-night.js';
 export class Renderer {
- constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';this.lighting=document.createElement('div');this.lighting.className='world-lighting';this.clock=document.createElement('div');this.clock.className='world-clock';element.append(this.lighting,this.overlays,this.clock);this.resize();window.addEventListener('resize',()=>this.resize());}
+ constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';this.lighting=document.createElement('div');this.lighting.className='world-lighting';this.clock=document.createElement('div');this.clock.className='world-clock';element.append(this.lighting,this.overlays,this.clock);this.interactionButton=document.createElement('button');this.interactionButton.className='interaction-prompt';this.interactionButton.type='button';this.interactionButton.hidden=true;element.append(this.interactionButton);this.interactionButton.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();this.sim.command({type:'interact',id:this.interactionButton.dataset.worldInteraction});});this.resize();window.addEventListener('resize',()=>this.resize());}
  resize(){this.width=innerWidth;this.height=innerHeight;}
  setZoom(value){this.zoom=Math.max(.55,Math.min(2.2,Number(value)||1.45));return this.zoom;}
  bossPose(e,time){const a=e.attackVfx,t=a?(time-a.start)/.65:2;if(t<0||t>1)return 'none';const pulse=Math.sin(t*Math.PI);
@@ -22,7 +22,7 @@ export class Renderer {
   else if(a.shape==='line')for(let i=0;i<7;i++)add(a.x+Math.cos(a.angle)*(i+.5)*a.length/7,a.y+Math.sin(a.angle)*(i+.5)*a.length/7,64,i);
   else for(let i=-1;i<=1;i++){const angle=a.angle+i*.45;add(a.x+Math.cos(angle)*85,a.y+Math.sin(angle)*85,90,i);}
  }return effects;}
- draw(dt,active){const p=this.sim.player;if(this.worldView.map!==this.sim.map){this.worldView.dispose();this.worldView=new WorldView(this.sim.map);this.camera={x:p.x,y:p.y};}
+ draw(dt,active){const p=this.sim.player;if(this.worldView.map!==this.sim.map){this.worldView.dispose();this.worldView=new WorldView(this.sim.map);this.networkEffects=[];this.effects=[];this.camera={x:p.x,y:p.y};}
   for(const e of this.remoteEntities.values())advanceRemote(e,dt,performance.now());
   const map=this.sim.map;this.terrain={width:map.cols*32,height:map.rows*32};if(active){const blend=1-Math.exp(-dt*9);this.camera.x+=(p.x-this.camera.x)*blend;this.camera.y+=(p.y-this.camera.y)*blend;}
   const hw=this.width/this.zoom/2,hh=this.height/this.zoom/2;this.camera.x=hw*2>=this.terrain.width?this.terrain.width/2:Math.max(hw,Math.min(this.terrain.width-hw,this.camera.x));this.camera.y=hh*2>=this.terrain.height?this.terrain.height/2:Math.max(hh,Math.min(this.terrain.height-hh,this.camera.y));
@@ -60,10 +60,10 @@ export class Renderer {
   if(p.evolutionUntil>this.sim.time)actors.push(this.effect('evolution',p.x,p.y,'evolve',this.sim.time-p.evolutionStart,100));
   this.effects=this.effects.filter(e=>this.sim.time-e.time<1.2);
   this.worldView.render(this.canvas,{...this.camera,zoom:this.zoom,width:this.width,height:this.height},{actors});
-  const cycle=worldDaylight(),vision=nightVision(cycle,this.width,this.height,!!this.sim.map.scene),playerScreen={x:(p.x-this.camera.x)*this.zoom+this.width/2,y:(p.y-this.camera.y)*this.zoom+this.height/2};
+  const cycle=worldDaylight(),vision=nightVision(this.sim.map.layer==='cave'?{darkness:.55}:cycle,this.width,this.height,!!this.sim.map.scene&&!this.sim.map.layer),playerScreen={x:(p.x-this.camera.x)*this.zoom+this.width/2,y:(p.y-this.camera.y)*this.zoom+this.height/2};
   this.lighting.style.setProperty('--vision-x',`${playerScreen.x}px`);this.lighting.style.setProperty('--vision-y',`${playerScreen.y}px`);this.lighting.style.setProperty('--vision-inner',`${vision.innerRadius}px`);this.lighting.style.setProperty('--vision-outer',`${vision.outerRadius}px`);
   if(Math.abs(vision.strength-(this.lightOpacity||0))>.002){this.lighting.style.opacity=String(vision.strength);this.lightOpacity=vision.strength;}
-  const hours=String(Math.floor(cycle.hour)).padStart(2,'0'),minutes=String(Math.floor(cycle.hour%1*60)).padStart(2,'0'),clockText=`${cycle.isNight?'☾':'☀'} ${hours}:${minutes}`;if(this.clock.textContent!==clockText)this.clock.textContent=clockText;
+  const hours=String(Math.floor(cycle.hour)).padStart(2,'0'),minutes=String(Math.floor(cycle.hour%1*60)).padStart(2,'0'),clockText=`${this.sim.map.layer?this.sim.map.name+' · ':''}${cycle.isNight?'☾':'☀'} ${hours}:${minutes}`;if(this.clock.textContent!==clockText)this.clock.textContent=clockText;
   this.drawOverlays();
  }
  drawOverlays(){const sim=this.sim,p=sim.player,point=(x,y)=>({x:(x-this.camera.x)*this.zoom+this.width/2,y:(y-this.camera.y)*this.zoom+this.height/2});const markers=[];
@@ -77,7 +77,8 @@ export class Renderer {
    const pos=point(e.x,e.y);markers.push(`<span class="boss-attack-name" style="left:${pos.x}px;top:${pos.y-95*this.zoom}px">${a.name}</span>`);
   }
   for(const i of sim.map.interactions||[])if(i.kind==='shopkeeper'){const pos=point(i.x,i.y);markers.push(`<span class="shopkeeper-sprite" style="left:${pos.x}px;top:${pos.y}px"><img src="/assets/ui/shopkeeper.png" alt="Vendedor"><b>Vendedor</b></span>`);}
-  const nearest=sim.map.interactions?.find(i=>Math.hypot(i.x-p.x,i.y-p.y)<i.radius+15);if(nearest)markers.push(`<span class="interaction-prompt">F · ${nearest.label}</span>`);
+  for(const exit of sim.map.layerExits||[]){const pos=point(exit.x,exit.y);if(Math.hypot(exit.x-p.x,exit.y-p.y)<900)markers.push(`<span class="layer-exit-marker" style="left:${pos.x}px;top:${pos.y}px">${sim.map.layer==='cave'?'⇧ SAÍDA':'⇩ DESCIDA'}</span>`);}
+  const nearest=sim.map.interactions?.find(i=>Math.hypot(i.x-p.x,i.y-p.y)<i.radius+15);this.interactionButton.hidden=!nearest;if(nearest){this.interactionButton.dataset.worldInteraction=nearest.id;this.interactionButton.textContent='F · '+nearest.label;}
   if(this.debug){const l=this.camera.x-this.width/this.zoom/2,t=this.camera.y-this.height/this.zoom/2,r=this.camera.x+this.width/this.zoom/2,b=this.camera.y+this.height/this.zoom/2;
    for(let y=Math.max(0,Math.floor(t/32));y<=Math.min(sim.map.rows-1,Math.floor(b/32));y++)for(let x=Math.max(0,Math.floor(l/32));x<=Math.min(sim.map.cols-1,Math.floor(r/32));x++)if(!terrainPassable(sim.map,x,y))marker(sim.map.grid[y][x]===2?'debug-water':'debug-tile',x*32,y*32,32,32);
    for(const o of collidersIn(sim.map,l,t,r,b))marker('debug-body',o.x,o.y,o.w,o.h);

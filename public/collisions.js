@@ -1,3 +1,6 @@
+import {layerForPortal} from './world-habitats.js';
+import {generateLayer,populateLayer} from './layer-generator.js';
+import {attachNavigation,pathDistance,attachEntranceProgression} from './world-navigation.js';
 import { objectDefinition,COLLISION_LAYERS,TERRAIN_PROPERTIES } from './tilemap.js';
 export function attachCollisions(map){
  map.colliders=new Map();map.interactions=[];
@@ -13,7 +16,18 @@ export function attachCollisions(map){
 }
 export function collidersIn(map,left,top,right,bottom){const found=new Set();if(!map.colliders)return found;for(let y=Math.floor(top/32);y<=Math.floor(bottom/32);y++)for(let x=Math.floor(left/32);x<=Math.floor(right/32);x++)for(const o of map.colliders.get(`${x},${y}`)||[])found.add(o);return found;}
 export function terrainPassable(map,x,y,profile={}){const t=map.grid[y]?.[x];if(t===undefined)return false;if(!map.colliders)return [0,4,5,6,7,8,9,11].includes(t);const p=TERRAIN_PROPERTIES[t];return p?.walkable||p?.capability&&profile[p.capability]===true;}
-export function createInterior(source,seed){
+const layerCache=new Map();
+export function createInterior(source,seed,surface){
+ const system=layerForPortal(source.sceneId||source.id);
+ if(system){
+  const key=`${seed}:${system.id}:${surface?.seed??'render'}`;if(layerCache.has(key))return layerCache.get(key);
+  const map=attachCollisions(generateLayer(system,seed));map.interactions=map.layerExits;
+  const entries=system.portals.map(id=>surface?.interactions.find(p=>p.id===id)).filter(Boolean);
+  const distances=entries.map(p=>pathDistance(surface,p)).filter(Number.isFinite);
+  attachNavigation(map,map.layerExits[0],distances.length?Math.min(...distances):0);attachEntranceProgression(map,surface);populateLayer(map);
+  if(layerCache.size>12)layerCache.clear();layerCache.set(key,map);return map;
+ }
+
  const cave=['cave','boss','tower','ruins'].includes(source.kind),cols=18,rows=16,tile=32;
  const grid=Array.from({length:rows},(_,y)=>Uint8Array.from({length:cols},(_,x)=>x<2||y<2||x>=cols-2||y>=rows-2?3:cave?9:11));
  const biome=Array.from({length:rows},()=>new Uint8Array(cols));

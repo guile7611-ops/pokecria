@@ -456,3 +456,5 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
  #welcome .hub-tabs strong{font-size:10px}
  #welcome .hub-tabs .hub-tab-icon{font-size:12px;min-width:0}
 }
+.interaction-prompt[data-world-interaction]{position:absolute;pointer-events:auto;cursor:pointer;z-index:12;border:2px solid #c8a65a;background:#143444;color:#fff1c7;padding:10px 18px;box-shadow:0 3px 0 #08191f;}
+.layer-exit-marker{position:absolute;transform:translate(-50%,-100%);font:12px monospace;font-weight:bold;color:#fff1c7;background:#173642e8;border:1px solid #d6ba75;padding:6px 9px;white-space:nowrap;}

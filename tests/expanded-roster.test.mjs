@@ -47,7 +47,7 @@ test('branched old evolutions select both final forms through nature',()=>{
 
 test('authored encounter population is broad and rare species keep lower weights',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:123}),other=new Simulation('bulbasaur',{spawnEpoch:124});
- assert.ok(sim.map.spawns.length>=140&&sim.map.spawns.length<220);
+ assert.ok(sim.map.spawns.length>=240&&sim.map.spawns.length<400);
  assert.notDeepEqual(sim.map.spawns.map(s=>[s.x,s.y]),other.map.spawns.map(s=>[s.x,s.y]));
  for(const spawn of sim.map.spawns)assert.ok(spawn.level>=(EvolutionMinimumLevel[spawn.species]||1),`${spawn.species} spawned below its evolution level`);
  const weights=['common','uncommon','rare','epic','legendary','mythic'].map(id=>SpawnRarityDefinitions[id].weight);

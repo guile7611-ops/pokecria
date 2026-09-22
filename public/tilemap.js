@@ -23,10 +23,10 @@ export const OBJECT_PROPERTIES={
 export function materialAt(map,x,y){const t=map.grid[y]?.[x],biome=map.regions?.[map.biome?.[y]?.[x]]?.biome||'field';
  if(t===undefined)return 7;
  if(t===2){const near=[[0,1],[1,0],[0,-1],[-1,0]].some(([dx,dy])=>map.grid[y+dy]?.[x+dx]!==2);return near?6:7;}
- if(t===3)return biome==='conifer'?9:8;
+ if(t===3)return ['conifer','tundra','highland'].includes(biome)?9:8;
  if(t===4)return [[0,1],[1,0],[0,-1],[-1,0]].some(([dx,dy])=>map.grid[y+dy]?.[x+dx]===2)?5:4;
  if(t===5)return 11;if(t===6)return 14;if(t===7)return 3;if(t===8)return 13;if(t===9)return 10;if(t===11)return 12;
- return {village:0,field:0,forest:15,dense:1,meadow:2,conifer:1,rock:8,volcano:14,desert:4,swamp:11,lake:0,ruins:12,cave:10,beach:4}[biome]??0;
+ return {mangrove:11,steppe:2,tundra:9,ash:14,grove:15,highland:8,village:0,field:0,forest:15,dense:1,meadow:2,conifer:1,rock:8,volcano:14,desert:4,swamp:11,lake:0,ruins:12,cave:10,beach:4}[biome]??0;
 }
 export const NEIGHBORS=[[0,-1,1],[1,0,2],[0,1,4],[-1,0,8],[1,-1,16],[1,1,32],[-1,1,64],[-1,-1,128]];
 const rank=[2,3,2,5,4,6,8,9,7,7,7,4,5,10,7,3];

@@ -40,7 +40,7 @@ export class RealtimeOnline {
     }catch(error){this.token=null;await this.client.removeChannel(this.channel).catch(()=>{});this.channel=null;throw error;}
   }
   async openChannel(){
-    const channel=this.client.channel('aurora-world-v2',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
+    const channel=this.client.channel('aurora-world-v3',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
     this.channel=channel;
     channel.on('presence',{event:'sync'},()=>{if(this.channel!==channel)return;this.lastInboundAt=Date.now();this.roster();});
     channel.on('broadcast',{event:'game'},({payload})=>{if(this.channel!==channel)return;this.lastInboundAt=Date.now();this.receive(payload);});

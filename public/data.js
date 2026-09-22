@@ -299,5 +299,5 @@ for(const species of WILD_POKEMON)if(rangedSpecies.has(species.id)){species.rang
 export const ENEMY = WILD_POKEMON[0];
 export const BOSS = { id: 'venusaur', name: 'Guardião da Clareira', hp: 420, attack: 16, defense: 6, speed: 54, radius: 24, xp: 180, range: 245, aggro: 420, leash: 580, movementRadius: 360, regenerationRate: .1, cooldown: 1.2, respawn: 45, isBoss: true, phaseThresholds: [.66, .33] };
 export { PoiDefinitions as POIS, RegionDefinitions as MACRO_REGIONS, SpawnZoneDefinitions as SPAWN_ZONES } from './world-definition.js';
-export const REGION = { name: 'Arquipélago de Aurora', subtitle: 'UM MUNDO A EXPLORAR', tile: 32, cols: 480, rows: 340, seed: 123456, spawn: { x: 240, y: 560 }, spawnZones: [{ x: 460, y: 545 }, { x: 1040, y: 700 }, { x: 1800, y: 1180 }] };
+export const REGION = { name: 'Arquipélago de Aurora', subtitle: 'UM MUNDO A EXPLORAR', tile: 32, cols: 720, rows: 440, seed: 123456, spawn: { x: 240, y: 560 }, spawnZones: [{ x: 460, y: 545 }, { x: 1040, y: 700 }, { x: 1800, y: 1180 }] };
 export const KEYS = ['Q', 'W', 'E', 'R'];

@@ -1,9 +1,9 @@
 // All coordinates are in tiles. These authored shapes are independent of seed.
 export const WorldSeed = 123456;
 export const WorldDefinition = {
-  id: 'aurora-v2', name: 'Arquipélago de Aurora', cols: 480, rows: 340, tile: 32, chunkSize: 24,
+  id: 'aurora-v3', name: 'Arquipélago de Aurora', cols: 720, rows: 440, tile: 32, chunkSize: 24,
   coast: [[2,6],[22,3],[48,9],[64,27],[91,38],[114,25],[131,9],[170,17],[190,35],[223,21],[260,10],[294,28],[313,54],[344,37],[373,46],[391,77],[418,82],[431,109],[413,128],[442,157],[453,188],[430,202],[448,227],[416,242],[403,272],[370,287],[354,314],[324,307],[306,280],[277,290],[260,269],[232,293],[206,278],[183,309],[151,318],[140,285],[111,271],[84,284],[67,263],[90,237],[69,214],[42,206],[30,177],[48,147],[35,119],[57,96],[37,76],[16,60],[2,40]],
-  islands: [[[408,298],[429,283],[446,291],[451,311],[435,326],[416,320]], [[29,246],[44,237],[55,250],[48,265],[30,263]]],
+  islands: [[[396,118],[451,99],[482,38],[545,16],[612,42],[685,96],[703,160],[676,219],[700,284],[664,362],[602,414],[521,418],[468,371],[415,312],[390,246]] ,[[408,298],[429,283],[446,291],[451,311],[435,326],[416,320]], [[29,246],[44,237],[55,250],[48,265],[30,263]]],
   ridges: [ [[128,38],[159,51],[188,43],[218,54],[249,36],[281,51],[305,75]], [[344,74],[365,101],[349,129],[370,151],[359,179]], [[125,184],[140,206],[128,232]] ],
   rivers: [ { width: 2.6, points: [[217,53],[208,70],[224,88],[207,110],[188,126],[202,148],[224,170],[231,197],[258,215],[268,240],[260,269]] }, { width: 1.7, points: [[294,60],[278,81],[288,99],[268,117],[241,127],[219,151]] }, { width: 1.4, points: [[141,58],[132,82],[149,99],[170,112],[183,125]] } ],
   lakes: [ { x:190,y:126,rx:25,ry:18 }, { x:291,y:205,rx:15,ry:10 }, { x:100,y:167,rx:10,ry:15 } ],
@@ -24,9 +24,27 @@ export const RegionDefinitions = [
   region('ruinas','Vale dos Reis','ruins',280,110,36,29,[6,9],['drowzee','hypno','gastly','haunter','gengar','magnemite','magneton','magnezone','voltorb','electrode','abra','kadabra','alakazam','ralts','kirlia','gardevoir','larvitar'],'Relíquia dos reis'),
   region('caverna','Grutas de Cristal','cave',330,86,14,12,[7,10],['zubat','golbat','crobat','geodude','graveler','golem','machop','machoke','machamp','gastly','haunter','gengar','aron','lairon','larvitar','pupitar','tyranitar'],'Cristal azul'),
   region('costa','Costa das Marés','beach',189,293,47,17,[3,6],['krabby','kingler','horsea','seadra','kingdra','psyduck','golduck','poliwag','poliwhirl','poliwrath','politoed','wailmer','wailord','carvanha','sharpedo'],'Concha azul'),
+  region('mangue','Manguezal das Brumas','mangrove',467,293,55,66,[1,100],['wooper','quagsire','spinarak','ariados','oddish','gloom','gastly','haunter','lotad','lombre'],'Musgo luminoso'),
+  region('estepe','Estepe dos Trovões','steppe',508,151,69,76,[1,100],['mareep','flaaffy','ampharos','magnemite','magneton','voltorb','electrode','spearow','fearow','sentret'],'Pena Brisa'),
+  region('neve','Taiga do Alvorecer','tundra',555,56,63,37,[1,100],['hoothoot','noctowl','murkrow','honchkrow','spearow','fearow'],'Cristal da serra'),
+  region('cinzas','Terras das Cinzas','ash',626,204,62,80,[1,100],['numel','camerupt','slugma','magcargo','torkoal','houndour','houndoom','geodude','graveler'],'Fragmento de brasa'),
+  region('jardim-leste','Bosque das Pétalas','grove',571,342,82,61,[1,100],['oddish','gloom','bellossom','shroomish','breloom','paras','parasect','ralts','kirlia','gardevoir','treecko'],'Pólen dourado'),
 ];
 const poi = (id,name,kind,x,y,region,secret=false) => ({id,name,kind,x:x*32,y:y*32,region,secret,level:RegionDefinitions.find(r=>r.id===region)?.level.join('–') || '1–3'});
 export const PoiDefinitions = [
+  poi('posto-leste','Refúgio das Brisas','village',476,154,'estepe'),
+  poi('farol-brumas','Farol das Brumas','tower',455,275,'mangue'),
+  poi('gruta-brumas','Gruta das Brumas','cave',475,335,'mangue'),
+  poi('gruta-petalas','Gruta das Pétalas','cave',558,358,'jardim-leste'),
+  poi('jardim-leste','Santuário das Pétalas','ruins',600,355,'jardim-leste'),
+  poi('forja','Forja das Cinzas','camp',632,236,'cinzas'),
+  poi('gruta-cinzas','Fenda das Cinzas','cave',648,174,'cinzas'),
+  poi('neve','Abrigo Boreal','village',548,61,'neve'),
+  poi('gruta-neve','Gruta Boreal','cave',590,79,'neve'),
+  poi('subida-boreal','Escarpa Boreal','gate',568,95,'neve'),
+  poi('subida-leste','Escarpa dos Trovões','gate',545,170,'estepe'),
+  poi('subida-granito','Escarpa de Granito','gate',363,114,'encosta'),
+  poi('subida-cinzas','Escarpa das Cinzas','gate',617,263,'cinzas'),
   poi('vila-aurora','Vila Aurora','village',8,17,'vila'), poi('arena-guardiao','Santuário do Guardião','boss',61,49,'bosque'),
   poi('bosque','Clareira dos Brotos','camp',53,44,'bosque'), poi('posto','Estalagem do Vento','village',101,99,'campos'),
   poi('templo','Templo das Raízes','ruins',151,91,'mata'), poi('lago','Porto da Lua','village',174,146,'lago'),
@@ -42,6 +60,12 @@ export const PoiDefinitions = [
 ];
 // Curved roads connect the authored POIs. Side paths form loops and secrets.
 export const RoadDefinitions = [
+ [[350,138],[407,143],[445,158],[476,154],[518,152],[545,170],[591,179],[648,174]],
+ [[476,154],[493,111],[518,91],[548,61],[590,79],[568,95],[530,119],[518,152]],
+ [[389,208],[421,238],[455,275],[475,335],[516,356],[558,358],[600,355],[634,314],[617,263],[632,236],[648,174]],
+ [[476,154],[468,220],[455,275]], [[545,170],[561,230],[548,286],[558,358]],
+ [[311,250],[379,286],[422,316],[475,335]], [[350,138],[363,114]],
+
  [[8,17],[18,17],[27,17],[33,24],[43,31],[53,44],[66,64],[87,82],[101,99]],
  [[53,44],[57,47],[61,49]],
  [[101,99],[121,92],[151,91],[164,106],[174,146]],
@@ -56,6 +80,8 @@ export const RoadDefinitions = [
  [[196,156],[208,153],[214,145]], [[350,138],[347,145],[344,153]], [[180,245],[190,245],[197,249]],
 ];
 export const BiomeDefinitions = {
+ mangrove:{color:'#426e69',tree:.1},steppe:{color:'#b4af69',tree:.015},tundra:{color:'#c8dfdd',tree:.08},ash:{color:'#756663',tree:.005},grove:{color:'#86a76c',tree:.16},highland:{color:'#a5b8bc',tree:.01},
+
  field: {color:'#88aa52',tree:.025}, forest:{color:'#608e48',tree:.18}, dense:{color:'#3f7847',tree:.36}, village:{color:'#91a764',tree:0}, meadow:{color:'#9cb860',tree:.02},
  conifer:{color:'#769383',tree:.14}, rock:{color:'#a09b80',tree:.025}, volcano:{color:'#65544c',tree:0}, desert:{color:'#d6b873',tree:0}, swamp:{color:'#567f68',tree:.12},
  lake:{color:'#80a774',tree:.08}, ruins:{color:'#98a278',tree:.08}, cave:{color:'#7d8585',tree:.01}, beach:{color:'#dfca91',tree:.006},

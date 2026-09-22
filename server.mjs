@@ -18,7 +18,7 @@ export const server = http.createServer(async (req, res) => {
     }
     if(name==='/api/tile-chunk'){
       const q=url.searchParams,seed=Number(q.get('seed')),cx=Number(q.get('cx')),cy=Number(q.get('cy')),lod=Number(q.get('lod')),layer=q.get('layer')||'ground',scene=q.get('scene')||'';
-      if(!Number.isInteger(seed)||seed<0||seed>4294967295||!Number.isInteger(cx)||cx<0||cx>20||!Number.isInteger(cy)||cy<0||cy>15||![0,1,2].includes(lod)||!['ground','overview'].includes(layer)||scene.length>100){res.writeHead(400).end('Invalid tile chunk');return;}
+      if(!Number.isInteger(seed)||seed<0||seed>4294967295||!Number.isInteger(cx)||cx<0||cx>31||!Number.isInteger(cy)||cy<0||cy>19||![0,1,2].includes(lod)||!['ground','overview'].includes(layer)||scene.length>100){res.writeHead(400).end('Invalid tile chunk');return;}
       const body=await composeChunk({seed,cx,cy,lod,layer,scene});res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'private, max-age=3600'}).end(req.method==='HEAD'?undefined:body);return;
     }
     const target = path.resolve(root, '.' + (name === '/' ? '/index.html' : name));

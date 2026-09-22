@@ -1,3 +1,5 @@
+import {attachNavigation,filterReachableSpawns,levelRangeAt} from './world-navigation.js';
+import {habitatAllows,layerForPortal} from './world-habitats.js';
 import { attachCollisions } from './collisions.js';
 import {objectDefinition} from './tilemap.js';
 import { WorldDefinition as W, WorldSeed, RegionDefinitions as regions, RoadDefinitions, StructureDefinitions, PoiDefinitions, BiomeDefinitions, SpawnZoneDefinitions } from './world-definition.js';
@@ -28,7 +30,7 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
   const r=regionAt(x,y), wx=x+wave(x,y)*.55,wy=y+wave(y,x)*.55;
   biome[y][x]=regions.indexOf(r);
   if(![W.coast,...W.islands].some(p=>inside(wx,wy,p))){grid[y][x]=2;continue;}
-  grid[y][x]=r.biome==='desert'?4:r.biome==='swamp'?5:r.biome==='volcano'?6:r.biome==='cave'?9:0;
+  grid[y][x]=r.biome==='desert'?4:['swamp','mangrove'].includes(r.biome)?5:['volcano','ash'].includes(r.biome)?6:r.biome==='cave'?9:0;
  }
  for(const ridge of W.ridges) paintLine(smoothLine(ridge),12,(x,y)=>{if(grid[y][x]===2)return;const d=Math.min(...ridge.slice(1).map((b,i)=>segmentDistance(x,y,ridge[i],b))); altitude[y][x]=Math.max(altitude[y][x],Math.max(0,1-d/13));if(d<5+wave(x,y)*.65)grid[y][x]=3;});
  for(const lake of W.lakes)for(let y=Math.max(0,Math.floor(lake.y-lake.ry-4));y<Math.min(rows,lake.y+lake.ry+4);y++)for(let x=Math.max(0,Math.floor(lake.x-lake.rx-4));x<Math.min(cols,lake.x+lake.rx+4);x++)if(Math.hypot((x-lake.x)/lake.rx,(y-lake.y)/lake.ry)<1+wave(x,y)*.06+.12*Math.sin(Math.atan2(y-lake.y,x-lake.x)*3))grid[y][x]=2;
@@ -45,15 +47,17 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
  for(const road of roads)paintLine(road,1.65,(x,y)=>{grid[y][x]=grid[y][x]===2?8:7;});
  for(let y=4;y<29;y++){const center=27+Math.round(Math.sin(y*.28)*1.3);for(let x=center-2;x<=center+2;x++)grid[y][x]=y>=16&&y<=18?8:2;}
  for(let y=12;y<23;y++)for(let x=3;x<25;x++)if(grid[y][x]!==2&&(Math.hypot((x-8)/1.8,y-17)<3 || Math.abs(y-(17+Math.sin(x*.3)))<1.2))grid[y][x]=7;
+ // Climb points sit at a real cliff face with an open approach.
+ for(const p of PoiDefinitions.filter(p=>p.id.startsWith('subida-')))for(let dy=-9;dy<=-4;dy++)for(let dx=-7;dx<=7;dx++){const x=p.x/32+dx,y=p.y/32+dy;if(Math.hypot(dx/7,(dy+6)/3)<1&&![7,8].includes(grid[y]?.[x]))grid[y][x]=3;}
  for(const s of StructureDefinitions)for(let y=Math.floor(s.y-s.h);y<Math.ceil(s.y);y++)for(let x=Math.floor(s.x-s.w/2);x<Math.ceil(s.x+s.w/2);x++)if(grid[y]?.[x]!==undefined)grid[y][x]=10;
  const chunks=new Map();
  for(let cy=0;cy<Math.ceil(rows/W.chunkSize);cy++)for(let cx=0;cx<Math.ceil(cols/W.chunkSize);cx++)chunks.set(`${cx},${cy}`,{id:`${cx},${cy}`,cx,cy,objects:[],spawns:[]});
  const objects=[];
  for(let y=1;y<rows-1;y++)for(let x=1;x<cols-1;x++){
   const t=grid[y][x],r=regions[biome[y][x]],n=noise(x,y,seed+1); let kind;
-  if(t===1)kind=r.biome==='conifer'?'pine':r.biome==='swamp'?'willow':'tree';
+  if(t===1)kind=['conifer','tundra'].includes(r.biome)?'pine':['swamp','mangrove'].includes(r.biome)?'willow':r.biome==='grove'?'flowerTree':'tree';
   else if(t===3&&n>.68)kind='mountain';
-  else if(![2,7,8,10].includes(t)&&n>.965)kind=r.biome==='village'?'flowers':r.biome==='desert'?'cactus':r.biome==='volcano'?'lava':r.biome==='meadow'?'flowers':'rock';
+  else if(![2,7,8,10].includes(t)&&n>.965)kind=r.biome==='village'?'flowers':r.biome==='desert'?'cactus':['volcano','ash'].includes(r.biome)?'lava':r.biome==='meadow'?'flowers':'rock';
   if(kind){const o={kind,x:(x+.4+noise(x,y,seed+7)*.2)*tile,y:(y+.65+noise(y,x,seed+8)*.25)*tile,variant:noise(y,x,seed),scale:kind==='mountain'?2.3:1};objects.push(o);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).objects.push(o);}
  }
  // Authored village landscaping surrounds houses instead of blocking streets.
@@ -68,6 +72,9 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
   if(forbidden){objects.splice(i,1);const chunk=chunks.get(`${Math.floor(o.x/768)},${Math.floor(o.y/768)}`);if(chunk)chunk.objects=chunk.objects.filter(item=>item!==o);}
  }
  const spawns=[];
+ const map=attachNavigation(attachCollisions({grid,biome,altitude,cols,rows,tile,seed,chunks,objects,spawns,roads,rivers,regions,pois:PoiDefinitions,structures:StructureDefinitions}));
+ for(const p of PoiDefinitions){const system=layerForPortal(p.id);if(!system)continue;let interaction=map.interactions.find(i=>i.id===p.id);if(!interaction){interaction={id:p.id,x:p.x,y:p.y,radius:54,kind:'climb'};map.interactions.push(interaction);}interaction.sceneId=system.id;interaction.label=system.kind==='mountain'?'Subir montanha':'Entrar na caverna';}
+
  for(const zone of SpawnZoneDefinitions){const r=regions.find(r=>r.id===zone.region);let count=0;
   for(let i=0;i<2600&&count<zone.count;i++){const x=Math.floor(r.x+(noise(i,1,spawnSeed+zone.id.length)-.5)*r.rx*1.75),y=Math.floor(r.y+(noise(i,2,spawnSeed+zone.id.charCodeAt(0))-.5)*r.ry*1.75);if(biome[y]?.[x]!==regions.indexOf(r)||![0,4,5,6,9].includes(grid[y]?.[x]))continue;
    const startDistance=Math.hypot(x-7.5,y-17.5),bossDistance=Math.min(...PoiDefinitions.filter(p=>p.kind==='boss').map(p=>Math.hypot(p.x/tile-x,p.y/tile-y)));
@@ -75,14 +82,14 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
    if((startDistance<38||bossDistance<31)&&noise(i,7,spawnSeed)<.72)continue;
    if(PoiDefinitions.some(p=>Math.hypot(p.x/tile-x,p.y/tile-y)<10)||spawns.some(s=>s.zoneId===zone.id&&Math.hypot(s.x/tile-x,s.y/tile-y)<3.5))continue;
    // Only the first two local encounters favor plentiful species. Rare tiers always use the full weighted draw.
-   const protectedTier=count<2,plentiful=zone.species.filter(candidate=>candidate.rarity==='common'||candidate.rarity==='uncommon');
-   const pool=protectedTier&&plentiful.length?plentiful:zone.species;
+   const range=levelRangeAt(map,{x:(x+.5)*tile,y:(y+.5)*tile});if(!range)continue;const eligible=zone.species.filter(c=>habitatAllows(r.biome,c.id)&&c.minLevel<=range[1]);if(!eligible.length)continue;const protectedTier=count<2,plentiful=eligible.filter(candidate=>candidate.rarity==='common'||candidate.rarity==='uncommon');
+   const pool=protectedTier&&plentiful.length?plentiful:eligible;
    const total=pool.reduce((sum,entry)=>sum+(entry.weight||1),0),roll=noise(i,count+11,spawnSeed+zone.id.charCodeAt(0))*total;let cursor=0,entry=pool.at(-1);
    for(const candidate of pool){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
-   const species=typeof entry==='string'?entry:entry.id,baseLevel=zone.level[0]+Math.floor(noise(i,13,spawnSeed)*(zone.level[1]-zone.level[0]+1)),level=Math.max(baseLevel,entry.minLevel||1);
+   const species=typeof entry==='string'?entry:entry.id,baseLevel=range[0]+Math.floor(noise(i,13,spawnSeed)*(range[1]-range[0]+1)),level=Math.max(baseLevel,entry.minLevel||1);
    const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward,time:NIGHT_SPECIES.has(species)?'night':'day',protectedTier}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
   }
  }
- return attachCollisions({grid,biome,altitude,cols,rows,tile,seed,chunks,objects,spawns,roads,rivers,regions,pois:PoiDefinitions,structures:StructureDefinitions});
+ map.spawns=spawns;return filterReachableSpawns(map);
 }
 export function generateTerrainGrid(options){return generateWorld(options).grid;}

@@ -32,6 +32,6 @@ test('houses block walls, expose a walkable door, and support entry and exit pre
  Object.assign(sim.player,{x:288,y:410});sim.command({type:'interact',id:'exit'});assert.equal(sim.map,before);assert.equal(sim.player.level,2);assert.ok(walkable(sim.map,sim.player.x,sim.player.y));
 });
 test('cave entrance loads a navigable cave with creatures and an exit',()=>{
- const sim=new Simulation(),door=sim.map.interactions.find(i=>i.kind==='cave');Object.assign(sim.player,{x:door.x,y:door.y+16});sim.command({type:'interact',id:door.id});assert.ok(sim.map.scene);assert.equal(sim.map.regions[0].biome,'cave');assert.equal(sim.enemies.length,1);assert.ok(sim.map.interactions.some(i=>i.kind==='exit'));
- assert.ok(findPath(sim.map,sim.player,{x:288,y:410}).length);
+ const sim=new Simulation(),door=sim.map.interactions.find(i=>i.kind==='cave');Object.assign(sim.player,{x:door.x,y:door.y+16});sim.command({type:'interact',id:door.id});assert.ok(sim.map.scene);assert.equal(sim.map.regions[0].biome,'cave');assert.ok(sim.enemies.length>1);assert.ok(sim.map.interactions.some(i=>i.kind==='exit'));
+ assert.ok(findPath(sim.map,sim.player,sim.map.layerExits[1]).length);
 });

@@ -1,3 +1,4 @@
+import {freePosition,pathDistance,levelRangeAt} from './world-navigation.js';
 import {createInterior} from './collisions.js';
 import {encounterStats,cleanInventory} from './encounters.js';
 import {effectiveness,effectivenessText,normalizeTypes} from './type-system.js';
@@ -19,7 +20,7 @@ export class Simulation {
     if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
     if (!Object.hasOwn(CREATURES, starter)) throw new RangeError('Criatura inicial inválida');
     this.definition = CREATURES[starter];
-    this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || []); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
+    this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || [],options.discoveryCols||60); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
     this.quest = { id: 'clear-clareira', goal: 3, progress: 0, complete: false, rewardXp: 60, drops: [] };
     this.inventory=cleanInventory(options.inventory);
     this.pc=Array.isArray(options.pc)?options.pc:[];for(const specimen of this.pc)if(CREATURES[specimen.id]){const ratio=(specimen.hp||specimen.maxHp||1)/Math.max(1,specimen.maxHp||1);applyStats(specimen);specimen.hp=Math.min(specimen.maxHp,Math.max(1,Math.ceil(specimen.maxHp*ratio)));}this.capturePlan=options.capturePlan&&typeof options.capturePlan==='object'?options.capturePlan:{enabled:false,speciesId:'caterpie'};this.captureSerial=Number(options.captureSerial)||this.pc.length;
@@ -355,7 +356,7 @@ export class Simulation {
     }
     this.projectiles = this.projectiles.filter(s => { if(s.remaining>0)return true;this.projectilePool.release(s);return false; });
     this.discovery.reveal(p);
-    if(!this.map.scene&&this.time>=this.streamAt){this.streamCreatures();this.streamAt=this.time+.5;}
+    if((!this.map.scene||this.map.layer)&&this.time>=this.streamAt){this.streamCreatures();this.streamAt=this.time+.5;}
     // Keep the streamed population alive outside the camera so creatures patrol
     // their territory before the player reaches them.
     for (const e of this.enemies){
@@ -366,20 +367,23 @@ export class Simulation {
     this.updateEnemyProjectiles(dt);
   }
   interact(target){
-    if(target.kind==='exit'){this.exitInterior();return;}
+    if(target.kind==='exit'&&this.map.layer&&this.time<(this.transitionUntil||0))return;
+    if(target.kind==='exit'){this.exitInterior(target);return;}
     if(target.kind==='sign'){this.emit('interaction',{message:target.text});return;}
     if(target.id==='heal'&&this.map.scene){this.player.hp=this.player.maxHp;this.emit('interaction',{message:'Seu Pokémon recuperou toda a vida.'});return;}
     if(target.kind==='shopkeeper'&&this.map.scene){this.emit('openShop');return;}
     if(this.outdoor)return;
-    this.outdoor={map:this.map,enemies:this.enemies,discovery:this.discovery,position:{x:target.x,y:target.y+36}};
-    this.map=createInterior(target,this.map.seed);this.enemies=[];this.discovery=new Discovery(this.map);this.projectiles=[];this.enemyProjectiles=[];this.activeAttacks=[];this.zones=[];this.pendingShots=[];
-    Object.assign(this.player,{x:288,y:365,path:[],target:null,moving:false});this.discovery.reveal(this.player);
-    if(['cave','tower'].includes(target.kind)){const e={...WILD_POKEMON[2],uid:1900,x:288,y:180,home:{x:288,y:180},maxHp:40,hp:40,state:'Idle',timer:2,cooldown:0,path:[],facing:{x:0,y:1},hurtbox:{radius:12,layer:32},collisionLayer:4};Object.assign(e,encounterStats(WILD_POKEMON[2],this.outdoor.map,target,e.uid));this.enemies.push(e);}
-    this.emit('interaction',{message:'F para interagir. A saída fica ao sul.'});
+    this.outdoor={map:this.map,enemies:this.enemies,discovery:this.discovery,position:freePosition(this.map,{x:target.x,y:target.y+64}),entryId:target.id};
+    this.map=createInterior(target,this.map.seed,this.outdoor.map);const previous=this.layerVisits?.get(this.map.scene);this.enemies=previous?.enemies||[];this.discovery=previous?.discovery||new Discovery(this.map);this.projectiles=[];this.enemyProjectiles=[];this.activeAttacks=[];this.zones=[];this.pendingShots=[];
+    const exit=this.map.layerExits?.find(e=>e.surfaceId===target.id);const landing=exit?freePosition(this.map,{x:exit.x,y:exit.y+64}):{x:288,y:365};Object.assign(this.player,landing,{path:[],target:null,pendingCast:null,repathAt:0,attackUntil:0,moving:false});this.pendingInteraction=null;this.transitionUntil=this.time+1;this.streamAt=0;this.discovery.reveal(this.player);
+    if(!this.map.layer&&['cave','tower'].includes(target.kind)){const e={...WILD_POKEMON[2],uid:1900,x:288,y:180,home:{x:288,y:180},maxHp:40,hp:40,state:'Idle',timer:2,cooldown:0,path:[],facing:{x:0,y:1},hurtbox:{radius:12,layer:32},collisionLayer:4};Object.assign(e,encounterStats(WILD_POKEMON[2],this.outdoor.map,target,e.uid));this.enemies.push(e);}
+    if(this.map.layer)this.streamCreatures();
+    this.emit('interaction',{message:this.map.layer?this.map.name+' · F ou clique na passagem para voltar.':'F para interagir. A saída fica ao sul.'});
   }
-  exitInterior(){if(!this.outdoor)return;const saved=this.outdoor;this.map=saved.map;this.enemies=saved.enemies;this.discovery=saved.discovery;Object.assign(this.player,saved.position,{path:[],target:null,moving:false});this.outdoor=null;this.projectiles=[];this.enemyProjectiles=[];this.activeAttacks=[];this.zones=[];this.pendingShots=[];this.pendingInteraction=null;this.emit('interaction',{message:'De volta a Aurora.'});}
+  exitInterior(exit){if(!this.outdoor)return;if(this.map.layer){this.layerVisits??=new Map();this.layerVisits.set(this.map.scene,{enemies:this.enemies,discovery:this.discovery});}const saved=this.outdoor;const portal=exit?.surfaceId&&saved.map.interactions.find(i=>i.id===exit.surfaceId);const landing=portal?freePosition(saved.map,{x:portal.x,y:portal.y+64}):saved.position;this.map=saved.map;this.enemies=saved.enemies;this.discovery=saved.discovery;for(const enemy of this.enemies){const state=this.sharedWildStates.get(enemy.uid);if(state)this.applySharedWildState(state);}Object.assign(this.player,landing,{path:[],target:null,pendingCast:null,repathAt:0,attackUntil:0,moving:false});this.outdoor=null;this.transitionUntil=this.time+1;this.streamAt=0;this.discovery.reveal(this.player);this.projectiles=[];this.enemyProjectiles=[];this.activeAttacks=[];this.zones=[];this.pendingShots=[];this.pendingInteraction=null;this.emit('interaction',{message:'De volta a Aurora.'});}
   applySharedWildState(state){
     if(!Number.isInteger(state?.uid)||!Number.isFinite(state.hp))return;
+    if(state.scene&&state.scene!==(this.map.scene||'world')){this.sharedWildStates.set(state.uid,state);return;}
     if(state.hp<=0&&state.respawnAt<=Date.now()){this.sharedWildStates.delete(state.uid);return;}
     this.sharedWildStates.set(state.uid,state);
     const enemy=this.enemies.find(e=>e.uid===state.uid);
@@ -388,7 +392,7 @@ export class Simulation {
     if(state.hp<=0){if(enemy.state!=='Dead')enemy.deathStart=this.time;enemy.hp=0;enemy.state='Dead';enemy.timer=Math.max(0,(state.respawnAt-Date.now())/1000);enemy.path=[];}
     else {enemy.hp=Math.max(0,Math.min(enemy.maxHp,state.hp));if(state.state)enemy.state=state.state;}
   }
-  sharedCreatureSnapshot(e){return {uid:e.uid,isBoss:!!e.isBoss,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
+  sharedCreatureSnapshot(e){return {scene:this.map.scene||'world',uid:e.uid,isBoss:!!e.isBoss,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
   streamCreatures() {
     const p=this.player,near=[],now=this.worldNow();
     for(const e of this.enemies){
@@ -399,7 +403,7 @@ export class Simulation {
     }
     this.enemies=near;
     const ids=new Set(near.map(e=>e.uid)),cs=24*32;
-    for(const guard of this.bossGuards||[]){
+    for(const guard of this.map.scene?[]:this.bossGuards||[]){
       if(ids.has(guard.uid)||distance(guard.home,p)>=1800)continue;
       if(guard.unloadedAt&&guard.state==='Dead')guard.timer=Math.max(0,guard.timer-(this.time-guard.unloadedAt));
       guard.unloadedAt=0;this.enemies.push(guard);ids.add(guard.uid);if(this.sharedWildStates.has(guard.uid))this.applySharedWildState(this.sharedWildStates.get(guard.uid));
@@ -421,7 +425,7 @@ export class Simulation {
       const random=salt=>{const n=Math.sin((e.uid+serial*97+attempt*31+salt)*127.1+(this.spawnEpoch||0)*.013)*43758.5453;return n-Math.floor(n);};
       const x=(Math.floor(region.x+(random(1)-.5)*region.rx*1.7)+.5)*32,y=(Math.floor(region.y+(random(2)-.5)*region.ry*1.7)+.5)*32;
       const tileX=Math.floor(x/32),tileY=Math.floor(y/32),regionIndex=this.map.regions.indexOf(region);
-      if(this.map.biome[tileY]?.[tileX]!==regionIndex||!walkable(this.map,x,y,e.radius||12)||distance({x,y},this.player)<230)continue;
+      if(!Number.isFinite(pathDistance(this.map,{x,y}))||(levelRangeAt(this.map,{x,y})?.[1]||Infinity)<(e.minLevel||1)||this.map.biome[tileY]?.[tileX]!==regionIndex||!walkable(this.map,x,y,e.radius||12)||distance({x,y},this.player)<230)continue;
       if(Math.hypot(x-REGION.spawn.x,y-REGION.spawn.y)<575||this.enemies.some(other=>other!==e&&other.isBoss&&Math.hypot(x-other.x,y-other.y)<540))continue;
       if(this.enemies.some(other=>other!==e&&other.state!=='Dead'&&Math.hypot(x-other.home.x,y-other.home.y)<105))continue;
       return{x,y};

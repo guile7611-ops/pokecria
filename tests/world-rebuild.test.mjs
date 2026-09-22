@@ -11,7 +11,7 @@ test('seed is repeatable; variation preserves every authored location and road',
  const a=createMap(),b=generateWorld(),c=generateWorld({seed:42});
  assert.deepEqual(a.grid,b.grid);assert.notDeepEqual(a.grid,c.grid);
  assert.deepEqual(a.pois,c.pois);assert.deepEqual(a.roads,c.roads);
- assert.equal(a.cols*a.rows,240*170*4);
+ assert.equal(a.cols*a.rows,WorldDefinition.cols*WorldDefinition.rows);assert.ok(a.cols*a.rows>480*340*1.8);
  for(const p of a.pois)assert.ok(walkable(c,p.x,p.y),p.name);
 });
 test('continent has ocean margins and every POI is reachable from the village',()=>{
