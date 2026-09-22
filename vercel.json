@@ -1,4 +1,5 @@
 {
+  "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": { "api/tile-chunk.mjs": { "maxDuration": 30, "includeFiles": "public/assets/**" } }
