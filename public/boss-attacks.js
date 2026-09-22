@@ -4,6 +4,16 @@ export const DEFAULT_BOSS_ATTACKS=Object.freeze([
  {id:'cleave',name:'Lâminas Selvagens',shape:'cone',vfx:'slash',animation:'Attack',windup:.8,recovery:.65,damage:.85},
  {id:'beam',name:'Raio Solar',shape:'line',vfx:'energy',animation:'Shoot',windup:1.25,recovery:1,damage:1.25},
 ]);
+export const FOREST_BOSS_ATTACKS=Object.freeze([
+ {id:'root-ring',name:'Raízes Vorazes',shape:'circle',vfx:'leaf',animation:'Attack',windup:.9,recovery:.7,damage:.9},
+ {id:'thorn-fan',name:'Leque de Espinhos',shape:'cone',vfx:'leaf',animation:'Shoot',windup:.7,recovery:.7,damage:1},
+ {id:'solar-lance',name:'Lança Solar',shape:'line',vfx:'energy',animation:'Shoot',windup:1.45,recovery:1.1,damage:1.35},
+]);
+export const VOLCANO_BOSS_ATTACKS=Object.freeze([
+ {id:'eruption',name:'Erupção da Caldeira',shape:'circle',vfx:'fire',animation:'Attack',windup:1.25,recovery:.9,damage:1.25},
+ {id:'flame-sweep',name:'Varredura de Chamas',shape:'cone',vfx:'fire',animation:'Shoot',windup:.65,recovery:.8,damage:1.05},
+ {id:'magma-beam',name:'Rio de Magma',shape:'line',vfx:'fire',animation:'Shoot',windup:1,recovery:1,damage:1.4},
+]);
 export function prepareBossAttack(boss,target,phase){
  const attacks=boss.attacks||DEFAULT_BOSS_ATTACKS,index=boss.attackIndex||0,attack=attacks[index%attacks.length];boss.attackIndex=index+1;
  const angle=Math.atan2(target.y-boss.y,target.x-boss.x);

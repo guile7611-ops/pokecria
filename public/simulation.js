@@ -1,7 +1,8 @@
 import {createInterior} from './collisions.js';
 import {encounterStats,cleanInventory} from './encounters.js';
 import {effectiveness,effectivenessText} from './type-system.js';
-import {prepareBossAttack,bossAttackHits} from './boss-attacks.js';
+import {prepareBossAttack,bossAttackHits,FOREST_BOSS_ATTACKS,VOLCANO_BOSS_ATTACKS} from './boss-attacks.js';
+import {enemySkillSet} from './enemy-skills.js';
 import { Discovery, ObjectPool } from './world-runtime.js';
 import { STARTERS, CREATURES, WILD_POKEMON, SPAWN_RARITIES, BOSS, ABILITIES, LEARNSETS, XP_CURVE, REGION, SPAWN_ZONES } from './data.js';
 import {starterAttackVisual} from './starter-attack-vfx.js';
@@ -11,6 +12,7 @@ import { clearSegment, createMap, distance, findPath, findPathNearObstacle, foll
 
 export class Simulation {
   constructor(starter = 'bulbasaur', options = {}) {
+    if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
     if (!Object.hasOwn(CREATURES, starter)) throw new RangeError('Criatura inicial inválida');
     this.definition = CREATURES[starter];
     this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:Math.floor(Date.now()/300000); this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || []); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
@@ -22,9 +24,9 @@ export class Simulation {
     if(options.activePokemon&&options.activePokemon.id===starter)Object.assign(this.player,options.activePokemon,{...REGION.spawn,path:[],target:null,moving:false,dead:false,cooldowns:{}});
     this.enemies = REGION.spawnZones.slice(0,2).map((pos, i) => { const zone = SPAWN_ZONES[i % SPAWN_ZONES.length],species=[WILD_POKEMON[0],WILD_POKEMON.find(p=>p.id==='pidgey')][i]; return { ...species, ...pos, home: { ...pos }, zoneId: zone.id, levelRange: zone.level, maxHp: species.hp, uid: i + 1, state: 'Idle', timer: i * .7, cooldown: 0, path: [], facing: { x: 0, y: 1 }, moving: false }; });
     const bossPoi=this.map.pois.find(p=>p.id==='arena-guardiao'),bossHome={x:bossPoi.x,y:bossPoi.y};
-    this.boss = { ...BOSS, ...bossHome, home: bossHome, maxHp: BOSS.hp, uid: 1000, state: 'Idle', phase: 1, timer: 2, cooldown: 0, path: [], facing: { x: 0, y: 1 }, telegraph: null, defeated: false };
+    this.boss = { ...BOSS, ...bossHome, home: bossHome, maxHp: BOSS.hp, uid: 1000, state: 'Idle', phase: 1, timer: 2, cooldown: 0, path: [], facing: { x: 0, y: 1 }, telegraph: null, defeated: false,attacks:FOREST_BOSS_ATTACKS };
     this.enemies.push(this.boss);
-    for(const poi of this.map.pois.filter(p=>p.kind==='boss'&&p.id!=='arena-guardiao'))this.enemies.push({...BOSS,id:'charizard',name:'Guardião da Caldeira',x:poi.x,y:poi.y,home:{x:poi.x,y:poi.y},uid:1001,maxHp:BOSS.hp,state:'Idle',phase:1,timer:2,cooldown:0,path:[],facing:{x:0,y:1},telegraph:null,defeated:false});
+    for(const poi of this.map.pois.filter(p=>p.kind==='boss'&&p.id!=='arena-guardiao'))this.enemies.push({...BOSS,id:'charizard',name:'Guardião da Caldeira',x:poi.x,y:poi.y,home:{x:poi.x,y:poi.y},uid:1001,maxHp:BOSS.hp,state:'Idle',phase:1,timer:2,cooldown:0,path:[],facing:{x:0,y:1},telegraph:null,defeated:false,attacks:VOLCANO_BOSS_ATTACKS});
     const bossGuards={
       'arena-guardiao':['caterpie','weedle','pidgey','caterpie','weedle','pidgey'],
       vulcao:['slugma','numel','houndour','torkoal','geodude','cubone'],
@@ -35,7 +37,7 @@ export class Simulation {
         outer: for(let r=1;r<12;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++) {const x=(Math.floor(e.x/32)+dx+.5)*32,y=(Math.floor(e.y/32)+dy+.5)*32;if(walkable(this.map,x,y,e.radius)){e.x=x;e.y=y;e.home={x,y};break outer;}}
       }
     }
-    for(const e of this.enemies){const species=e.isBoss?BOSS:WILD_POKEMON.find(s=>s.id===e.id);Object.assign(e,encounterStats(species,this.map,e,e.uid,{boss:e.isBoss,horde:e.horde}));}
+    for(const e of this.enemies){const species=e.isBoss?BOSS:WILD_POKEMON.find(s=>s.id===e.id);Object.assign(e,encounterStats(species,this.map,e,e.uid,{boss:e.isBoss,horde:e.horde}));e.skills=e.isBoss?e.attacks:enemySkillSet(e.element,e.level);}
     this.player.hurtbox={radius:12,layer:32}; this.player.collisionLayer=2;
     for(const e of this.enemies){e.hurtbox={radius:e.radius,layer:32};e.collisionLayer=4;e.navigation={maxPathNodes:1500};}
     this.discovery.reveal(this.player);
@@ -279,7 +281,7 @@ export class Simulation {
       const saved=this.dormant.get(spawn.uid),species=WILD_POKEMON.find(s=>s.id===spawn.species)||{...WILD_POKEMON[0],...CREATURES[spawn.species],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
       const stats=encounterStats(species,this.map,spawn,spawn.uid),hp=stats.maxHp;
       const dead=saved?.state==='Dead'&&this.time-saved.unloaded<saved.timer;
-      const entity=this.creaturePool.take({...species,...spawn,...stats,id:spawn.species,maxHp:hp,hp:dead?0:saved?.state==='Dead'?hp:saved?.hp||hp,home:{x:spawn.x,y:spawn.y},state:dead?'Dead':'Idle',timer:dead?saved.timer-(this.time-saved.unloaded):.15+(spawn.uid%12)*.11,cooldown:0,path:[],facing:{x:0,y:1},moving:false,slowUntil:0,staggerUntil:0});
+      const entity=this.creaturePool.take({...species,...spawn,...stats,id:spawn.species,skills:enemySkillSet(species.element,stats.level),maxHp:hp,hp:dead?0:saved?.state==='Dead'?hp:saved?.hp||hp,home:{x:spawn.x,y:spawn.y},state:dead?'Dead':'Idle',timer:dead?saved.timer-(this.time-saved.unloaded):.15+(spawn.uid%12)*.11,cooldown:0,path:[],facing:{x:0,y:1},moving:false,slowUntil:0,staggerUntil:0});
       entity.hurtbox={radius:entity.radius,layer:32};entity.collisionLayer=4;entity.navigation={maxPathNodes:1500};
       this.enemies.push(entity);ids.add(entity.uid);
     }
@@ -303,7 +305,7 @@ export class Simulation {
     if (e.state === 'Dead') {
       if (e.isBoss && e.defeated && e.timer <= 0) { Object.assign(e, e.home, { hp: e.maxHp, state: 'Idle', phase: 1, defeated: false, timer: 2, path: [], telegraph: null, attackIndex:0, attackVfx:null, attackUntil:0 }); this.emit('bossRespawn'); }
       else if (e.isBoss) return;
-      if (e.timer <= 0 && distance(p, e.home) > 170) {const home=this.randomRespawnPoint(e);Object.assign(e,home,{home:{...home},hp:e.maxHp,state:'Idle',timer:2,path:[]});}
+      if (e.timer <= 0 && distance(p, e.home) > 170) {const home=this.randomRespawnPoint(e);const species=WILD_POKEMON.find(s=>s.id===e.id)||e;const stats=encounterStats(species,this.map,{...e,...home},e.uid,{horde:e.horde,respawn:e.respawnSerial||0});Object.assign(e,home,stats,{home:{...home},hp:stats.maxHp,skills:enemySkillSet(e.element,stats.level),state:'Idle',timer:2,path:[]});}
       return;
     }
     if(!e.isBoss&&this.time<(e.staggerUntil||0)){e.moving=false;e.path=[];return;}
@@ -323,7 +325,7 @@ export class Simulation {
       if (d > (e.chaseRange||400) || p.dead) { e.state = 'ReturnToSpawn'; e.path = []; return; }
       if (d <= e.range && lineOfSight(this.map, e, p)) {
         e.state = 'Attack'; e.path = []; e.moving = false;
-        if (e.cooldown === 0) { const buffDefense=(p.buffs||[]).reduce((sum,b)=>sum+(b.defenseBonus||0),0);let amount = Math.max(1, e.attack - p.defense-buffDefense); if(p.nature==='Calma'&&p.hp/p.maxHp>.7)amount=Math.ceil(amount*.9); if(p.ability==='Couraça Torrencial'&&p.hp/p.maxHp<.35)amount=Math.ceil(amount*.8); p.hp = Math.max(0, p.hp - amount); e.cooldown = e.cooldown || e.cooldownMax || 1.25; this.emit('hurt', { x: p.x, y: p.y, amount });
+        if (e.cooldown === 0) { const buffDefense=(p.buffs||[]).reduce((sum,b)=>sum+(b.defenseBonus||0),0),skill=e.skills?.length&&((e.attackCount||0)+1)%3===0?e.skills[Math.floor((e.attackCount||0)/3)%e.skills.length]:null;e.attackCount=(e.attackCount||0)+1;if(skill){this.emit('castVisual',{x:e.x,y:e.y,vfx:skill.vfx,size:66});this.emit('impact',{x:p.x,y:p.y,vfx:skill.vfx,size:skill.kind==='area'?90:60});if(skill.kind==='heal')e.hp=Math.min(e.maxHp,e.hp+Math.round(e.maxHp*.08));}let amount = Math.max(1, e.attack*(skill?.power||1) - p.defense-buffDefense); if(p.nature==='Calma'&&p.hp/p.maxHp>.7)amount=Math.ceil(amount*.9); if(p.ability==='Couraça Torrencial'&&p.hp/p.maxHp<.35)amount=Math.ceil(amount*.8); p.hp = Math.max(0, p.hp - amount); e.cooldown = e.cooldown || e.cooldownMax || 1.25; this.emit('hurt', { x: p.x, y: p.y, amount });
           p.hitStart = this.time; p.hitUntil = this.time + .2;
           if (p.hp === 0) { p.dead = true; p.deathStart = this.time; p.respawnIn = 3; p.path = []; p.moving = false; p.target = null; this.projectiles = []; this.emit('death'); }
         }

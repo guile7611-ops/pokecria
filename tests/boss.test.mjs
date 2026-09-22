@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { Simulation } from '../public/simulation.js';
 import {DEFAULT_BOSS_ATTACKS,prepareBossAttack,bossAttackHits} from '../public/boss-attacks.js';
 
-test('every default boss cycles through three different animated attacks',()=>{
+test('forest boss cycles through its own three animated attacks',()=>{
  const sim=new Simulation(),b=sim.boss,p=sim.player;sim.enemies=[b];p.x=b.x-40;p.y=b.y;p.hp=p.maxHp=100000;
  tick(sim,8);const casts=sim.events.filter(e=>e.type==='bossTelegraph');
- assert.deepEqual(casts.slice(0,3).map(e=>e.id),['slam','cleave','beam']);
- assert.deepEqual(new Set(casts.slice(0,3).map(e=>e.vfx)),new Set(['earth','slash','energy']));
+ assert.deepEqual(casts.slice(0,3).map(e=>e.id),['root-ring','thorn-fan','solar-lance']);
+ assert.ok(casts.slice(0,3).every(e=>e.name));
  assert.ok(sim.events.filter(e=>e.type==='bossImpact').length>=3);
 });
 test('telegraphs lock the target and each shape has a safe escape direction',()=>{

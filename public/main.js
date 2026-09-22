@@ -209,7 +209,7 @@ for(const button of document.querySelectorAll('[data-egg]'))button.onclick=()=>{
 };
 renderHub();
 function resetSession() {
-  sim.syncActivePokemon();worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.player.id===selectedStarter?sim.activeSnapshot():null}; sim = new Simulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
+  sim.syncActivePokemon();selectedStarter=sim.player.id;worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; sim = new Simulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
   moved = false; paused = false; accumulator = 0; held = false; pointerDirty = false; lastMove = 0; arrows.clear();
   renderer.playerNick=account?.nick||credentials?.username||'Treinador';$('player-name').textContent = renderer.playerNick; $('player-element').textContent = `✦ ${sim.player.name.toUpperCase()} · ${sim.player.element.toUpperCase()}`;
   $('player-portrait').src = `/assets/pokemon/${selectedStarter}/portrait.png`; $('player-portrait').alt = sim.player.name;
