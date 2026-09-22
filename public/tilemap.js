@@ -18,7 +18,7 @@ export const OBJECT_PROPERTIES={
  cave:{frame:15,width:144,height:152,enterable:true},house:{frame:16,width:128,height:160,enterable:true},hall:{frame:17,width:144,height:176,enterable:true},heal:{frame:18,width:144,height:168,enterable:true},shop:{frame:19,width:128,height:152,enterable:true},
  ruins:{frame:20,width:104,height:120,body:[-38,-32,20,30]},tower:{frame:21,width:112,height:160,enterable:true},boss:{frame:22,width:160,height:176,enterable:true},camp:{frame:23,width:112,height:128,enterable:true},
  log:{frame:24,width:64,height:32,body:[-24,-8,48,14]},stump:{frame:25,width:40,height:32,body:[-9,-10,18,15]},sign:{frame:26,width:40,height:48,interactable:true},bench:{frame:27,width:64,height:36,body:[-23,-9,46,16]},crate:{frame:28,width:56,height:48,body:[-17,-16,34,24]},well:{frame:29,width:56,height:72,body:[-17,-19,34,26]},bridge:{frame:30,width:128,height:80},fire:{frame:31,width:40,height:48,low:true},
- gate:{frame:20,width:112,height:120},waterfall:{frame:15,width:128,height:152},lava:{frame:13,width:48,height:48,low:true},cactus:{frame:5,width:48,height:72,body:[-7,-10,14,16]},
+ gate:{frame:20,width:112,height:120},waterfall:{frame:15,width:128,height:152},lava:{frame:13,width:48,height:48,body:[-19,-33,38,32]},cactus:{frame:5,width:48,height:72,body:[-7,-10,14,16]},
 };
 export function materialAt(map,x,y){const t=map.grid[y]?.[x],biome=map.regions?.[map.biome?.[y]?.[x]]?.biome||'field';
  if(t===undefined)return 7;

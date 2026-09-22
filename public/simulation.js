@@ -25,7 +25,11 @@ export class Simulation {
     this.boss = { ...BOSS, ...bossHome, home: bossHome, maxHp: BOSS.hp, uid: 1000, state: 'Idle', phase: 1, timer: 2, cooldown: 0, path: [], facing: { x: 0, y: 1 }, telegraph: null, defeated: false };
     this.enemies.push(this.boss);
     for(const poi of this.map.pois.filter(p=>p.kind==='boss'&&p.id!=='arena-guardiao'))this.enemies.push({...BOSS,id:'charizard',name:'Guardião da Caldeira',x:poi.x,y:poi.y,home:{x:poi.x,y:poi.y},uid:1001,maxHp:BOSS.hp,state:'Idle',phase:1,timer:2,cooldown:0,path:[],facing:{x:0,y:1},telegraph:null,defeated:false});
-    for(const boss of this.enemies.filter(e=>e.isBoss))for(let i=0;i<6;i++){const angle=i*Math.PI/3,pos={x:boss.x+Math.cos(angle)*150,y:boss.y+Math.sin(angle)*150};const species=WILD_POKEMON[i%3];this.enemies.push({...species,...pos,home:{...pos},uid:1100+(boss.uid-1000)*10+i,horde:true,bossUid:boss.uid,maxHp:species.hp,state:'Idle',timer:2,cooldown:0,path:[],facing:{x:0,y:1}});}
+    const bossGuards={
+      'arena-guardiao':['caterpie','weedle','pidgey','caterpie','weedle','pidgey'],
+      vulcao:['slugma','numel','houndour','torkoal','geodude','cubone'],
+    };
+    for(const boss of this.enemies.filter(e=>e.isBoss))for(let i=0;i<6;i++){const angle=i*Math.PI/3,pos={x:boss.x+Math.cos(angle)*150,y:boss.y+Math.sin(angle)*150};const poi=this.map.pois.find(p=>p.kind==='boss'&&Math.hypot(p.x-boss.x,p.y-boss.y)<32),speciesId=(bossGuards[poi?.id]||SPAWN_ZONES.find(zone=>zone.region===poi?.region)?.species.map(entry=>entry.id)||bossGuards['arena-guardiao'])[i%6],species=WILD_POKEMON.find(p=>p.id===speciesId);this.enemies.push({...species,...pos,home:{...pos},uid:1100+(boss.uid-1000)*10+i,horde:true,bossUid:boss.uid,maxHp:species.hp,state:'Idle',timer:2,cooldown:0,path:[],facing:{x:0,y:1}});}
     for (const e of this.enemies) {
       if (!walkable(this.map,e.x,e.y,e.radius)) {
         outer: for(let r=1;r<12;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++) {const x=(Math.floor(e.x/32)+dx+.5)*32,y=(Math.floor(e.y/32)+dy+.5)*32;if(walkable(this.map,x,y,e.radius)){e.x=x;e.y=y;e.home={x,y};break outer;}}
