@@ -365,7 +365,7 @@ let previous = performance.now();
 let lastHudUpdate=0;
 function frame(now) {
   const dt = Math.min((now - previous) / 1000, .1); previous = now;
-  if (started && !paused) {
+  if (started) {
     accumulator += dt;
     while (accumulator >= 1 / 60) {
       sim.inputVector=null;
@@ -401,7 +401,7 @@ function frame(now) {
       if (e.type === 'respawn') note('Você renasceu. Sua jornada continua.'); beep(e.type);
     }
   }
-  renderer.draw(paused ? 0 : dt, started);if(started&&now-lastHudUpdate>=80){updateUI();lastHudUpdate=now;}requestAnimationFrame(frame);
+  renderer.draw(dt, started);if(started&&now-lastHudUpdate>=80){updateUI();lastHudUpdate=now;}requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 
