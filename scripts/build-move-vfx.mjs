@@ -73,6 +73,16 @@ function draw(motif,t,p,s){
  case 'splat':return C(32,32,r*.75,b)+spokes(8,r*.5,r+11,d,5,t*.2)+dots(6,27,a);
  case 'fang':{const close=Math.min(15,t*3);return P(`11,${4+close} 25,${9+close} 28,${32+close} 20,${42+close}`,a)+P(`53,${4+close} 39,${9+close} 36,${32+close} 44,${42+close}`,b)+P(`11,${60-close} 25,${55-close} 28,${32-close} 20,${22-close}`,b)+P(`53,${60-close} 39,${55-close} 36,${32-close} 44,${22-close}`,a)+spokes(6,8,r+10,a,2,t*.1)+dots(6,20,b);}
  case 'jaws':{const close=Math.min(15,t*3);return Q(`M 10 ${13+close} L 21 ${22+close} L 28 ${14+close} L 35 ${23+close} L 42 ${13+close} L 54 ${20+close} M 10 ${51-close} L 21 ${42-close} L 28 ${50-close} L 35 ${41-close} L 42 ${51-close} L 54 ${44-close}`,a,5)+C(32,32,r*.4,d);}
+ case 'doubleKick':return Q(`M ${6+t*3} 51 Q 18 30 36 28 L 55 17`,b,8)+Q(`M ${6+t*3} 51 Q 18 30 36 28 L 55 17`,a,3)+Q(`M 6 18 Q 24 37 40 39 L 57 48`,d,6)+spokes(4,8,r+7,a,2,t*.2);
+ case 'mudShot':return P(`8,34 24,23 42,26 56,34 39,44 22,42`,d)+C(23+t*3,32,7,b)+dots(8,17,a);
+ case 'blazeKick':return Q(`M 7 48 Q 24 42 39 28 L 52 12`,d,10)+Q(`M 9 48 Q 28 38 42 25 L 55 10`,a,4)+P(`42,30 47,6 56,20 61,14 59,36`,b)+P(`48,28 51,14 57,23`,a);
+ case 'tackle':return P(`4,24 29,24 29,15 60,32 29,49 29,40 4,40`,b)+P(`11,28 34,28 34,23 54,32 34,41 34,36 11,36`,a)+L(2,17+t,18,17+t,d,3);
+ case 'scratch':return [0,1,2].map(i=>Q(`M ${11+i*11} 52 Q ${20+i*9+t} 28 ${22+i*11} 10`,i%2?b:a,4)).join('')+dots(5,19,d);
+ case 'quickAttack':return Array.from({length:4},(_,i)=>L(3,15+i*11,45+t*2,15+i*11,i%2?a:b,4)).join('')+P(`37,11 61,32 37,53 45,32`,d);
+ case 'takeDown':return C(29+t,32,13,b)+C(26+t,27,6,a)+spokes(8,15,r+11,d,4,t*.15)+L(3,24,18,24,a,3);
+ case 'rockThrow':return P(`14,21 39,13 55,29 45,49 18,47 7,33`,d)+P('14,21 39,13 32,31 7,33',b)+P('39,13 55,29 32,31',a)+dots(4,29,b);
+ case 'absorb':return Array.from({length:3},(_,i)=>Q(`M ${8+i*6} ${17+i*11} Q ${35+t*2} ${4+i*9} 54 32`,i%2?a:b,3)).join('')+C(53,32,4,a);
+ case 'gigaDrain':return Array.from({length:5},(_,i)=>Q(`M 55 ${9+i*11} Q ${37-t*2} ${17+i*8} 16 32`,i%2?a:b,3)).join('')+C(16,32,9,d)+C(16,32,4,a);
  case 'stars':return spokes(10,3,r+12,a,4,t*.1)+C(32,32,r*.5,b)+C(32,32,4,a);
  default:return C(32,32,r,b)+spokes(6,r,r+8,a,2);
  }

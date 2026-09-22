@@ -1,4 +1,5 @@
 import {MOVE_CATALOG} from './move-catalog.js';
+import {LEVEL_LEARNSETS_GEN9} from './level-learnsets-gen9.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
@@ -103,6 +104,17 @@ Object.assign(ABILITIES, {
   mudSlap:{id:'mudSlap',name:'Tapa de Lama',behavior:'area',type:'Ground',damage:18,radius:90,range:250,cooldown:6,color:'#b89362',vfx:'earth',description:'Arremessa lama e acerta uma pequena área.'},
   whirlpool:{id:'whirlpool',name:'Redemoinho',behavior:'zone',type:'Water',damage:12,radius:105,range:300,duration:2.8,hitInterval:.55,cooldown:8,color:'#52cfee',description:'Cria um vórtice persistente que puxa e fere os inimigos.'},
   protect:{id:'protect',name:'Proteção',behavior:'buff',type:'Normal',cooldown:14,duration:5,defenseBonus:9,color:'#9de7c1',vfx:'buff',description:'Cria uma barreira e aumenta a defesa em 9 por 5 segundos.'},
+  doubleKick:{id:'doubleKick',name:'Chute Duplo',behavior:'direct',type:'Fighting',damage:11,hits:2,range:79,cooldown:4.5,motif:'doubleKick',color:'#f6a76c',description:'Dois chutes consecutivos de tipo Lutador.'},
+  mudShot:{id:'mudShot',name:'Tiro de Lama',behavior:'projectile',type:'Ground',damage:19,range:330,speed:390,slow:2,cooldown:5,motif:'mudShot',color:'#b69363',description:'Dispara lama e reduz o movimento do alvo por 2 segundos.'},
+  blazeKick:{id:'blazeKick',name:'Chute Ígneo',behavior:'direct',type:'Fire',damage:38,range:82,lunge:20,stagger:.25,cooldown:6,motif:'blazeKick',color:'#ff944b',description:'Um chute em chamas que interrompe brevemente o alvo.'},
+  tackle:{id:'tackle',name:'Investida',behavior:'direct',type:'Normal',damage:12,range:72,lunge:13,cooldown:2.8,motif:'tackle',color:'#ead8b1',description:'Avança e atinge um alvo próximo.'},
+  scratch:{id:'scratch',name:'Arranhão',behavior:'direct',type:'Normal',damage:12,range:73,cooldown:2.8,motif:'scratch',color:'#eee1bd',description:'Três garras riscam o alvo.'},
+  quickAttack:{id:'quickAttack',name:'Ataque Rápido',behavior:'direct',type:'Normal',damage:15,range:105,lunge:38,cooldown:3.5,motif:'quickAttack',color:'#ececdb',description:'Uma investida veloz alcança alvos um pouco mais distantes.'},
+  bite:{id:'bite',name:'Mordida',behavior:'direct',type:'Dark',damage:17,range:78,stagger:.2,cooldown:4,motif:'jaws',color:'#b0a2c7',description:'Morde e interrompe brevemente o alvo.'},
+  takeDown:{id:'takeDown',name:'Derrubar',behavior:'direct',type:'Normal',damage:27,range:88,lunge:24,recoil:.18,cooldown:5.5,motif:'takeDown',color:'#d9b987',description:'Uma colisão forte que também causa dano ao usuário.'},
+  rockThrow:{id:'rockThrow',name:'Lançamento de Rocha',behavior:'projectile',type:'Rock',damage:17,range:330,speed:355,cooldown:4.5,motif:'rockThrow',color:'#bca184',description:'Lança uma rocha sólida contra o alvo.'},
+  absorb:{id:'absorb',name:'Absorver',behavior:'projectile',type:'Grass',damage:10,range:310,speed:400,lifesteal:.5,cooldown:4.5,motif:'absorb',color:'#90e88f',description:'Drena energia e cura metade do dano causado.'},
+  gigaDrain:{id:'gigaDrain',name:'Gigadreno',behavior:'projectile',type:'Grass',damage:31,range:350,speed:400,lifesteal:.5,cooldown:7,motif:'gigaDrain',color:'#70e5a0',description:'Um dreno mais forte que recupera metade do dano causado.'},
 });
 for(const [id,type] of Object.entries({leaf:'Grass',razorLeaf:'Grass',solarSeed:'Grass',vineBurst:'Grass',solarBeam:'Grass',ember:'Fire',flame:'Fire',fireBlast:'Fire',flamethrower:'Fire',inferno:'Fire',water:'Water',waterPulse:'Water',hydroPump:'Water',aquaWave:'Water',hydroCannon:'Water',bloom:'Grass',recover:'Normal'}))if(ABILITIES[id])ABILITIES[id].type=type;
 Object.assign(ABILITIES, {
@@ -213,6 +225,33 @@ for(const species of WILD_POKEMON){
  const primary=species.element.split(' / ')[0], moves=primary==='Grass'?['leaf','bloom','vineBurst','solarBeam']:primary==='Fire'?['ember','recover','flamethrower','inferno']:primary==='Water'?['water','recover','aquaWave','hydroCannon']:['neutralPulse','recover','impact','starBurst'];
  CREATURES[species.id]??={...BASE_PLAYER,...species,hp:Math.max(80,species.hp+35),attack:Math.max(11,species.attack),defense:species.defense,baseCreature:species.id,stage:0,projectile:moves[0],recovery:moves[1],third:moves[2],ultimate:moves[3]};
  LEARNSETS[species.id]=moves.map((ability,slot)=>({level:[1,2,10,25][slot],ability,slot}));
+}
+// Canonical level-up rows supplement legacy sets until every move has combat
+// behavior and art. An unavailable move is never silently equipped.
+const canonicalMoveIds={
+  'water-gun':'water','razor-leaf':'razorLeaf','solar-beam':'solarBeam',
+  'flamethrower':'flamethrower','fire-spin':'fireSpin','flame-wheel':'flameWheel',
+  'water-pulse':'waterPulse','hydro-pump':'hydroPump','mud-slap':'mudSlap',
+  'ice-fang':'iceFang','mega-drain':'megaDrain','poison-powder':'poisonPowder',
+  'rapid-spin':'rapidSpin','double-kick':'doubleKick','mud-shot':'mudShot',
+  'blaze-kick':'blazeKick',
+  'quick-attack':'quickAttack','take-down':'takeDown','rock-throw':'rockThrow',
+  'giga-drain':'gigaDrain',
+};
+for(const id of Object.keys(ABILITIES))canonicalMoveIds[id.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)]??=id;
+for(const move of MOVE_CATALOG)canonicalMoveIds[move.officialName.toLowerCase().replaceAll(' ','-')]=move.id;
+export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEVEL_LEARNSETS_GEN9).map(([id,rows])=>[
+  id,rows.map(row=>({...row,ability:canonicalMoveIds[row.move]}))
+]));
+for(const [id,rows] of Object.entries(CANONICAL_LEARNSETS)){
+  if(!LEARNSETS[id])continue;
+  const existing=new Set(LEARNSETS[id].map(row=>`${row.level}:${row.ability}`));
+  for(const row of rows){
+    if(!row.ability||!ABILITIES[row.ability]||existing.has(`${row.level}:${row.ability}`))continue;
+    LEARNSETS[id].push({level:row.level,ability:row.ability,canonical:true});
+    existing.add(`${row.level}:${row.ability}`);
+  }
+  LEARNSETS[id].sort((a,b)=>a.level-b.level);
 }
 const additionalEvolutionLines = [
  ['caterpie','metapod',7],['metapod','butterfree',10],['weedle','kakuna',7],['kakuna','beedrill',10],

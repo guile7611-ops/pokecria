@@ -1,0 +1,7 @@
+# Aprendizado de golpes por nível
+
+O catálogo de Scarlet/Violet usado nesta etapa está em `public/level-learnsets-gen9.js` e `public/level-move-metadata-gen9.js`. Ele cobre as espécies presentes no jogo e é gerado por `node scripts/import-level-learnsets.mjs` a partir dos endpoints `/pokemon/{species}` e `/move/{move}` da [PokéAPI](https://pokeapi.co/docs/v2). A página de cada espécie no [Pokémon Database](https://pokemondb.net/pokedex/blaziken/moves/9) permite conferir visualmente os níveis.
+
+`CANONICAL_LEARNSETS` associa os nomes oficiais aos IDs de `ABILITIES`. Apenas golpes com mecânica e sprite existentes são liberados no jogo; o restante dos dados importados fica disponível para implementação gradual. `node scripts/learnset-coverage.mjs` lista os golpes ainda pendentes por número de espécies afetadas. Ao adicionar uma espécie, atualize `CREATURES`, rode o importador e implemente os golpes ainda faltantes. Não associe um golpe canônico a uma habilidade diferente apenas para aumentar a cobertura.
+
+Os golpes já conhecidos são preservados no save. As listas antigas ainda complementam as tabelas canônicas para que os Pokémon atuais continuem jogáveis enquanto o catálogo de combate é concluído. A evolução preserva os golpes aprendidos e recupera golpes funcionais dos estágios anteriores. Os atalhos E e R só podem ser equipados e usados nos níveis 10 e 25, respectivamente.

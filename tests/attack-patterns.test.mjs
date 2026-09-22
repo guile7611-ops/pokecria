@@ -21,7 +21,7 @@ test('Ice Fang lunges into melee, closes jaws, and briefly chills its target',()
 test('Ice Fang can cast toward an online player without a wild target',()=>{
  const {sim,p}=setup('totodile',[]),x=p.x+65,hp=p.hp;
  assert.equal(sim.command({type:'cast',slot:2,x,y:p.y,remoteTarget:{x,y:p.y,radius:12}}),false);
- p.slots[2]='iceFang';
+ p.level=10;p.slots[2]='iceFang';
  assert.equal(sim.command({type:'cast',slot:2,x,y:p.y,remoteTarget:{x,y:p.y,radius:12}}),true);
  assert.ok(p.x<x);assert.equal(p.hp,hp);assert.ok(p.cooldowns.iceFang>0);
  assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx==='pmd/0155'));

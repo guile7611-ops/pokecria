@@ -38,14 +38,15 @@ test('Ember casts two distinct moving flames without a generic explosion',()=>{
  assert.equal(sim.events.some(event=>event.type==='impact'&&event.vfx==='starters/charmander/ember-impact'),false);
 });
 
-test('all Fire moves use curated PMD sheets and Inferno animates its persistent zone',async()=>{
- const fire=Object.values(ABILITIES).filter(move=>move.type==='Fire');
+test('legacy Fire moves use curated PMD sheets and Inferno animates its persistent zone',async()=>{
+ const fire=Object.values(ABILITIES).filter(move=>move.type==='Fire'&&move.id!=='blazeKick');
  assert.equal(fire.length,8);
  for(const move of fire){
   assert.match(move.vfx,/^pmd\/\d{4}$/);
   const bytes=await readFile(new URL(`../public/assets/sprites/vfx/${move.vfx}.png`,import.meta.url));
   const meta=await sharp(bytes).metadata();assert.equal(meta.width,512);assert.equal(meta.height,64);
  }
+ assert.equal(ABILITIES.blazeKick.vfx,'moves/blazeKick');
  const sim=new Simulation('charmander');
  assert.equal(starterAttackVisual('charmander','inferno').impact,'pmd/0028');
  assert.ok(sim.cast(ABILITIES.inferno,{x:sim.player.x+50,y:sim.player.y}));
