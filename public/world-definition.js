@@ -30,14 +30,14 @@ export const PoiDefinitions = [
   poi('vila-aurora','Vila Aurora','village',8,17,'vila'), poi('arena-guardiao','Santuário do Guardião','boss',61,49,'bosque'),
   poi('bosque','Clareira dos Brotos','camp',53,44,'bosque'), poi('posto','Estalagem do Vento','village',101,99,'campos'),
   poi('templo','Templo das Raízes','ruins',151,91,'mata'), poi('lago','Porto da Lua','village',174,146,'lago'),
-  poi('ilha','Ilha do Oráculo','ruins',190,126,'lago',true), poi('cachoeira','Véu da Lua','waterfall',208,76,'norte'),
+  poi('ilha','Ilha do Oráculo','ruins',190,126,'lago',true), poi('arena-mar','Trono das Marés','boss',214,145,'lago'), poi('cachoeira','Véu da Lua','waterfall',208,76,'norte'),
   poi('segredo-agua','Gruta sob o Véu','cave',202,73,'norte',true), poi('passo','Portão Boreal','gate',245,59,'norte'),
   poi('torre','Torre da Vigília','tower',281,70,'norte'), poi('ruinas','Cidadela dos Reis','ruins',280,112,'ruinas'),
-  poi('gruta','Gruta de Cristal','cave',330,86,'caverna'), poi('vale','Refúgio da Serra','camp',350,138,'encosta'),
+  poi('gruta','Gruta de Cristal','cave',330,86,'caverna'), poi('vale','Refúgio da Serra','camp',350,138,'encosta'), poi('arena-granito','Bastião de Granito','boss',344,153,'encosta'),
   poi('mina','Mina Esquecida','cave',373,163,'encosta'), poi('vulcao','Cratera do Sol','boss',389,208,'vulcao'),
   poi('oasis','Oásis de Âmbar','village',311,250,'deserto'), poi('dunas','Altar das Dunas','ruins',344,272,'deserto'),
   poi('brejo','Cabanas do Brejo','village',104,214,'pantano'), poi('cripta','Cripta Afogada','cave',125,234,'pantano',true),
-  poi('jardim','Jardim das Estrelas','camp',180,245,'pradaria'), poi('porto','Porto das Marés','village',175,290,'costa'),
+  poi('jardim','Jardim das Estrelas','camp',180,245,'pradaria'), poi('arena-astral','Observatório Astral','boss',197,249,'pradaria'), poi('porto','Porto das Marés','village',175,290,'costa'),
   poi('bosque-secreto','Bosque Silencioso','ruins',144,116,'mata',true), poi('praia','Enseada das Conchas','camp',91,259,'costa'),
 ];
 // Curved roads connect the authored POIs. Side paths form loops and secrets.
@@ -53,6 +53,7 @@ export const RoadDefinitions = [
  [[174,146],[163,177],[174,211],[180,245]],
  [[104,214],[94,233],[91,259]], [[104,214],[118,223],[125,234]], [[151,91],[143,104],[144,116]],
  [[174,146],[165,146],[165,138],[178,130],[190,126]],
+ [[196,156],[208,153],[214,145]], [[350,138],[347,145],[344,153]], [[180,245],[190,245],[197,249]],
 ];
 export const BiomeDefinitions = {
  field: {color:'#88aa52',tree:.025}, forest:{color:'#608e48',tree:.18}, dense:{color:'#3f7847',tree:.36}, village:{color:'#91a764',tree:0}, meadow:{color:'#9cb860',tree:.02},

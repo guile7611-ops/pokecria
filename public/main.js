@@ -392,7 +392,7 @@ function frame(now) {
       if (e.type === 'level') note(`Nível ${e.level} alcançado!`);
       if (e.type === 'evolve'){note(`${CREATURES[e.from].name} evoluiu para ${CREATURES[e.to].name}!\n${ABILITIES[CREATURES[e.to].projectile].name} disponível em Q.`);saveWorld(localStorage,sim);}
       if (e.type === 'bossTelegraph') note(`${e.name}! ${e.shape === 'circle' ? 'Saia do círculo.' : e.shape === 'cone' ? 'Saia da frente do boss.' : 'Desvie para o lado do raio.'}`);
-      if (e.type === 'bossDefeated') note('Guardião derrotado! A clareira está segura.');
+      if (e.type === 'bossDefeated') note(`${e.name} derrotado!`);
       if (e.type === 'drop') note(`Drop encontrado: ${e.item}.`);
       if (e.type === 'questComplete') note(`Clareira limpa! +${e.xp} XP.`);
       if (e.type === 'learn') note(`Nível ${sim.player.level} · ${e.name} aprendido!\nAbra H para organizar os golpes.`);

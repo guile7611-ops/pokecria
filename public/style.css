@@ -350,3 +350,107 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
  #shop .shop-product{grid-template-columns:1fr auto;gap:7px}
  #shop .shop-product button{grid-column:1/-1}
 }
+
+/* Adventure HUD and remaining menus use the same navy, ivory and brass frame. */
+#hud .player-panel,#hud .minimap,#hud .objectives:not(.collapsed),#hud .target-panel{background:linear-gradient(145deg,#fffaf0,#e9dfc3);border:3px solid #ba965d;border-radius:8px;box-shadow:inset 0 0 0 2px #fff9e7,0 0 0 2px #183646,3px 5px 0 #0c2232ab;color:#263946}
+#hud .player-panel{display:flex;gap:10px;padding:10px 11px;width:300px}
+#hud .portrait{flex:none;width:64px;height:67px;border:2px solid #234b62;border-radius:3px;background:radial-gradient(circle,#c9e3e2,#6b9aa5);box-shadow:inset 0 0 0 2px #e7f3ec,2px 2px #b3905b}
+#hud .portrait img{width:60px;height:63px;object-fit:contain;image-rendering:pixelated}
+#hud .player-info{min-width:0}
+#hud .player-heading{gap:7px;color:#253b4b;font:900 13px "Courier New",monospace}
+#hud .player-heading strong{max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hud .player-heading span{flex:none;color:#8c512f;font:900 10px "Courier New",monospace}
+#hud .type{color:#326980;font:900 8px "Courier New",monospace;letter-spacing:.5px}
+#hud .meter.hp{height:17px;border:2px solid #23485c;border-radius:1px;background:#172f3a;box-shadow:inset 0 0 0 1px #0b2431}
+#hud .meter.hp>div{background:repeating-linear-gradient(90deg,#37985e 0 10px,#70ce88 10px 12px)}
+#hud .meter.hp span{color:#fff9e7;font:900 10px/13px "Courier New",monospace;text-shadow:1px 1px #153c2d}
+#hud .meter.xp{height:10px;margin-top:7px;border:2px solid #31566c;border-radius:1px;background:#d6ddd9}
+#hud .meter.xp>div{background:repeating-linear-gradient(90deg,#267bb0 0 10px,#7fd1ed 10px 12px)}
+#hud .xp-label{color:#4f6670;font:900 9px "Courier New",monospace}
+#hud .minimap{padding:10px;width:216px}
+#hud .mini-heading{display:flex;align-items:center;margin:0 0 8px;padding:0 0 6px;border-bottom:2px solid #ba965d;color:#254a62;font:900 9px "Courier New",monospace;letter-spacing:.9px}
+#hud .mini-heading img{width:23px;height:23px}
+#hud .mini-heading kbd{border:2px solid #31556a;border-radius:2px;background:#f9efd6;color:#27465a;font:900 9px "Courier New",monospace}
+#hud .minimap #minimap{width:192px;height:136px;border:2px solid #1f4256!important;border-radius:1px;box-shadow:0 0 0 2px #d4b980}
+#hud .missions-toggle{margin:0;padding:9px 11px;min-height:37px;background:linear-gradient(#335c75,#214357);border:2px solid #c1a064;border-radius:4px;box-shadow:inset 0 0 0 1px #698fa0,2px 2px #112d3b;color:#fff1cf;font:900 10px "Courier New",monospace}
+#hud .missions-toggle:hover{background:#426c82;border-color:#f0d293;color:#fff}
+#hud .missions-toggle b{color:#ead39f;font:900 8px "Courier New",monospace}
+#hud .objectives.collapsed{background:transparent;border:0;box-shadow:none}
+#hud .objectives:not(.collapsed){padding:9px}
+#hud .objectives:not(.collapsed) .missions-toggle{margin-bottom:9px}
+#hud .objectives-body{padding:0 7px 5px;color:#31424b}
+#hud .objectives .eyebrow{color:#8f542f;font:900 8px "Courier New",monospace;letter-spacing:1px}
+#hud .objectives h2{color:#28465a;font:900 15px "Courier New",monospace;text-shadow:none}
+#hud .goal{color:#354751;font:10px "Courier New",monospace}
+#hud .goal.done{color:#2e7752}
+#hud .goal b{color:#8b522f;font-weight:900}
+#hud .objective-note{border-top:1px solid #baa77e;color:#667077}
+#hud .target-panel{padding:9px 12px;color:#2c4554;font:900 11px "Courier New",monospace}
+#hud .target-panel .meter{height:8px;border:1px solid #31566b;background:#e7dac0}
+#hud .target-panel .meter>div{background:#c26d51}
+#hud .hotbar{gap:7px;margin:0;padding:8px 9px;background:linear-gradient(#345971,#172f41);border:3px solid #c4a16a;border-radius:8px;box-shadow:inset 0 0 0 2px #7294a1,0 0 0 2px #112d3d,3px 5px 0 #0618259c}
+#hud .hotbar::before{content:none}
+#hud .slot{width:78px;height:77px;padding:6px;border:2px solid #bba675;border-radius:4px;background:radial-gradient(circle at 50% 30%,#567b8b,#25475c 72%);box-shadow:inset 0 0 0 2px #17384b;color:#fff4d1}
+#hud .slot:hover{border-color:#fff0bb;background:#416e82}
+#hud .slot.locked{background:repeating-linear-gradient(135deg,#2e4350 0 7px,#243a49 7px 14px);border-color:#667c82}
+#hud .slot .bind{color:#274356;background:#f6e8c3;border:1px solid #d4af6e;border-radius:2px;box-shadow:1px 1px #102b3c}
+#hud .slot .name{color:#fff3d3;font:900 8px "Courier New",monospace;text-shadow:1px 1px #173343}
+#hud .slot.locked .name{color:#b4c1be}
+#hud .slot .power{color:#ffdf93}
+#hud .slot .cooldown{background:#102a3ce0;color:#fff0bd;border-radius:2px}
+#hud .camera-controls{background:#f7efd9;border:2px solid #b5925c;box-shadow:inset 0 0 0 2px #fff,2px 2px #19394a;color:#28526a}
+#hud .camera-controls input{accent-color:#2d708a}
+#hud #toast{color:#fff0c5;text-shadow:2px 3px #12283a,0 0 8px #12283a}
+#pause-screen .modal,#death-screen .modal{width:min(470px,calc(100vw - 34px));padding:30px;background:radial-gradient(circle at 50% 0%,#fffaf0,#efe3c7);border:5px double #b9945c;border-radius:10px;box-shadow:inset 0 0 0 3px #fff9e9,0 0 0 3px #1b3a4c,0 0 0 5px #d7b476,0 24px 65px #081822dd;color:#2b4150}
+#pause-screen .modal::before,#pause-screen .modal::after{color:#a77741}
+#pause-screen h2,#death-screen h2{color:#24485f;text-shadow:none;font:900 25px "Courier New",monospace}
+#pause-screen .modal-sprite{width:82px;height:82px;filter:drop-shadow(2px 4px #9a8868)}
+#pause-screen button,#death-screen button{background:#315b73;color:#fff2d5;border:2px solid #193c51;box-shadow:inset 0 0 0 2px #7192a0,2px 3px #9e8358;border-radius:3px}
+#pause-screen .primary{background:#bd8d4f!important;color:#173549!important;border-color:#684b31!important;box-shadow:inset 0 0 0 2px #f4dba5,2px 3px #9e8358!important}
+#pause-screen button:hover{background:#46718a;color:#fff}
+#death-screen .eyebrow{color:#8b532f}
+#death-screen small,#death-screen p{color:#526570}
+
+#welcome .hub-tabs{padding:10px;background:linear-gradient(145deg,#345a71,#162f42);border:4px double #d5b271;border-radius:8px;box-shadow:inset 0 0 0 2px #688c9c,0 5px 0 #0e2939,0 12px 25px #071725b9}
+#welcome .hub-tabs button{min-height:54px;height:auto;padding:9px 8px;color:#f7e8c1;border:0;border-bottom:1px solid #bda36b62;text-align:left;justify-content:flex-start}
+#welcome .hub-tabs button:last-child{border-bottom:0}
+#welcome .hub-tabs button:hover,#welcome .hub-tabs button[aria-selected="true"]{background:linear-gradient(90deg,#b99459,#80633c);color:#fff;border-radius:2px;box-shadow:inset 3px 0 #ffe6a7}
+#welcome .hub-tabs strong{color:inherit;font:900 16px "Courier New",monospace;text-shadow:1px 2px #173244}
+#welcome .hub-tabs .hub-tab-icon{color:#e1bc76;font-size:20px;min-width:27px}
+#welcome .hub-tabs button[aria-selected="true"] .hub-tab-icon{color:#fff0b8}
+#welcome .hub-pane{background:radial-gradient(circle at 90% 0%,#fffaf0,#e9ddc3);border:4px double #c5a36a;border-radius:8px;box-shadow:inset 0 0 0 3px #fff9e7,0 0 0 2px #18394c,0 9px 0 #102838,0 16px 26px #071c2ab0;color:#2b414d;scrollbar-color:#b39360 #e9ddbd}
+#welcome .hub-pane h1,#welcome .hub-pane h2{color:#23465d;text-shadow:none;font-family:"Courier New",monospace;font-weight:900}
+#welcome .hub-pane>p,#welcome .hub-intro p{color:#495e69}
+#welcome .hub-pane .hub-kicker{color:#995a36!important}
+#welcome .hub-pane label{color:#2e4d5d}
+#welcome .hub-pane input,#welcome .hub-pane select{background:#fff9e9;border:2px solid #698797;border-radius:2px;color:#203f50;box-shadow:inset 0 0 0 2px #fff}
+#welcome .hub-auth small,#welcome .hub-note{color:#62757b}
+#welcome .hub-auth #auth-message{color:#9c4e39}
+#welcome .auth-switch button,#welcome #auth-submit,#welcome #hub-sound,#welcome #create-another-account{background:#315e77;border:2px solid #173b50;border-radius:3px;box-shadow:inset 0 0 0 2px #78a1ab,2px 3px #9b825c;color:#fff1cf}
+#welcome .auth-switch button:hover,#welcome #auth-submit:hover,#welcome #hub-sound:hover,#welcome #create-another-account:hover{background:#ae7847;color:#fff}
+#welcome .egg-card{background:radial-gradient(circle,#eff7ef,#b5d1cb);border:2px solid #3c687b;border-radius:5px;box-shadow:inset 0 0 0 2px #fff,2px 3px #b9a473;color:#26495b}
+#welcome .egg-card:hover{background:#fff0c7;border-color:#b98e50}
+#welcome .hub-active,#welcome .egg-result{background:#e1ece4;border:2px solid #709889;border-radius:3px;color:#263e4d;box-shadow:inset 0 0 0 2px #fff}
+#welcome .hub-active small,#welcome .egg-result small{color:#915437}
+#welcome .hub-pane #start{background:linear-gradient(#bf995e,#a47c44);border:2px solid #62492d;border-radius:3px;box-shadow:inset 0 0 0 2px #f6dba4,2px 3px #715133;color:#14374b}
+#welcome .account-details>div,#welcome .hub-pane .pc-card{background:#fff9e9;border:2px solid #91a4a5;border-left:5px solid #3b6d87;border-radius:2px;color:#283f4e;box-shadow:inset 0 0 0 2px #fff}
+#welcome .account-details strong{color:#234960}
+#welcome .hub-pane .pc-card span,#welcome .hub-pane .pc-card small{color:#596a70}
+#welcome .hub-pane .pc-card button{background:#315e77;color:#fff2d5;border:2px solid #173b50;border-radius:2px}
+#welcome .hub-trainer .trainer-card,#welcome .hub-trainer .hub-party{background:#f5edd7;border:3px solid #c5a36b;border-radius:6px;box-shadow:inset 0 0 0 2px #fff,0 4px 0 #193c50;color:#2a4656}
+#welcome .hub-trainer .trainer-copy strong,#welcome .hub-trainer .party-member strong{color:#23485f}
+#welcome .hub-trainer .trainer-copy span,#welcome .hub-trainer .party-member small{color:#636d6b}
+@media(max-width:650px){
+ #hud .player-panel{width:215px;padding:7px}
+ #hud .portrait{display:none}
+ #hud .minimap{width:145px}
+ #hud .minimap #minimap{width:121px;height:auto}
+ #hud .mini-heading img{width:19px;height:19px}
+ #hud .hotbar{gap:4px;padding:6px}
+ #hud .slot{width:66px;height:70px}
+ #hud .objectives{width:160px}
+ #welcome .hub-tabs button{justify-content:center;text-align:center;min-height:42px;padding:6px 3px;border-bottom:0;border-right:1px solid #bda36b62}
+ #welcome .hub-tabs button:last-child{border-right:0}
+ #welcome .hub-tabs strong{font-size:10px}
+ #welcome .hub-tabs .hub-tab-icon{font-size:12px;min-width:0}
+}
