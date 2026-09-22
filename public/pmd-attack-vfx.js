@@ -18,6 +18,14 @@ export const PMD_MOVE_SPRITES={
  calmMind:'0142',darkPulse:'0176',dragonBreath:'0203',dragonClaw:'0123',drainingKiss:'0160',earthPower:'0259',flareBlitz:'0225',
  hurricane:'0244',icyWind:'0141',ironHead:'0231',leafBlade:'0149',liquidation:'0021',mysticalFire:'0070',psybeam:'0017',reflect:'0135',
  sludgeWave:'0234',swordsDance:'0253',thunder:'0019',thunderWave:'0019',vineWhip:'0131',wingAttack:'0244',
+ bounce:'0232',breakingSwipe:'0123',brutalSwing:'0122',charge:'0019',charm:'0160',confuseRay:'0176',cottonGuard:'0186',curse:'0176',
+ disarmingVoice:'0160',doubleTeam:'0142',dragonRush:'0203',drillRun:'0259',dynamicPunch:'0137',falseSwipe:'0149',featherDance:'0232',flipTurn:'0251',
+ futureSight:'0017',gigaImpact:'0104',haze:'0184',headSmash:'0221',headbutt:'0104',heatCrash:'0225',heavySlam:'0231',hyperBeam:'0253',
+ infestation:'0126',ironTail:'0231',knockOff:'0122',lavaPlume:'0028',leafStorm:'0129',leafage:'0129',leechLife:'0094',lick:'0176',lunge:'0123',
+ magicalLeaf:'0067',megahorn:'0123',metalClaw:'0231',metalSound:'0253',muddyWater:'0251',nastyPlot:'0176',nightSlash:'0122',outrage:'0203',
+ overheat:'0024',perishSong:'0039',phantomForce:'0176',pinMissile:'0115',poisonFang:'0156',poisonJab:'0156',powerGem:'0253',powerUpPunch:'0137',
+ psychoCut:'0017',psyshock:'0017',roar:'0039',rockBlast:'0221',rockTomb:'0221',safeguard:'0135',sandTomb:'0117',shadowClaw:'0176',
+ shadowSneak:'0176',snarl:'0122',stickyWeb:'0051',stoneEdge:'0221',toxicSpikes:'0156',twister:'0244',waterGun:'0013',whirlwind:'0244',wish:'0105',zapCannon:'0019',
 };
 
 // These starter attacks have phase-specific art; their other phases remain

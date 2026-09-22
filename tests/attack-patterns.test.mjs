@@ -155,7 +155,7 @@ test('every configured move can be cast and produces its declared combat effect'
   if(a.behavior==='debuff')assert.ok(e.debuffs?.some(effect=>effect.id===id)||e.sleepUntil||e.yawnAt||e.poison||e.leech||e.slowUntil||e.staggerUntil,`${id} should apply a condition`);
   step(sim,2);
   if(a.behavior==='heal')assert.ok(p.hp>playerHp,`${id} should heal`);
-  else if(['buff','debuff'].includes(a.behavior))continue;
+  else if(['buff','debuff','cleanse'].includes(a.behavior)||a.statusOnly)continue;
   else if(a.behavior==='teleport')assert.notEqual(p.x,startX,`${id} should relocate the player`);
   else assert.ok(e.hp<startHp,`${id} should damage a target in range`);
  }

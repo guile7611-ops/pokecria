@@ -150,7 +150,7 @@ export class Simulation {
       const target=remoteTarget||e;
       if(!target||distance(p,target)>a.range||!lineOfSight(this.map,p,target))return false;
       if(a.lunge){const length=Math.min(a.lunge,Math.max(0,distance(p,target)-p.radius-(target.radius||12)-2)),d=Math.max(1,distance(p,target)),dx=(target.x-p.x)/d,dy=(target.y-p.y)/d;for(let step=4;step<=length;step+=4){const x=p.x+dx*4,y=p.y+dy*4;if(!walkable(this.map,x,y,p.radius))break;p.x=x;p.y=y;}p.path=[];p.target=null;}
-      if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,this.moveDamage(e,a,attackMultiplier,1/(a.hits||1)),a.type||'Normal',true);if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));
+      if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,this.moveDamage(e,a,attackMultiplier,1/(a.hits||1)),a.type||'Normal',true,a.nonlethal);if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal));
         if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}this.applyEnemyEffect(e,a);
         for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,effectiveness:effectivenessText(mult)});
       }else this.emit('slash',{x:target.x,y:target.y,vfx:a.vfx||`moves/${a.id}`,size:78});
@@ -166,13 +166,18 @@ export class Simulation {
     } else if(a.behavior==='zone'){
       let x=aim.x,y=aim.y;const d=distance(p,aim);if(d>a.range){x=p.x+(aim.x-p.x)/d*a.range;y=p.y+(aim.y-p.y)/d*a.range;}
       if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,{x,y}))return false;
-      this.zones.push({uid:this.nextId++,id:a.id,x,y,visual,until:this.time+a.duration,nextTick:this.time,attackMultiplier});
+      this.zones.push({uid:this.nextId++,id:a.id,x,y,visual,until:this.time+(a.delay||0)+a.duration,nextTick:this.time+(a.delay||0),attackMultiplier});
     } else if(a.behavior==='debuff'){
       let x=aim.x,y=aim.y,d=distance(p,aim);if(d>a.range){x=p.x+(x-p.x)/d*a.range;y=p.y+(y-p.y)/d*a.range;}const center={x,y};if(!lineOfSight(this.map,p,center))return false;
       const targets=this.enemies.filter(e=>e.state!=='Dead'&&!e.defeated&&distance(e,center)<=a.radius+(e.radius||12)&&lineOfSight(this.map,center,e));
       if(!targets.length)return false;
       for(const e of targets)this.applyEnemyEffect(e,a,true);
       this.emit('area',{x,y,size:a.radius*2,vfx:a.vfx,hits:targets.length});
+    } else if(a.behavior==='cleanse'){
+      for(const key of ['poison','burn','leech','yawnAt','sleepUntil'])p[key]=null;
+      p.buffs=(p.buffs||[]).filter(b=>!String(b.id).startsWith('pvp-'));
+      if(a.duration)p.buffs.push({id:a.id,remaining:a.duration,defenseBonus:a.defenseBonus||0});
+      this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
     } else if(a.behavior==='buff'){
       p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseBonus,speedMultiplier:a.speedMultiplier,typeBoost:a.typeBoost});this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx||'buff',name:a.name});
     }
@@ -181,6 +186,7 @@ export class Simulation {
       const d = distance(p, target);
       if (d > 0) p.attackFacing = { x: (target.x - p.x) / d, y: (target.y - p.y) / d };
     }
+    if(a.selfAttackMultiplier||a.selfSpeedMultiplier){p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==`${a.id}-self`);p.buffs.push({id:`${a.id}-self`,remaining:a.selfDuration||6,attackMultiplier:a.selfAttackMultiplier,speedMultiplier:a.selfSpeedMultiplier});}
     p.cooldowns[a.id] = a.cooldown; p.attackStart = this.time;
     p.attackAnimation = ['direct','area','rolling','whip'].includes(a.behavior) ? 'Attack' : 'Shoot'; p.attackUntil = this.time + (a.charge||.45);
     if(visual)this.emit('castVisual',{x:p.x,y:p.y,vfx:visual.cast,size:visual.castSize});
@@ -194,6 +200,9 @@ export class Simulation {
       e.debuffs=(e.debuffs||[]).filter(b=>b.id!==a.id&&b.until>this.time);
       e.debuffs.push({id:a.id,until:this.time+(a.duration||6),attackMultiplier:a.attackMultiplier||1,defenseMultiplier:a.defenseMultiplier||1,speedMultiplier:a.speedMultiplier||1});
     }
+    if(a.slow)e.slowUntil=Math.max(e.slowUntil||0,this.time+a.slow);
+    if(a.stagger)e.staggerUntil=Math.max(e.staggerUntil||0,this.time+a.stagger);
+    if(a.push&&!e.isBoss){const d=Math.max(1,distance(this.player,e)),x=e.x+(e.x-this.player.x)/d*a.push,y=e.y+(e.y-this.player.y)/d*a.push;if(walkable(this.map,x,y,e.radius||12)){e.x=x;e.y=y;e.path=[];}}
     if(e.isBoss&&['sleep','yawn'].some(key=>a[key]))return;
     if(a.sleep)e.sleepUntil=this.time+a.duration;
     if(a.yawn)e.yawnAt=this.time+1.2;
@@ -251,17 +260,18 @@ export class Simulation {
     this.activeAttacks=this.activeAttacks.filter(active=>!p.dead&&active.until>this.time);
     for(const zone of this.zones){
       if(this.time<zone.nextTick||p.dead)continue;const a=ABILITIES[zone.id];zone.nextTick=this.time+a.hitInterval;
-      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;this.damage(e,this.moveDamage(e,a,zone.attackMultiplier,a.hitInterval/a.duration),a.type,true);
+      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;if(a.statusOnly)this.applyEnemyEffect(e,a,true);else{this.damage(e,this.moveDamage(e,a,zone.attackMultiplier,a.hitInterval/a.duration),a.type,true);this.applyEnemyEffect(e,a);}
         if(zone.id==='whirlpool'&&!e.isBoss&&e.state!=='Dead'){const d=Math.max(1,distance(e,zone)),x=e.x+(zone.x-e.x)/d*10,y=e.y+(zone.y-e.y)/d*10;if(walkable(this.map,x,y,e.radius||12)){e.x=x;e.y=y;e.path=[];}}
       }
     }
     this.zones=this.zones.filter(zone=>!p.dead&&zone.until>this.time);
   }
-  damage(e, amount, _type='Normal', final=false) {
+  damage(e, amount, _type='Normal', final=false, nonlethal=false) {
     if (e.state === 'Dead' || e.defeated) return 0;
     if (!Number.isFinite(amount) || amount <= 0) return 0;
+    if(nonlethal&&e.hp<=1)return 0;
     const defenseMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.defenseMultiplier||1),1);
-    const damage = Math.max(1, Math.round(final?amount:amount-e.defense*defenseMultiplier)); e.hp = Math.max(0, e.hp - damage);
+    const damage = Math.max(1,Math.min(nonlethal?Math.max(0,e.hp-1):Infinity,Math.round(final?amount:amount-e.defense*defenseMultiplier))); e.hp = Math.max(0, e.hp - damage);
     this.emit('damage', { x: e.x, y: e.y, uid:e.uid, amount: damage }); e.hitUntil = this.time + .16;
     if (e.hp === 0) {
       e.deathStart=this.time;e.state = 'Dead'; e.path = []; this.kills++; this.gainXP(e.xp); this.emit('kill', { x: e.x, y: e.y, uid:e.uid, xp: e.xp });
@@ -322,8 +332,8 @@ export class Simulation {
         }else p.pendingCast=null;
         followPath(p, dt, this.map, PLAYER_MOVEMENT_MULTIPLIER);
       }else this.moveWithInput(dt);
-      const rolling=p.buffs?.find(b=>b.id==='flameWheel');
-      if(rolling){const a=ABILITIES.flameWheel;for(const enemy of this.enemies){if(enemy.state==='Dead'||enemy.defeated||distance(p,enemy)>a.radius+(enemy.hurtbox?.radius||enemy.radius||12))continue;if((rolling.hitAt[enemy.uid]??-Infinity)>this.time)continue;rolling.hitAt[enemy.uid]=this.time+a.hitInterval;const mult=effectiveness(a.type,enemy.element);this.damage(enemy,this.moveDamage(enemy,a),a.type,true);this.emit('slash',{x:enemy.x,y:enemy.y,vfx:a.vfx,effectiveness:effectivenessText(mult)});}}
+      const rolling=p.buffs?.find(b=>ABILITIES[b.id]?.behavior==='rolling');
+      if(rolling){const a=ABILITIES[rolling.id];for(const enemy of this.enemies){if(enemy.state==='Dead'||enemy.defeated||distance(p,enemy)>a.radius+(enemy.hurtbox?.radius||enemy.radius||12))continue;if((rolling.hitAt[enemy.uid]??-Infinity)>this.time)continue;rolling.hitAt[enemy.uid]=this.time+a.hitInterval;const mult=effectiveness(a.type,enemy.element);this.damage(enemy,this.moveDamage(enemy,a),a.type,true);this.emit('slash',{x:enemy.x,y:enemy.y,vfx:a.vfx,effectiveness:effectivenessText(mult)});}}
       if(this.pendingInteraction&&distance(p,this.pendingInteraction)<=this.pendingInteraction.radius){const target=this.pendingInteraction;this.pendingInteraction=null;this.interact(target);}
     }
     this.updateSpecialAttacks();
