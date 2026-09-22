@@ -30,6 +30,7 @@ let authMode=credentials?'login':'register';
 const safeText=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const displayId=value=>String(value||'').split('-').map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ');
 const STAT_LABELS={hp:'HP',attack:'Ataque',defense:'Defesa',spAttack:'Ataque Esp.',spDefense:'Defesa Esp.',speed:'Velocidade'};
+const ATTRIBUTE_ROWS=[['vitality','Vida','+3 HP máximo'],['power','Dano','+1 Ataque e Ataque Esp.'],['guard','Defesa','+1 Defesa e Defesa Esp.'],['agility','Velocidade','+1 Speed e mais movimento']];
 async function passwordDigest(password,salt){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bytes=await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt),iterations:150000,hash:'SHA-256'},key,256);return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
 let selectedStarter = worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
 let sim = new Simulation(selectedStarter, worldSave);
@@ -153,8 +154,10 @@ function renderInfo(){
   </div>
   <div class="info-vitals"><div><span>HP ATUAL</span><strong>${p.hp} <small>/ ${p.maxHp}</small></strong></div><div class="info-vitals-track"><i style="width:${hpPercent}%"></i></div></div>
   <div class="info-section-heading"><span class="info-section-title"><img src="/assets/ui/stats.png" alt=""> ATRIBUTOS</span><span class="info-section-rule" aria-hidden="true"></span></div>
-  <p class="info-points">PONTOS DISPONÍVEIS <strong>${p.attributePoints||0}</strong> · EV ${evTotal}/510</p>
-  <div class="attributes">${STAT_KEYS.map(id=>`<div class="attribute"><span><b>${STAT_LABELS[id]}</b><small>${p[id==='hp'?'maxHp':id]} · IV ${p.ivs?.[id]??0}/31 · EV ${p.evs?.[id]??0}/252</small></span><button data-attribute="${id}" aria-label="Treinar ${STAT_LABELS[id]}" ${p.attributePoints&&evTotal<510&&(p.evs?.[id]||0)<252?'':'disabled'}>+4 EV</button></div>`).join('')}</div>
+  <p class="info-points">PONTOS DE ATRIBUTO <strong>${p.attributePoints||0}</strong> · 1 ponto por nível</p>
+  <div class="attributes">${ATTRIBUTE_ROWS.map(([id,label,effect])=>`<div class="attribute"><span><b>${label} · ${p.attributes?.[id]||0}</b><small>${effect}</small></span><button data-attribute="${id}" aria-label="Aumentar ${label}" ${p.attributePoints?'':'disabled'}>+1</button></div>`).join('')}</div>
+  <p class="info-points">TREINO OFICIAL · EV ${evTotal}/510</p>
+  <div class="official-training">${STAT_KEYS.map(id=>`<span><b>${STAT_LABELS[id]}</b><small>IV ${p.ivs?.[id]??0}/31 · EV ${p.evs?.[id]??0}/252</small></span>`).join('')}</div>
   <div class="info-stats"><span>HP máximo <b>${p.maxHp}</b></span><span>Ataque <b>${p.attack}</b></span><span>Defesa <b>${p.defense}</b></span><span>Ataque Esp. <b>${p.spAttack}</b></span><span>Defesa Esp. <b>${p.spDefense}</b></span><span>Velocidade <b>${p.speed}</b></span><span>Movimento <b>${p.movementSpeed}</b></span><span>XP acumulada <b>${p.xp}</b></span></div>`;
  $('info-body').querySelectorAll('[data-attribute]').forEach(b=>b.onclick=()=>{if(sim.investAttribute(b.dataset.attribute)){const scroll=$('info-body').scrollTop;renderInfo();addTypeInfo();renderMoves();renderGuild();$('info-body').scrollTop=scroll;saveWorld(localStorage,sim);}});
 }

@@ -1,5 +1,5 @@
 import { CREATURES, EVOLUTIONS, XP_CURVE } from './data.js';
-import {calculatedStats,ensureOfficialTraining,mapMovementSpeed} from './official-mechanics.js';
+import {applyAttributeBonuses,calculatedStats,ensureAttributeProgression,ensureOfficialTraining,mapMovementSpeed} from './official-mechanics.js';
 
 export function nextEvolution(creatureId, player=null) {
  const choices=EVOLUTIONS.filter(e=>e.creatureId===creatureId&&e.method==='level');
@@ -18,7 +18,7 @@ export function evolutionLine(creatureId) {
   return line;
 }
 export function applyStats(player) {
-  ensureOfficialTraining(player);const stats=calculatedStats(player.id,player.level,player.ivs,player.evs,player.nature);
+  ensureOfficialTraining(player);ensureAttributeProgression(player);const official=calculatedStats(player.id,player.level,player.ivs,player.evs,player.nature),stats=official&&applyAttributeBonuses(official,player.attributes);
   if(!stats)return;Object.assign(player,{maxHp:stats.hp,attack:stats.attack,defense:stats.defense,spAttack:stats.spAttack,spDefense:stats.spDefense,speed:stats.speed,movementSpeed:mapMovementSpeed(stats.speed)});
 }
 export function applyEvolutions(player, time) {

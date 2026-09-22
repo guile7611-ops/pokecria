@@ -55,7 +55,7 @@ export class Simulation {
     this.learn();
   }
   emit(type, data = {}) { this.events.push({ type, time: this.time, ...data }); if (this.events.length > 100) this.events.shift(); }
-  activeSnapshot(){const p=this.player;return Object.fromEntries(['captureId','id','name','element','level','xp','hp','maxHp','attack','defense','spAttack','spDefense','speed','movementSpeed','nature','ability','ivs','evs','attributePoints','attributes','evolutionHistory','knownMoves','slots'].map(k=>[k,p[k]]));}
+  activeSnapshot(){const p=this.player;return Object.fromEntries(['captureId','id','name','element','level','xp','hp','maxHp','attack','defense','spAttack','spDefense','speed','movementSpeed','nature','ability','ivs','evs','attributePoints','attributes','attributeSystemVersion','evolutionHistory','knownMoves','slots'].map(k=>[k,p[k]]));}
   syncActivePokemon(){if(!this.player.captureId)return;const index=this.pc.findIndex(p=>p.captureId===this.player.captureId);if(index>=0)this.pc[index]={...this.pc[index],...this.activeSnapshot()};}
   configureCapture(speciesId,enabled=true,ballId=this.capturePlan.ballId||'poke'){if(!WILD_POKEMON.some(p=>p.id===speciesId))return false;this.capturePlan={speciesId,enabled:!!enabled,ballId:pokeballById(ballId).id};this.emit('captureConfigured',{...this.capturePlan});return true;}
   buyPokeballs(count=1,ballId='poke'){const ball=pokeballById(ballId);if(ball.price===null)return false;count=Math.max(1,Math.min(99,Math.floor(count)));const cost=count*ball.price;if(this.inventory.money<cost)return false;this.inventory.money-=cost;this.inventory.items[ball.name]=(this.inventory.items[ball.name]||0)+count;this.emit('purchase',{count,cost,ball:ball.name});return true;}
@@ -75,7 +75,7 @@ export class Simulation {
       this.learn();
     }
   }
-  investAttribute(name){const aliases={vitality:'hp',power:'attack',guard:'defense',agility:'speed'},key=aliases[name]||name,p=this.player,total=Object.values(p.evs||{}).reduce((sum,value)=>sum+value,0);if(!['hp','attack','defense','spAttack','spDefense','speed'].includes(key)||p.attributePoints<1||(p.evs?.[key]||0)>=252||total>=510)return false;const oldMax=p.maxHp;p.attributePoints--;p.evs[key]=Math.min(252,p.evs[key]+4,510-total);applyStats(p);p.hp=Math.min(p.maxHp,p.hp+(key==='hp'?p.maxHp-oldMax:0));this.emit('attribute',{name:key});return true;}
+  investAttribute(name){const key={hp:'vitality',attack:'power',spAttack:'power',defense:'guard',spDefense:'guard',speed:'agility'}[name]||name,p=this.player;if(!['vitality','power','guard','agility'].includes(key)||p.attributePoints<1)return false;const oldMax=p.maxHp;p.attributePoints--;p.attributes[key]=(p.attributes[key]||0)+1;applyStats(p);p.hp=Math.min(p.maxHp,p.hp+(key==='vitality'?p.maxHp-oldMax:0));this.emit('attribute',{name:key});return true;}
   applyPlayerStatus(a){
     if(!a||a.behavior!=='debuff')return false;
     const p=this.player;

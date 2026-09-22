@@ -29,3 +29,8 @@ test('an evolved active Pokémon survives reconstruction with an old starter id'
  const restored=new Simulation('mudkip',{activePokemon:snapshot,pc:[snapshot]});
  assert.equal(restored.player.id,'marshtomp');assert.equal(restored.player.level,28);assert.equal(restored.player.xp,1891);
 });
+test('attribute investment spends one level point without changing EVs and persists on the active Pokémon',()=>{
+ const sim=new Simulation('mudkip');sim.gainXP(1000);const before={...sim.player.evs},attack=sim.player.attack,spAttack=sim.player.spAttack;
+ assert.ok(sim.player.attributePoints>0);assert.equal(sim.investAttribute('power'),true);assert.equal(sim.player.attack,attack+1);assert.equal(sim.player.spAttack,spAttack+1);assert.deepEqual(sim.player.evs,before);
+ const restored=new Simulation(sim.player.id,{activePokemon:sim.activeSnapshot()});assert.equal(restored.player.attributes.power,1);assert.equal(restored.player.attributePoints,sim.player.attributePoints);
+});

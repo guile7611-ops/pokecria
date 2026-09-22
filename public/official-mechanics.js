@@ -1,6 +1,7 @@
 import {OFFICIAL_POKEMON_DATA} from './official-pokemon-data.js';
 
 export const STAT_KEYS=['hp','attack','defense','spAttack','spDefense','speed'];
+export const ATTRIBUTE_KEYS=['vitality','power','guard','agility'];
 export const NATURES={
  hardy:{name:'Hardy',up:null,down:null},lonely:{name:'Lonely',up:'attack',down:'defense'},brave:{name:'Brave',up:'attack',down:'speed'},adamant:{name:'Adamant',up:'attack',down:'spAttack'},naughty:{name:'Naughty',up:'attack',down:'spDefense'},
  bold:{name:'Bold',up:'defense',down:'attack'},docile:{name:'Docile',up:null,down:null},relaxed:{name:'Relaxed',up:'defense',down:'speed'},impish:{name:'Impish',up:'defense',down:'spAttack'},lax:{name:'Lax',up:'defense',down:'spDefense'},
@@ -31,6 +32,21 @@ export function calculatedStats(id,level,ivs={},evs={},nature='hardy'){
  const base=OFFICIAL_POKEMON_DATA[id]?.baseStats;if(!base)return null;const lv=Math.max(1,Math.floor(level||1)),n=NATURES[officialNature(nature)];
  const value=key=>{const raw=Math.floor(((2*base[key]+(ivs[key]||0)+Math.floor((evs[key]||0)/4))*lv)/100)+5;return Math.floor(raw*(n.up===key?1.1:n.down===key?0.9:1));};
  return {hp:Math.floor(((2*base.hp+(ivs.hp||0)+Math.floor((evs.hp||0)/4))*lv)/100)+lv+10,attack:value('attack'),defense:value('defense'),spAttack:value('spAttack'),spDefense:value('spDefense'),speed:value('speed')};
+}
+export function ensureAttributeProgression(pokemon){
+ const legacy=pokemon.attributeSystemVersion!==1;
+ if(legacy)pokemon.attributes=Object.fromEntries(ATTRIBUTE_KEYS.map(key=>[key,0]));
+ pokemon.attributes??={};
+ for(const key of ATTRIBUTE_KEYS)pokemon.attributes[key]=Math.max(0,Math.floor(Number(pokemon.attributes[key])||0));
+ const spent=ATTRIBUTE_KEYS.reduce((sum,key)=>sum+pokemon.attributes[key],0),earned=Math.max(0,Math.floor(Number(pokemon.level)||1)-1);
+ pokemon.attributePoints=Math.max(0,Math.floor(Number(pokemon.attributePoints)||0));
+ if(legacy)pokemon.attributePoints=Math.max(pokemon.attributePoints,earned-spent);
+ pokemon.attributeSystemVersion=1;
+ return pokemon;
+}
+export function applyAttributeBonuses(stats,attributes={}){
+ const vitality=attributes.vitality||0,power=attributes.power||0,guard=attributes.guard||0,agility=attributes.agility||0;
+ return {...stats,hp:stats.hp+vitality*3,attack:stats.attack+power,spAttack:stats.spAttack+power,defense:stats.defense+guard,spDefense:stats.spDefense+guard,speed:stats.speed+agility};
 }
 // Battle Speed influences traversal through a compressed curve. This keeps the
 // stat meaningful without letting high-level Pokémon cross the map instantly.

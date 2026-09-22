@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {calculatedStats,ensureOfficialTraining,mapMovementSpeed,NATURES,officialDamage,STAT_KEYS} from '../public/official-mechanics.js';
+import {applyAttributeBonuses,calculatedStats,ensureAttributeProgression,ensureOfficialTraining,mapMovementSpeed,NATURES,officialDamage,STAT_KEYS} from '../public/official-mechanics.js';
 import {OFFICIAL_POKEMON_DATA} from '../public/official-pokemon-data.js';
 
 test('official data covers every playable species with six base stats and abilities',async()=>{
@@ -21,4 +21,12 @@ test('training migration produces legal persistent IVs, EVs, nature and ability'
 
 test('Speed increases map walking through a bounded curve and immunities deal zero',()=>{
  assert.ok(mapMovementSpeed(120)>mapMovementSpeed(40));assert.ok(mapMovementSpeed(9999)<=142);assert.equal(officialDamage({level:50,power:100,attack:100,defense:100,effectiveness:0}),0);
+});
+
+test('level attribute points are separate from EVs and affect paired stats',()=>{
+ const pokemon={id:'mudkip',level:12,attributePoints:0,attributes:{vitality:9,power:9,guard:9,agility:9},evs:{hp:4,attack:8,defense:12,spAttack:16,spDefense:20,speed:24}};
+ ensureAttributeProgression(pokemon);
+ assert.deepEqual(pokemon.attributes,{vitality:0,power:0,guard:0,agility:0});assert.equal(pokemon.attributePoints,11);assert.deepEqual(pokemon.evs,{hp:4,attack:8,defense:12,spAttack:16,spDefense:20,speed:24});
+ const boosted=applyAttributeBonuses({hp:100,attack:50,defense:40,spAttack:60,spDefense:45,speed:30},{vitality:2,power:3,guard:4,agility:5});
+ assert.deepEqual(boosted,{hp:106,attack:53,defense:44,spAttack:63,spDefense:49,speed:35});
 });

@@ -243,6 +243,7 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
 #info .attribute button{flex:none;min-width:39px;min-height:32px;padding:3px;color:#fff1c8;background:#77583a;border:2px solid #332d29;box-shadow:inset 0 0 0 2px #caa978,2px 2px #5e5040;font-size:12px}
 #info .attribute button:hover:not(:disabled){background:#285f76;color:#fff}
 #info .attribute button:disabled{opacity:.48;cursor:not-allowed;filter:grayscale(.45)}
+#info .official-training{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:7px 0 10px}#info .official-training span{display:grid;padding:7px 9px;background:#e9e6d5;border:2px solid #a6916b;box-shadow:inset 0 0 0 2px #fff9ec;color:#2e3940}#info .official-training b{font:900 11px "Courier New",monospace}#info .official-training small{font:900 10px "Courier New",monospace;color:#235875}
 #info .info-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 16px;margin:13px 0 0;padding:11px 14px;background:#eee4c8;border:2px solid #ae966d;border-radius:2px;box-shadow:inset 0 0 0 2px #fff8e4;color:#33434c}
 #info .info-stats span{display:flex;gap:4px;justify-content:space-between;border-bottom:1px dotted #b8ab8d;padding:3px 0;font:10px "Courier New",monospace}
 #info .info-stats b{color:#215b79;font-size:11px}
