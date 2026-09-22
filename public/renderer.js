@@ -3,7 +3,7 @@ import {animationFrame,animationState} from './animation.js';
 import {collidersIn,terrainPassable} from './collisions.js';
 import {ABILITIES} from './data.js';
 import {advanceRemote} from './remote-motion.js';
-import {worldDaylight} from './day-night.js';
+import {nightVision,worldDaylight} from './day-night.js';
 export class Renderer {
  constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';this.lighting=document.createElement('div');this.lighting.className='world-lighting';this.clock=document.createElement('div');this.clock.className='world-clock';element.append(this.lighting,this.overlays,this.clock);this.resize();window.addEventListener('resize',()=>this.resize());}
  resize(){this.width=innerWidth;this.height=innerHeight;}
@@ -60,7 +60,9 @@ export class Renderer {
   if(p.evolutionUntil>this.sim.time)actors.push(this.effect('evolution',p.x,p.y,'evolve',this.sim.time-p.evolutionStart,100));
   this.effects=this.effects.filter(e=>this.sim.time-e.time<1.2);
   this.worldView.render(this.canvas,{...this.camera,zoom:this.zoom,width:this.width,height:this.height},{actors});
-  const cycle=worldDaylight(),opacity=cycle.darkness*.62;if(Math.abs(opacity-(this.lightOpacity||0))>.002){this.lighting.style.opacity=String(opacity);this.lightOpacity=opacity;}
+  const cycle=worldDaylight(),vision=nightVision(cycle,this.width,this.height,!!this.sim.map.scene),playerScreen={x:(p.x-this.camera.x)*this.zoom+this.width/2,y:(p.y-this.camera.y)*this.zoom+this.height/2};
+  this.lighting.style.setProperty('--vision-x',`${playerScreen.x}px`);this.lighting.style.setProperty('--vision-y',`${playerScreen.y}px`);this.lighting.style.setProperty('--vision-inner',`${vision.innerRadius}px`);this.lighting.style.setProperty('--vision-outer',`${vision.outerRadius}px`);
+  if(Math.abs(vision.strength-(this.lightOpacity||0))>.002){this.lighting.style.opacity=String(vision.strength);this.lightOpacity=vision.strength;}
   const hours=String(Math.floor(cycle.hour)).padStart(2,'0'),minutes=String(Math.floor(cycle.hour%1*60)).padStart(2,'0'),clockText=`${cycle.isNight?'☾':'☀'} ${hours}:${minutes}`;if(this.clock.textContent!==clockText)this.clock.textContent=clockText;
   this.drawOverlays();
  }
