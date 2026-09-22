@@ -49,3 +49,21 @@ test('fresh peer updates do not rebuild a healthy channel',()=>{
  online.watchdog();
  assert.equal(online.reconnecting,null);
 });
+
+test('an abandoned peer does not reconnect the channel while another peer is active',()=>{
+ const online=new RealtimeOnline();
+ online.token=online.id;online.channel={state:'joined'};
+ online.players=[{id:'abandoned'},{id:'active'}];
+ online.remoteStates.set('abandoned',{id:'abandoned',seenAt:Date.now()-7000});
+ online.remoteStates.set('active',{id:'active',seenAt:Date.now()});
+ online.watchdog();
+ assert.equal(online.reconnecting,null);
+});
+
+test('an abandoned peer disappears from the visible roster',()=>{
+ const online=new RealtimeOnline(),id='abandoned';
+ online.remoteStates.set(id,{id,seq:1,seenAt:Date.now()-13000});
+ online.channel={presenceState:()=>({a:[{id,seq:1,x:100,y:100,scene:'world'}]})};
+ online.roster();
+ assert.equal(online.players.some(player=>player.id===id),false);
+});

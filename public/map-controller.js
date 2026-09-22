@@ -22,7 +22,7 @@ export class MapController {
  point(e){const r=this.canvas.getBoundingClientRect();return {x:this.x+(e.clientX-r.left-this.width/2)/this.zoom,y:this.y+(e.clientY-r.top-this.height/2)/this.zoom};}
  zoomBy(factor,e){this.measure();const before=e?this.point(e):null;this.zoom=Math.max(this.minZoom,Math.min(2,this.zoom*factor));if(before){const after=this.point(e);this.x+=before.x-after.x;this.y+=before.y-after.y;this.follow=false;}this.clamp();}
  select(e){const p=this.point(e),sim=this.renderer.sim,poi=sim.map.pois.find(o=>Math.hypot(o.x-p.x,o.y-p.y)*this.zoom<18&&sim.discovery.state(o.x,o.y)!=='UNKNOWN');const r=regionAt(p.x/32,p.y/32);this.selected=poi||r;const discovered=poi||sim.discovery.state(p.x,p.y)!=='UNKNOWN';document.getElementById('map-selection').textContent=discovered?`${poi?.name||r.name} · Níveis ${r.level.join('–')} · ${r.difficulty}. Criaturas: ${r.species.join(', ')}. Recompensa: ${r.reward}.`:`${r.name} · Região ainda não explorada.`;}
- draw(){if(performance.now()-this.lastDraw<100)return;this.lastDraw=performance.now();this.measure();const sim=this.renderer.sim,p=sim.player;if(this.follow){this.x=p.x;this.y=p.y;}
+ draw(){if(performance.now()-this.lastDraw<(this.expanded?100:200))return;this.lastDraw=performance.now();this.measure();const sim=this.renderer.sim,p=sim.player;if(this.follow){this.x=p.x;this.y=p.y;}
   this.renderer.worldView.render(this.canvas,{x:this.x,y:this.y,zoom:this.zoom,width:this.width,height:this.height});
   if(!this.overlay){this.overlay=document.createElement('div');this.overlay.className='map-overlays';this.canvas.append(this.overlay);}
   const project=(x,y)=>({x:(x-this.x)*this.zoom+this.width/2,y:(y-this.y)*this.zoom+this.height/2}),nodes=[];

@@ -16,7 +16,7 @@ export class RealtimeOnline {
     const now=Date.now(),present=new Map();
     for(const player of Object.values(this.channel.presenceState()).flat())if(player?.id&&version(player)>=version(present.get(player.id)))present.set(player.id,player);
     for(const [id,player] of this.remoteStates)if(!present.has(id)&&now-player.seenAt>15000)this.remoteStates.delete(id);
-    this.players=[...[...present.values()].map(player=>{let remote=this.remoteStates.get(player.id);if(version(player)>version(remote)){remote={...player,seenAt:now};this.remoteStates.set(player.id,remote);}const latest=version(remote)>=version(player)?remote:player;return {...player,...latest,guildId:player.guildId||remote?.guildId||null,spawnEpoch:player.spawnEpoch};}),...[...this.remoteStates.values()].filter(player=>!present.has(player.id))];
+    this.players=[...[...present.values()].map(player=>{let remote=this.remoteStates.get(player.id);if(version(player)>version(remote)){remote={...player,seenAt:now};this.remoteStates.set(player.id,remote);}const latest=version(remote)>=version(player)?remote:player;return {...player,...latest,guildId:player.guildId||remote?.guildId||null,spawnEpoch:player.spawnEpoch};}),...[...this.remoteStates.values()].filter(player=>!present.has(player.id))].filter(player=>player.id===this.id||now-(this.remoteStates.get(player.id)?.seenAt??now)<12000);
     const self=this.players.find(player=>player.id===this.id);
     if(self?.guildId)this.guildId=self.guildId;
     const epochs=this.players.filter(player=>player.scene==='world'&&Number.isInteger(player.spawnEpoch)).map(player=>player.spawnEpoch);
@@ -51,9 +51,9 @@ export class RealtimeOnline {
   }
   watchdog(){
     if(!this.token||this.reconnecting)return;
-    const now=Date.now(),stalePeer=this.players.some(player=>player.id!==this.id&&now-(this.remoteStates.get(player.id)?.seenAt??this.lastInboundAt)>5000);
+    const now=Date.now(),peers=this.players.filter(player=>player.id!==this.id),stalePeers=peers.length>0&&peers.every(player=>now-(this.remoteStates.get(player.id)?.seenAt??this.lastInboundAt)>5000);
     if(now-this.lastReconnectAt<8000)return;
-    if(this.channel?.state==='joined'&&!stalePeer)return;
+    if(this.channel?.state==='joined'&&!stalePeers)return;
     this.lastReconnectAt=now;
     this.reconnecting=(async()=>{
       const old=this.channel;this.channel=null;
