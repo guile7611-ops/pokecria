@@ -15,7 +15,7 @@ try{
     const {RealtimeOnline}=await import('/realtime-online.js');
     cloud.session={user:{id:nick}};
     window.smokeEvents=[];
-    window.smokeOnline=new RealtimeOnline({world:({spawnEpoch})=>{window.smokeEpoch=spawnEpoch;},'pvp-hit':event=>window.smokeEvents.push(event),'pvp-status':event=>window.smokeEvents.push(event),'boss-state':event=>window.smokeEvents.push(event)});
+    window.smokeOnline=new RealtimeOnline({world:({spawnEpoch})=>{window.smokeEpoch=spawnEpoch;},'pvp-hit':event=>window.smokeEvents.push(event),'pvp-status':event=>window.smokeEvents.push(event),'boss-state':event=>window.smokeEvents.push(event),'wild-hit':event=>window.smokeEvents.push(event),'wild-kill':event=>window.smokeEvents.push(event),'wild-state':event=>window.smokeEvents.push(event)});
     await window.smokeOnline.join({nick,pokemon:'bulbasaur',spawnEpoch});
     return window.smokeOnline.id;
   },{nick,spawnEpoch});
@@ -25,10 +25,18 @@ try{
   const a=await first.evaluate(()=>({players:window.smokeOnline.players.map(p=>p.id),epoch:window.smokeOnline.state.spawnEpoch}));
   const b=await second.evaluate(()=>({players:window.smokeOnline.players.map(p=>p.id),epoch:window.smokeOnline.state.spawnEpoch}));
   assert.ok(a.players.includes(secondId)&&b.players.includes(firstId));
-  assert.equal(a.epoch,123);assert.equal(b.epoch,123);
+  assert.equal(a.epoch,0);assert.equal(b.epoch,0);
   await first.evaluate(async()=>{window.smokeOnline.update({x:900,y:560,hp:100,maxHp:100});await window.smokeOnline.track(true);});
   await second.evaluate(async()=>{window.smokeOnline.update({x:960,y:560,hp:100,maxHp:100});await window.smokeOnline.track(true);});
   await Promise.all([first.waitForFunction(id=>window.smokeOnline.players.find(p=>p.id===id)?.x===960,secondId),second.waitForFunction(id=>window.smokeOnline.players.find(p=>p.id===id)?.x===900,firstId)]);
+  const retained=await second.evaluate(id=>{const online=window.smokeOnline,original=online.channel.presenceState;online.channel.presenceState=()=>({});online.roster();const visible=online.players.some(player=>player.id===id);online.channel.presenceState=original;return visible;},firstId);
+  assert.equal(retained,true,'a brief presence gap must not hide a remote player');
+  await first.evaluate(()=>window.smokeOnline.request('wild-hit',{uid:999999,damage:17,hp:88,maxHp:105}));
+  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='wild-hit'&&event.uid===999999&&event.damage===17));
+  await second.evaluate(()=>window.smokeOnline.send('wild-sync-request',{}));
+  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='wild-state'&&event.uid===999999));
+  await first.evaluate(()=>window.smokeOnline.request('wild-kill',{uid:999999,xp:0}));
+  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='wild-kill'&&event.uid===999999));
   await first.evaluate(id=>window.smokeOnline.request('pvp',{targetId:id}),secondId);
   await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='pvp-hit'));
   assert.ok(await second.evaluate(()=>window.smokeOnline.state.hp<100));

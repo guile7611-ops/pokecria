@@ -32,6 +32,16 @@ test('all nine starters appear as wild encounters in suitable authored biomes',(
   assert.ok(WILD_POKEMON.some(p=>p.id===id));
  }
 });
+test('fresh players enter the same world and receive wild state even before it streams in',()=>{
+ const first=new Simulation(),second=new Simulation();
+ assert.equal(first.spawnEpoch,0);assert.equal(second.spawnEpoch,0);
+ assert.deepEqual(first.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]),second.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]));
+ const spawn=first.map.spawns.find(s=>s.uid>=2000),respawnAt=Date.now()+12000;
+ second.applySharedWildState({uid:spawn.uid,hp:0,respawnAt});
+ second.player.x=spawn.x;second.player.y=spawn.y;second.streamCreatures();
+ const enemy=second.enemies.find(e=>e.uid===spawn.uid);
+ assert.ok(enemy);assert.equal(enemy.state,'Dead');assert.equal(enemy.hp,0);
+});
 test('starter progression is slower and existing levels rebalance without losing XP',()=>{
  assert.ok(STARTERS.bulbasaur.speed<80);
  assert.ok(STARTERS.bulbasaur.hpPerLevel<12);

@@ -9,13 +9,13 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
 
 export class RealtimeOnline {
-  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.lastTrack=0;this.lastBroadcast=0;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.remoteStates=new Map();}
+  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.lastTrack=0;this.lastBroadcast=0;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
   roster(){
     if(!this.channel)return;
-    const entries=Object.values(this.channel.presenceState()).flat().filter(player=>player?.id);
-    const current=new Set(entries.map(player=>player.id));
-    for(const id of this.remoteStates.keys())if(!current.has(id))this.remoteStates.delete(id);
-    this.players=[...new Map(entries.map(player=>[player.id,{...player,...this.remoteStates.get(player.id),guildId:player.guildId||this.remoteStates.get(player.id)?.guildId||null,spawnEpoch:player.spawnEpoch}])).values()];
+    const entries=Object.values(this.channel.presenceState()).flat().filter(player=>player?.id),now=Date.now();
+    const present=new Map(entries.map(player=>[player.id,player]));
+    for(const [id,player] of this.remoteStates)if(!present.has(id)&&now-player.seenAt>15000)this.remoteStates.delete(id);
+    this.players=[...new Map([...entries.map(player=>[player.id,{...player,...this.remoteStates.get(player.id),guildId:player.guildId||this.remoteStates.get(player.id)?.guildId||null,spawnEpoch:player.spawnEpoch}]),...this.remoteStates.entries()].map(([id,player])=>[id,{...present.get(id),...player}])).values()];
     const self=this.players.find(player=>player.id===this.id);
     if(self?.guildId)this.guildId=self.guildId;
     const epochs=this.players.filter(player=>player.scene==='world'&&Number.isInteger(player.spawnEpoch)).map(player=>player.spawnEpoch);
@@ -27,7 +27,7 @@ export class RealtimeOnline {
     if(!cloud.session?.user?.id)throw Error('Entre na sua conta para jogar online.');
     const {createClient}=await import('/vendor/supabase.js');
     this.client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-    this.state={id:this.id,nick:clean(state.nick),pokemon:state.pokemon,level:1,x:REGION.spawn.x,y:REGION.spawn.y,hp:100,maxHp:100,scene:'world',moving:false,facing:{x:0,y:1},guildId:null,spawnEpoch:state.spawnEpoch};
+    this.state={id:this.id,nick:clean(state.nick),pokemon:state.pokemon,level:1,x:REGION.spawn.x,y:REGION.spawn.y,hp:100,maxHp:100,scene:'world',moving:false,facing:{x:0,y:1},guildId:null,spawnEpoch:0};
     this.channel=this.client.channel('aurora-world-v2',{config:{presence:{key:this.id},broadcast:{self:false,ack:true}}});
     this.channel.on('presence',{event:'sync'},()=>this.roster());
     this.channel.on('broadcast',{event:'game'},({payload})=>this.receive(payload));
@@ -37,6 +37,7 @@ export class RealtimeOnline {
       await this.track(true);
       this.roster();
       this.send('boss-sync-request',{}).catch(()=>{});
+      this.send('wild-sync-request',{}).catch(()=>{});
     }catch(error){this.token=null;await this.client.removeChannel(this.channel).catch(()=>{});this.channel=null;throw error;}
   }
   async track(force=false){
@@ -56,13 +57,17 @@ export class RealtimeOnline {
     if(!message||message.from===this.id||message.targetId&&message.targetId!==this.id)return;
     const sender=this.players.find(player=>player.id===message.from);
     if(message.type==='player-state'){
-      const state={...sender,...message.state,id:message.from};this.remoteStates.set(message.from,state);
+      const state={...sender,...message.state,id:message.from,seenAt:Date.now()};this.remoteStates.set(message.from,state);
       if(sender)Object.assign(sender,state);else this.players.push(state);
       this.handlers.roster?.({players:this.players,safeRadius:340});return;
     }
     if(message.type==='boss-sync-request'){for(const state of this.bosses.values())this.send('boss-state',state,message.from).catch(()=>{});return;}
+    if(message.type==='wild-sync-request'){for(const state of this.wilds.values())if(state.respawnAt>Date.now()||state.hp>0)this.send('wild-state',state,message.from).catch(()=>{});return;}
+    if(message.type==='wild-state'){this.wilds.set(message.uid,message);this.handlers['wild-state']?.(message);return;}
     if(message.type==='boss-state'){this.bosses.set(message.uid,message);this.handlers['boss-state']?.(message);return;}
     if(message.type==='wild-hit'&&message.isBoss){this.bosses.set(message.uid,message);this.handlers['boss-state']?.(message);return;}
+    if(message.type==='wild-hit')this.wilds.set(message.uid,{uid:message.uid,hp:message.hp,maxHp:message.maxHp,respawnAt:message.hp<=0?Date.now()+(message.respawn||13)*1000:0});
+    if(message.type==='wild-kill')this.wilds.set(message.uid,{uid:message.uid,hp:0,respawnAt:Date.now()+(message.respawn||13)*1000});
     if(message.type==='wild-kill'&&sender?.guildId&&sender.guildId===this.guildId&&this.ownHits.delete(message.uid))this.handlers['guild-xp']?.({xp:Math.floor((message.xp||0)/2),from:sender.nick});
     if(message.type==='guild-invite')this.pendingInvite={fromId:message.from,fromNick:message.fromNick};
     if(message.type==='guild-joined'){this.guildId=message.guildId;this.pendingInvite=null;this.track(true).catch(()=>{});}
@@ -74,10 +79,10 @@ export class RealtimeOnline {
     if(path==='wild-hit'){
       this.ownHits.add(data.uid);
       if(data.isBoss){const state={uid:data.uid,hp:data.hp??Math.max(0,(this.bosses.get(data.uid)?.hp??data.maxHp)-data.damage),maxHp:data.maxHp,respawnAt:data.hp===0?Date.now()+(data.respawn||45)*1000:0,isBoss:true};this.bosses.set(data.uid,state);await this.send('boss-state',state);}
-      else await this.send('wild-hit',data);
+      else {this.wilds.set(data.uid,{uid:data.uid,hp:data.hp,maxHp:data.maxHp,respawnAt:data.hp<=0?Date.now()+(data.respawn||13)*1000:0});await this.send('wild-hit',data);}
       return {ok:true};
     }
-    if(path==='wild-kill'){await this.send('wild-kill',data);return {ok:true};}
+    if(path==='wild-kill'){this.wilds.set(data.uid,{uid:data.uid,hp:0,respawnAt:Date.now()+(data.respawn||13)*1000});await this.send('wild-kill',data);return {ok:true};}
     if(path==='guild/invite'){
       const target=this.players.find(player=>player.id===data.targetId);if(!target)throw Error('Jogador indisponível.');
       await this.send('guild-invite',{fromNick:this.state.nick},target.id);return {ok:true};
@@ -129,5 +134,5 @@ export class RealtimeOnline {
     await this.send('combat',{ability:ability.id,behavior:ability.behavior,vfx:visual?.travel||ability.vfx||`moves/${ability.id}`,castVfx:visual?.cast,impactVfx:visual?.impact,castSize:visual?.castSize,travelSize:visual?.travelSize,impactSize:visual?.impactSize,duration:ability.duration||0,charge:ability.charge||0,x:self.x,y:self.y,aimX:impact.x,aimY:impact.y,radius:ability.radius||0,targets:victims.map(v=>v.id)});
     return {ok:true,victims};
   }
-  async leave(){if(!this.token)return;this.token=null;try{await this.channel?.untrack();await this.client?.removeChannel(this.channel);}finally{this.channel=null;this.client=null;this.players=[];this.remoteStates.clear();this.guildId=null;this.pendingInvite=null;}}
+  async leave(){if(!this.token)return;this.token=null;try{await this.channel?.untrack();await this.client?.removeChannel(this.channel);}finally{this.channel=null;this.client=null;this.players=[];this.remoteStates.clear();this.wilds.clear();this.guildId=null;this.pendingInvite=null;}}
 }
