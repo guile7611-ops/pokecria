@@ -32,7 +32,7 @@ test('rare starters are valid regional encounters without being guaranteed in ev
  for(const id of Object.keys(STARTERS))assert.ok(WILD_POKEMON.some(p=>p.id===id));
 });
 test('fresh players enter the same world and receive wild state even before it streams in',()=>{
- const first=new Simulation(),second=new Simulation();
+ const first=new Simulation('bulbasaur',{worldNow:()=>0}),second=new Simulation('bulbasaur',{worldNow:()=>0});
  assert.equal(first.spawnEpoch,0);assert.equal(second.spawnEpoch,0);
  assert.deepEqual(first.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]),second.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]));
  const spawn=first.map.spawns.find(s=>s.uid>=2000),respawnAt=Date.now()+12000;
