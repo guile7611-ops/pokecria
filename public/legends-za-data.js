@@ -6,6 +6,72 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "teleport"
     }
   ],
+  "absol": [
+    {
+      "level": 1,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "shadow-sneak"
+    },
+    {
+      "level": 10,
+      "move": "knock-off"
+    },
+    {
+      "level": 15,
+      "move": "detect"
+    },
+    {
+      "level": 20,
+      "move": "swords-dance"
+    },
+    {
+      "level": 23,
+      "move": "slash"
+    },
+    {
+      "level": 27,
+      "move": "night-slash"
+    },
+    {
+      "level": 32,
+      "move": "double-team"
+    },
+    {
+      "level": 36,
+      "move": "taunt"
+    },
+    {
+      "level": 40,
+      "move": "shadow-claw"
+    },
+    {
+      "level": 43,
+      "move": "focus-energy"
+    },
+    {
+      "level": 46,
+      "move": "air-slash"
+    },
+    {
+      "level": 48,
+      "move": "future-sight"
+    },
+    {
+      "level": 54,
+      "move": "perish-song"
+    }
+  ],
   "aggron": [
     {
       "level": 1,
@@ -172,6 +238,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "zap-cannon"
     }
   ],
+  "arcanine": [],
   "ariados": [
     {
       "level": 1,
@@ -306,6 +373,110 @@ export const LEGENDS_ZA_LEARNSETS = {
     {
       "level": 66,
       "move": "head-smash"
+    }
+  ],
+  "bagon": [
+    {
+      "level": 1,
+      "move": "bite"
+    },
+    {
+      "level": 1,
+      "move": "ember"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 10,
+      "move": "dragon-breath"
+    },
+    {
+      "level": 15,
+      "move": "headbutt"
+    },
+    {
+      "level": 25,
+      "move": "crunch"
+    },
+    {
+      "level": 30,
+      "move": "dragon-claw"
+    },
+    {
+      "level": 35,
+      "move": "zen-headbutt"
+    },
+    {
+      "level": 40,
+      "move": "focus-energy"
+    },
+    {
+      "level": 45,
+      "move": "flamethrower"
+    },
+    {
+      "level": 50,
+      "move": "outrage"
+    },
+    {
+      "level": 55,
+      "move": "double-edge"
+    }
+  ],
+  "banette": [
+    {
+      "level": 1,
+      "move": "lick"
+    },
+    {
+      "level": 1,
+      "move": "screech"
+    },
+    {
+      "level": 1,
+      "move": "slash"
+    },
+    {
+      "level": 8,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 12,
+      "move": "knock-off"
+    },
+    {
+      "level": 16,
+      "move": "will-o-wisp"
+    },
+    {
+      "level": 19,
+      "move": "shadow-sneak"
+    },
+    {
+      "level": 23,
+      "move": "shadow-claw"
+    },
+    {
+      "level": 26,
+      "move": "curse"
+    },
+    {
+      "level": 30,
+      "move": "shadow-ball"
+    },
+    {
+      "level": 34,
+      "move": "swords-dance"
+    },
+    {
+      "level": 42,
+      "move": "phantom-force"
+    },
+    {
+      "level": 48,
+      "move": "gunk-shot"
     }
   ],
   "bayleef": [
@@ -517,6 +688,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "brave-bird"
     }
   ],
+  "bonsly": [],
   "breloom": [],
   "bulbasaur": [
     {
@@ -1211,6 +1383,60 @@ export const LEGENDS_ZA_LEARNSETS = {
     }
   ],
   "furret": [],
+  "gallade": [
+    {
+      "level": 1,
+      "move": "disarming-voice"
+    },
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "hypnosis"
+    },
+    {
+      "level": 1,
+      "move": "psybeam"
+    },
+    {
+      "level": 6,
+      "move": "confusion"
+    },
+    {
+      "level": 15,
+      "move": "teleport"
+    },
+    {
+      "level": 18,
+      "move": "aerial-ace"
+    },
+    {
+      "level": 28,
+      "move": "protect"
+    },
+    {
+      "level": 30,
+      "move": "double-team"
+    },
+    {
+      "level": 35,
+      "move": "swords-dance"
+    },
+    {
+      "level": 42,
+      "move": "psycho-cut"
+    },
+    {
+      "level": 50,
+      "move": "leaf-blade"
+    },
+    {
+      "level": 58,
+      "move": "close-combat"
+    }
+  ],
   "gardevoir": [
     {
       "level": 1,
@@ -1386,6 +1612,8 @@ export const LEGENDS_ZA_LEARNSETS = {
     }
   ],
   "geodude": [],
+  "gligar": [],
+  "gliscor": [],
   "gloom": [],
   "golbat": [
     {
@@ -1522,6 +1750,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "leaf-storm"
     }
   ],
+  "growlithe": [],
   "hariyama": [],
   "haunter": [
     {
@@ -1581,6 +1810,9 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "phantom-force"
     }
   ],
+  "hitmonchan": [],
+  "hitmonlee": [],
+  "hitmontop": [],
   "honchkrow": [],
   "hoothoot": [],
   "horsea": [],
@@ -1986,6 +2218,68 @@ export const LEGENDS_ZA_LEARNSETS = {
   ],
   "lombre": [],
   "lotad": [],
+  "lucario": [
+    {
+      "level": 1,
+      "move": "bullet-punch"
+    },
+    {
+      "level": 1,
+      "move": "endure"
+    },
+    {
+      "level": 1,
+      "move": "protect"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 8,
+      "move": "metal-claw"
+    },
+    {
+      "level": 16,
+      "move": "work-up"
+    },
+    {
+      "level": 20,
+      "move": "rock-smash"
+    },
+    {
+      "level": 24,
+      "move": "screech"
+    },
+    {
+      "level": 25,
+      "move": "aura-sphere"
+    },
+    {
+      "level": 28,
+      "move": "bulldoze"
+    },
+    {
+      "level": 32,
+      "move": "metal-sound"
+    },
+    {
+      "level": 35,
+      "move": "swords-dance"
+    },
+    {
+      "level": 38,
+      "move": "dragon-pulse"
+    },
+    {
+      "level": 45,
+      "move": "extreme-speed"
+    },
+    {
+      "level": 54,
+      "move": "close-combat"
+    }
+  ],
   "ludicolo": [],
   "machamp": [
     {
@@ -2158,6 +2452,7 @@ export const LEGENDS_ZA_LEARNSETS = {
   "magneton": [],
   "magnezone": [],
   "makuhita": [],
+  "mamoswine": [],
   "mareep": [
     {
       "level": 1,
@@ -2472,6 +2767,7 @@ export const LEGENDS_ZA_LEARNSETS = {
   ],
   "murkrow": [],
   "noctowl": [],
+  "nosepass": [],
   "numel": [
     {
       "level": 1,
@@ -2530,9 +2826,64 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "heat-crash"
     }
   ],
+  "nuzleaf": [],
   "oddish": [],
   "paras": [],
   "parasect": [],
+  "pichu": [
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 1,
+      "move": "thunder-shock"
+    },
+    {
+      "level": 4,
+      "move": "thunder-wave"
+    },
+    {
+      "level": 12,
+      "move": "nuzzle"
+    },
+    {
+      "level": 16,
+      "move": "spark"
+    },
+    {
+      "level": 20,
+      "move": "charm"
+    },
+    {
+      "level": 25,
+      "move": "thunderbolt"
+    },
+    {
+      "level": 30,
+      "move": "charge"
+    },
+    {
+      "level": 35,
+      "move": "light-screen"
+    },
+    {
+      "level": 40,
+      "move": "thunder"
+    },
+    {
+      "level": 99,
+      "move": "volt-tackle"
+    }
+  ],
   "pidgeot": [
     {
       "level": 1,
@@ -2683,11 +3034,67 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "brave-bird"
     }
   ],
+  "pikachu": [
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 1,
+      "move": "thunder-shock"
+    },
+    {
+      "level": 4,
+      "move": "thunder-wave"
+    },
+    {
+      "level": 12,
+      "move": "nuzzle"
+    },
+    {
+      "level": 16,
+      "move": "spark"
+    },
+    {
+      "level": 20,
+      "move": "charm"
+    },
+    {
+      "level": 25,
+      "move": "thunderbolt"
+    },
+    {
+      "level": 30,
+      "move": "charge"
+    },
+    {
+      "level": 35,
+      "move": "light-screen"
+    },
+    {
+      "level": 40,
+      "move": "thunder"
+    },
+    {
+      "level": 99,
+      "move": "volt-tackle"
+    }
+  ],
+  "piloswine": [],
   "politoed": [],
   "poliwag": [],
   "poliwhirl": [],
   "poliwrath": [],
   "poochyena": [],
+  "probopass": [],
   "psyduck": [],
   "pupitar": [
     {
@@ -2741,6 +3148,60 @@ export const LEGENDS_ZA_LEARNSETS = {
   ],
   "quagsire": [],
   "quilava": [],
+  "raichu": [
+    {
+      "level": 1,
+      "move": "growl"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 1,
+      "move": "tail-whip"
+    },
+    {
+      "level": 1,
+      "move": "thunder-shock"
+    },
+    {
+      "level": 4,
+      "move": "thunder-wave"
+    },
+    {
+      "level": 12,
+      "move": "nuzzle"
+    },
+    {
+      "level": 16,
+      "move": "spark"
+    },
+    {
+      "level": 20,
+      "move": "charm"
+    },
+    {
+      "level": 25,
+      "move": "thunderbolt"
+    },
+    {
+      "level": 30,
+      "move": "charge"
+    },
+    {
+      "level": 35,
+      "move": "light-screen"
+    },
+    {
+      "level": 40,
+      "move": "thunder"
+    },
+    {
+      "level": 99,
+      "move": "volt-tackle"
+    }
+  ],
   "ralts": [
     {
       "level": 1,
@@ -2805,6 +3266,106 @@ export const LEGENDS_ZA_LEARNSETS = {
   ],
   "raticate": [],
   "rattata": [],
+  "riolu": [
+    {
+      "level": 1,
+      "move": "bullet-punch"
+    },
+    {
+      "level": 1,
+      "move": "endure"
+    },
+    {
+      "level": 1,
+      "move": "quick-attack"
+    },
+    {
+      "level": 8,
+      "move": "metal-claw"
+    },
+    {
+      "level": 16,
+      "move": "work-up"
+    },
+    {
+      "level": 20,
+      "move": "rock-smash"
+    },
+    {
+      "level": 24,
+      "move": "detect"
+    },
+    {
+      "level": 24,
+      "move": "screech"
+    },
+    {
+      "level": 28,
+      "move": "bulldoze"
+    },
+    {
+      "level": 35,
+      "move": "swords-dance"
+    }
+  ],
+  "salamence": [
+    {
+      "level": 1,
+      "move": "bite"
+    },
+    {
+      "level": 1,
+      "move": "ember"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 1,
+      "move": "protect"
+    },
+    {
+      "level": 10,
+      "move": "dragon-breath"
+    },
+    {
+      "level": 15,
+      "move": "headbutt"
+    },
+    {
+      "level": 25,
+      "move": "crunch"
+    },
+    {
+      "level": 30,
+      "move": "dragon-claw"
+    },
+    {
+      "level": 35,
+      "move": "zen-headbutt"
+    },
+    {
+      "level": 40,
+      "move": "focus-energy"
+    },
+    {
+      "level": 45,
+      "move": "flamethrower"
+    },
+    {
+      "level": 50,
+      "move": "outrage"
+    },
+    {
+      "level": 55,
+      "move": "double-edge"
+    },
+    {
+      "level": 60,
+      "move": "air-slash"
+    }
+  ],
   "sceptile": [
     {
       "level": 1,
@@ -2880,6 +3441,7 @@ export const LEGENDS_ZA_LEARNSETS = {
     }
   ],
   "seadra": [],
+  "seedot": [],
   "sentret": [],
   "sharpedo": [
     {
@@ -2935,7 +3497,110 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "double-edge"
     }
   ],
+  "shelgon": [
+    {
+      "level": 1,
+      "move": "bite"
+    },
+    {
+      "level": 1,
+      "move": "ember"
+    },
+    {
+      "level": 1,
+      "move": "leer"
+    },
+    {
+      "level": 10,
+      "move": "dragon-breath"
+    },
+    {
+      "level": 15,
+      "move": "headbutt"
+    },
+    {
+      "level": 25,
+      "move": "crunch"
+    },
+    {
+      "level": 30,
+      "move": "dragon-claw"
+    },
+    {
+      "level": 35,
+      "move": "zen-headbutt"
+    },
+    {
+      "level": 40,
+      "move": "focus-energy"
+    },
+    {
+      "level": 45,
+      "move": "flamethrower"
+    },
+    {
+      "level": 50,
+      "move": "outrage"
+    },
+    {
+      "level": 55,
+      "move": "double-edge"
+    }
+  ],
+  "shiftry": [],
   "shroomish": [],
+  "shuppet": [
+    {
+      "level": 1,
+      "move": "lick"
+    },
+    {
+      "level": 1,
+      "move": "screech"
+    },
+    {
+      "level": 8,
+      "move": "confuse-ray"
+    },
+    {
+      "level": 12,
+      "move": "knock-off"
+    },
+    {
+      "level": 16,
+      "move": "will-o-wisp"
+    },
+    {
+      "level": 19,
+      "move": "shadow-sneak"
+    },
+    {
+      "level": 23,
+      "move": "shadow-claw"
+    },
+    {
+      "level": 26,
+      "move": "curse"
+    },
+    {
+      "level": 30,
+      "move": "shadow-ball"
+    },
+    {
+      "level": 34,
+      "move": "swords-dance"
+    },
+    {
+      "level": 42,
+      "move": "phantom-force"
+    },
+    {
+      "level": 48,
+      "move": "gunk-shot"
+    }
+  ],
+  "slaking": [],
+  "slakoth": [],
   "slugma": [],
   "spearow": [],
   "spinarak": [
@@ -3042,6 +3707,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "liquidation"
     }
   ],
+  "sudowoodo": [],
   "swampert": [
     {
       "level": 1,
@@ -3128,6 +3794,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "sludge-wave"
     }
   ],
+  "swinub": [],
   "torchic": [
     {
       "level": 1,
@@ -3350,6 +4017,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "giga-impact"
     }
   ],
+  "tyrogue": [],
   "venusaur": [
     {
       "level": 1,
@@ -3412,6 +4080,7 @@ export const LEGENDS_ZA_LEARNSETS = {
       "move": "solar-beam"
     }
   ],
+  "vigoroth": [],
   "vileplume": [],
   "voltorb": [],
   "wailmer": [],
@@ -3581,6 +4250,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": null,
     "source": "pokemon-legends-za"
   },
+  "aura-sphere": {
+    "name": "Aura Sphere",
+    "type": "fighting",
+    "category": "special",
+    "power": 80,
+    "accuracy": null,
+    "source": "pokemon-legends-za"
+  },
   "bite": {
     "name": "Bite",
     "type": "dark",
@@ -3717,6 +4394,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
+  "close-combat": {
+    "name": "Close Combat",
+    "type": "fighting",
+    "category": "physical",
+    "power": 120,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
   "confuse-ray": {
     "name": "Confuse Ray",
     "type": "ghost",
@@ -3813,6 +4498,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
+  "dragon-pulse": {
+    "name": "Dragon Pulse",
+    "type": "dragon",
+    "category": "special",
+    "power": 85,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
   "dragon-rush": {
     "name": "Dragon Rush",
     "type": "dragon",
@@ -3869,11 +4562,27 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
+  "endure": {
+    "name": "Endure",
+    "type": "normal",
+    "category": "status",
+    "power": null,
+    "accuracy": null,
+    "source": "pokemon-legends-za"
+  },
   "energy-ball": {
     "name": "Energy Ball",
     "type": "grass",
     "category": "special",
     "power": 90,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
+  "extreme-speed": {
+    "name": "Extreme Speed",
+    "type": "normal",
+    "category": "physical",
+    "power": 80,
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
@@ -3987,6 +4696,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "category": "status",
     "power": null,
     "accuracy": null,
+    "source": "pokemon-legends-za"
+  },
+  "gunk-shot": {
+    "name": "Gunk Shot",
+    "type": "poison",
+    "category": "physical",
+    "power": 120,
+    "accuracy": 80,
     "source": "pokemon-legends-za"
   },
   "gust": {
@@ -4290,6 +5007,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "type": "dark",
     "category": "physical",
     "power": 70,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
+  "nuzzle": {
+    "name": "Nuzzle",
+    "type": "electric",
+    "category": "physical",
+    "power": 20,
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
@@ -4613,6 +5338,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
+  "spark": {
+    "name": "Spark",
+    "type": "electric",
+    "category": "physical",
+    "power": 65,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
   "sticky-web": {
     "name": "Sticky Web",
     "type": "bug",
@@ -4693,6 +5426,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 85,
     "source": "pokemon-legends-za"
   },
+  "taunt": {
+    "name": "Taunt",
+    "type": "dark",
+    "category": "status",
+    "power": null,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
   "teleport": {
     "name": "Teleport",
     "type": "psychic",
@@ -4757,6 +5498,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": 100,
     "source": "pokemon-legends-za"
   },
+  "volt-tackle": {
+    "name": "Volt Tackle",
+    "type": "electric",
+    "category": "physical",
+    "power": 120,
+    "accuracy": 100,
+    "source": "pokemon-legends-za"
+  },
   "water-gun": {
     "name": "Water Gun",
     "type": "water",
@@ -4773,6 +5522,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "accuracy": null,
     "source": "pokemon-legends-za"
   },
+  "will-o-wisp": {
+    "name": "Will-O-Wisp",
+    "type": "fire",
+    "category": "status",
+    "power": null,
+    "accuracy": 85,
+    "source": "pokemon-legends-za"
+  },
   "wing-attack": {
     "name": "Wing Attack",
     "type": "flying",
@@ -4783,6 +5540,14 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "wish": {
     "name": "Wish",
+    "type": "normal",
+    "category": "status",
+    "power": null,
+    "accuracy": null,
+    "source": "pokemon-legends-za"
+  },
+  "work-up": {
+    "name": "Work Up",
     "type": "normal",
     "category": "status",
     "power": null,
@@ -4804,15 +5569,26 @@ export const LEGENDS_ZA_MOVE_METADATA = {
     "power": 120,
     "accuracy": 50,
     "source": "pokemon-legends-za"
+  },
+  "zen-headbutt": {
+    "name": "Zen Headbutt",
+    "type": "psychic",
+    "category": "physical",
+    "power": 80,
+    "accuracy": 90,
+    "source": "pokemon-legends-za"
   }
 };
 export const LEGENDS_ZA_AVAILABLE = [
   "abra",
+  "absol",
   "aggron",
   "alakazam",
   "ampharos",
   "ariados",
   "aron",
+  "bagon",
+  "banette",
   "bayleef",
   "beedrill",
   "blastoise",
@@ -4830,6 +5606,7 @@ export const LEGENDS_ZA_AVAILABLE = [
   "cubone",
   "feraligatr",
   "flaaffy",
+  "gallade",
   "gardevoir",
   "gastly",
   "gengar",
@@ -4844,6 +5621,7 @@ export const LEGENDS_ZA_AVAILABLE = [
   "kirlia",
   "lairon",
   "larvitar",
+  "lucario",
   "machamp",
   "machoke",
   "machop",
@@ -4853,13 +5631,20 @@ export const LEGENDS_ZA_AVAILABLE = [
   "meganium",
   "mudkip",
   "numel",
+  "pichu",
   "pidgeot",
   "pidgeotto",
   "pidgey",
+  "pikachu",
   "pupitar",
+  "raichu",
   "ralts",
+  "riolu",
+  "salamence",
   "sceptile",
   "sharpedo",
+  "shelgon",
+  "shuppet",
   "spinarak",
   "squirtle",
   "swampert",

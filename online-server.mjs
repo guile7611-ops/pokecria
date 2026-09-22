@@ -1,3 +1,4 @@
+import {safePlayer as safe} from './public/safe-zones.js';
 import { randomUUID } from 'node:crypto';
 import { ABILITIES, CREATURES } from './public/data.js';
 import {starterAttackVisual} from './public/starter-attack-vfx.js';
@@ -12,7 +13,6 @@ const killedWild = new Map();
 const bossStates = new Map();
 const now = () => Date.now();
 const json = (res, status, data) => res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify(data));
-const safe = p => !p || p.scene !== 'world' || Math.hypot(p.x - SPAWN.x, p.y - SPAWN.y) <= SAFE_RADIUS;
 const publicPlayer = p => ({ id:p.id, nick:p.nick, pokemon:p.pokemon, level:p.level, x:p.x, y:p.y, hp:p.hp, maxHp:p.maxHp, scene:p.scene, moving:p.moving, facing:p.facing, attackActive:now()<p.attackUntil, attackAnimation:p.attackAnimation, attackFacing:p.attackFacing, rolling:p.hp>0&&now()<(p.rollingUntil||0), guildId:p.guildId });
 const send = (p, type, data) => { if (p.stream && !p.stream.destroyed) p.stream.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`); };
 const all = type => { const list=[...players.values()].map(publicPlayer); for(const p of players.values())send(p,type,{players:list,safeRadius:SAFE_RADIUS}); };

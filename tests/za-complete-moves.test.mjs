@@ -7,9 +7,9 @@ import {Simulation} from '../public/simulation.js';
 const step=(sim,seconds)=>{for(let elapsed=0;elapsed<seconds;elapsed+=.025)sim.step(.025);};
 const combat=()=>{const sim=new Simulation('bulbasaur'),p=sim.player,e=sim.enemies[0];Object.assign(e,{x:p.x+45,y:p.y,home:{x:p.x+45,y:p.y},hp:1000,maxHp:1000,defense:0,spDefense:1,state:'Idle',defeated:false,aggro:0,path:[]});sim.updateEnemy=()=>{};return {sim,p,e};};
 
-test('all 160 Legends Z-A level moves map to a functional ability',()=>{
+test('all imported Legends Z-A level moves map to a functional ability',()=>{
  const mapped=new Map(Object.values(CANONICAL_LEARNSETS).flat().filter(row=>row.ability).map(row=>[row.move,row.ability]));
- assert.equal(Object.keys(LEGENDS_ZA_MOVE_METADATA).length,160);
+ assert.ok(Object.keys(LEGENDS_ZA_MOVE_METADATA).length>=160);
  for(const move of Object.keys(LEGENDS_ZA_MOVE_METADATA)){assert.ok(mapped.has(move),move);const ability=ABILITIES[mapped.get(move)];assert.ok(ability&&!ability.catalogOnly,move);assert.equal(ability.officialSource,'legends-za');}
 });
 

@@ -1,3 +1,4 @@
+import {CITY_SAFE_ZONES} from './safe-zones.js';
 import {WorldView} from './world-view.js';
 import {animationFrame,animationState} from './animation.js';
 import {collidersIn,terrainPassable} from './collisions.js';
@@ -68,7 +69,7 @@ export class Renderer {
  }
  drawOverlays(){const sim=this.sim,p=sim.player,point=(x,y)=>({x:(x-this.camera.x)*this.zoom+this.width/2,y:(y-this.camera.y)*this.zoom+this.height/2});const markers=[];
   const marker=(cls,x,y,w,h,text='')=>{const a=point(x,y);markers.push(`<span class="${cls}" style="left:${a.x}px;top:${a.y}px;width:${w*this.zoom}px;height:${h*this.zoom}px">${text}</span>`);};
-  if(!sim.map.scene)marker('safe-zone-circle',240-340,560-340,680,680);
+  if(!sim.map.scene)for(const zone of CITY_SAFE_ZONES)if(Math.hypot(zone.x-p.x,zone.y-p.y)<1600)marker('safe-zone-circle',zone.x-zone.radius,zone.y-zone.radius,zone.radius*2,zone.radius*2);
   if(p.path.length){const end=p.path.at(-1);marker('destination-marker',end.x-7,end.y-7,14,14);}
   for(const e of sim.enemies)if(e.isBoss&&e.state!=='Dead')marker('boss-aura',e.x-48,e.y-29,96,58);
   for(const e of sim.enemies){const a=e.telegraph;if(!a)continue;

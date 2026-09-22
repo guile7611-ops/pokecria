@@ -1,10 +1,10 @@
+import {safePlayer as safe} from './safe-zones.js';
 import {cloud} from './cloud-client.js';
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from './supabase-config.js';
 import {ABILITIES,CREATURES,REGION} from './data.js';
 import {effectiveness,combatEffectiveness} from './type-system.js';
 import {starterAttackVisual} from './starter-attack-vfx.js';
 
-const safe=player=>!player||player.scene!=='world'||Math.hypot(player.x-REGION.spawn.x,player.y-REGION.spawn.y)<=340;
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
 const PRESENCE_INTERVAL_MS=12000;

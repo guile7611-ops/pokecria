@@ -24,6 +24,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "absol": {
+    "baseStats": {
+      "hp": 65,
+      "attack": 130,
+      "defense": 60,
+      "spAttack": 75,
+      "spDefense": 60,
+      "speed": 75
+    },
+    "abilities": [
+      {
+        "id": "pressure",
+        "hidden": false
+      },
+      {
+        "id": "super-luck",
+        "hidden": false
+      },
+      {
+        "id": "justified",
+        "hidden": true
+      }
+    ]
+  },
   "aggron": {
     "baseStats": {
       "hp": 70,
@@ -92,6 +116,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "arcanine": {
+    "baseStats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 80,
+      "spAttack": 100,
+      "spDefense": 80,
+      "speed": 95
+    },
+    "abilities": [
+      {
+        "id": "intimidate",
+        "hidden": false
+      },
+      {
+        "id": "flash-fire",
+        "hidden": false
+      },
+      {
+        "id": "justified",
+        "hidden": true
+      }
+    ]
+  },
   "ariados": {
     "baseStats": {
       "hp": 70,
@@ -136,6 +184,50 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "heavy-metal",
+        "hidden": true
+      }
+    ]
+  },
+  "bagon": {
+    "baseStats": {
+      "hp": 45,
+      "attack": 75,
+      "defense": 60,
+      "spAttack": 40,
+      "spDefense": 30,
+      "speed": 50
+    },
+    "abilities": [
+      {
+        "id": "rock-head",
+        "hidden": false
+      },
+      {
+        "id": "sheer-force",
+        "hidden": true
+      }
+    ]
+  },
+  "banette": {
+    "baseStats": {
+      "hp": 64,
+      "attack": 115,
+      "defense": 65,
+      "spAttack": 83,
+      "spDefense": 63,
+      "speed": 65
+    },
+    "abilities": [
+      {
+        "id": "insomnia",
+        "hidden": false
+      },
+      {
+        "id": "frisk",
+        "hidden": false
+      },
+      {
+        "id": "cursed-body",
         "hidden": true
       }
     ]
@@ -236,6 +328,30 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "speed-boost",
+        "hidden": true
+      }
+    ]
+  },
+  "bonsly": {
+    "baseStats": {
+      "hp": 50,
+      "attack": 80,
+      "defense": 95,
+      "spAttack": 10,
+      "spDefense": 45,
+      "speed": 10
+    },
+    "abilities": [
+      {
+        "id": "sturdy",
+        "hidden": false
+      },
+      {
+        "id": "rock-head",
+        "hidden": false
+      },
+      {
+        "id": "rattled",
         "hidden": true
       }
     ]
@@ -684,6 +800,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "gallade": {
+    "baseStats": {
+      "hp": 68,
+      "attack": 125,
+      "defense": 65,
+      "spAttack": 65,
+      "spDefense": 115,
+      "speed": 80
+    },
+    "abilities": [
+      {
+        "id": "steadfast",
+        "hidden": false
+      },
+      {
+        "id": "sharpness",
+        "hidden": false
+      },
+      {
+        "id": "justified",
+        "hidden": true
+      }
+    ]
+  },
   "gardevoir": {
     "baseStats": {
       "hp": 68,
@@ -760,6 +900,54 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "sand-veil",
+        "hidden": true
+      }
+    ]
+  },
+  "gligar": {
+    "baseStats": {
+      "hp": 65,
+      "attack": 75,
+      "defense": 105,
+      "spAttack": 35,
+      "spDefense": 65,
+      "speed": 85
+    },
+    "abilities": [
+      {
+        "id": "hyper-cutter",
+        "hidden": false
+      },
+      {
+        "id": "sand-veil",
+        "hidden": false
+      },
+      {
+        "id": "immunity",
+        "hidden": true
+      }
+    ]
+  },
+  "gliscor": {
+    "baseStats": {
+      "hp": 75,
+      "attack": 95,
+      "defense": 125,
+      "spAttack": 45,
+      "spDefense": 75,
+      "speed": 95
+    },
+    "abilities": [
+      {
+        "id": "hyper-cutter",
+        "hidden": false
+      },
+      {
+        "id": "sand-veil",
+        "hidden": false
+      },
+      {
+        "id": "poison-heal",
         "hidden": true
       }
     ]
@@ -896,6 +1084,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "growlithe": {
+    "baseStats": {
+      "hp": 55,
+      "attack": 70,
+      "defense": 45,
+      "spAttack": 70,
+      "spDefense": 50,
+      "speed": 60
+    },
+    "abilities": [
+      {
+        "id": "intimidate",
+        "hidden": false
+      },
+      {
+        "id": "flash-fire",
+        "hidden": false
+      },
+      {
+        "id": "justified",
+        "hidden": true
+      }
+    ]
+  },
   "hariyama": {
     "baseStats": {
       "hp": 144,
@@ -933,6 +1145,78 @@ export const OFFICIAL_POKEMON_DATA = {
       {
         "id": "levitate",
         "hidden": false
+      }
+    ]
+  },
+  "hitmonchan": {
+    "baseStats": {
+      "hp": 50,
+      "attack": 105,
+      "defense": 79,
+      "spAttack": 35,
+      "spDefense": 110,
+      "speed": 76
+    },
+    "abilities": [
+      {
+        "id": "keen-eye",
+        "hidden": false
+      },
+      {
+        "id": "iron-fist",
+        "hidden": false
+      },
+      {
+        "id": "inner-focus",
+        "hidden": true
+      }
+    ]
+  },
+  "hitmonlee": {
+    "baseStats": {
+      "hp": 50,
+      "attack": 120,
+      "defense": 53,
+      "spAttack": 35,
+      "spDefense": 110,
+      "speed": 87
+    },
+    "abilities": [
+      {
+        "id": "limber",
+        "hidden": false
+      },
+      {
+        "id": "reckless",
+        "hidden": false
+      },
+      {
+        "id": "unburden",
+        "hidden": true
+      }
+    ]
+  },
+  "hitmontop": {
+    "baseStats": {
+      "hp": 50,
+      "attack": 95,
+      "defense": 95,
+      "spAttack": 35,
+      "spDefense": 110,
+      "speed": 70
+    },
+    "abilities": [
+      {
+        "id": "intimidate",
+        "hidden": false
+      },
+      {
+        "id": "technician",
+        "hidden": false
+      },
+      {
+        "id": "steadfast",
+        "hidden": true
       }
     ]
   },
@@ -1328,6 +1612,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "lucario": {
+    "baseStats": {
+      "hp": 70,
+      "attack": 110,
+      "defense": 70,
+      "spAttack": 115,
+      "spDefense": 70,
+      "speed": 90
+    },
+    "abilities": [
+      {
+        "id": "steadfast",
+        "hidden": false
+      },
+      {
+        "id": "inner-focus",
+        "hidden": false
+      },
+      {
+        "id": "justified",
+        "hidden": true
+      }
+    ]
+  },
   "ludicolo": {
     "baseStats": {
       "hp": 80,
@@ -1544,6 +1852,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "mamoswine": {
+    "baseStats": {
+      "hp": 110,
+      "attack": 130,
+      "defense": 80,
+      "spAttack": 70,
+      "spDefense": 60,
+      "speed": 80
+    },
+    "abilities": [
+      {
+        "id": "oblivious",
+        "hidden": false
+      },
+      {
+        "id": "snow-cloak",
+        "hidden": false
+      },
+      {
+        "id": "thick-fat",
+        "hidden": true
+      }
+    ]
+  },
   "mareep": {
     "baseStats": {
       "hp": 55,
@@ -1736,6 +2068,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "nosepass": {
+    "baseStats": {
+      "hp": 30,
+      "attack": 45,
+      "defense": 135,
+      "spAttack": 45,
+      "spDefense": 90,
+      "speed": 30
+    },
+    "abilities": [
+      {
+        "id": "sturdy",
+        "hidden": false
+      },
+      {
+        "id": "magnet-pull",
+        "hidden": false
+      },
+      {
+        "id": "sand-force",
+        "hidden": true
+      }
+    ]
+  },
   "numel": {
     "baseStats": {
       "hp": 60,
@@ -1756,6 +2112,30 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "own-tempo",
+        "hidden": true
+      }
+    ]
+  },
+  "nuzleaf": {
+    "baseStats": {
+      "hp": 70,
+      "attack": 70,
+      "defense": 40,
+      "spAttack": 60,
+      "spDefense": 40,
+      "speed": 60
+    },
+    "abilities": [
+      {
+        "id": "chlorophyll",
+        "hidden": false
+      },
+      {
+        "id": "early-bird",
+        "hidden": false
+      },
+      {
+        "id": "pickpocket",
         "hidden": true
       }
     ]
@@ -1828,6 +2208,26 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "pichu": {
+    "baseStats": {
+      "hp": 20,
+      "attack": 40,
+      "defense": 15,
+      "spAttack": 35,
+      "spDefense": 35,
+      "speed": 60
+    },
+    "abilities": [
+      {
+        "id": "static",
+        "hidden": false
+      },
+      {
+        "id": "lightning-rod",
+        "hidden": true
+      }
+    ]
+  },
   "pidgeot": {
     "baseStats": {
       "hp": 83,
@@ -1896,6 +2296,50 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "big-pecks",
+        "hidden": true
+      }
+    ]
+  },
+  "pikachu": {
+    "baseStats": {
+      "hp": 35,
+      "attack": 55,
+      "defense": 40,
+      "spAttack": 50,
+      "spDefense": 50,
+      "speed": 90
+    },
+    "abilities": [
+      {
+        "id": "static",
+        "hidden": false
+      },
+      {
+        "id": "lightning-rod",
+        "hidden": true
+      }
+    ]
+  },
+  "piloswine": {
+    "baseStats": {
+      "hp": 100,
+      "attack": 100,
+      "defense": 80,
+      "spAttack": 60,
+      "spDefense": 60,
+      "speed": 50
+    },
+    "abilities": [
+      {
+        "id": "oblivious",
+        "hidden": false
+      },
+      {
+        "id": "snow-cloak",
+        "hidden": false
+      },
+      {
+        "id": "thick-fat",
         "hidden": true
       }
     ]
@@ -2020,6 +2464,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "probopass": {
+    "baseStats": {
+      "hp": 60,
+      "attack": 55,
+      "defense": 145,
+      "spAttack": 75,
+      "spDefense": 150,
+      "speed": 40
+    },
+    "abilities": [
+      {
+        "id": "sturdy",
+        "hidden": false
+      },
+      {
+        "id": "magnet-pull",
+        "hidden": false
+      },
+      {
+        "id": "sand-force",
+        "hidden": true
+      }
+    ]
+  },
   "psyduck": {
     "baseStats": {
       "hp": 50,
@@ -2104,6 +2572,26 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "raichu": {
+    "baseStats": {
+      "hp": 60,
+      "attack": 90,
+      "defense": 55,
+      "spAttack": 90,
+      "spDefense": 80,
+      "speed": 110
+    },
+    "abilities": [
+      {
+        "id": "static",
+        "hidden": false
+      },
+      {
+        "id": "lightning-rod",
+        "hidden": true
+      }
+    ]
+  },
   "ralts": {
     "baseStats": {
       "hp": 28,
@@ -2176,6 +2664,50 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "riolu": {
+    "baseStats": {
+      "hp": 40,
+      "attack": 70,
+      "defense": 40,
+      "spAttack": 35,
+      "spDefense": 40,
+      "speed": 60
+    },
+    "abilities": [
+      {
+        "id": "steadfast",
+        "hidden": false
+      },
+      {
+        "id": "inner-focus",
+        "hidden": false
+      },
+      {
+        "id": "prankster",
+        "hidden": true
+      }
+    ]
+  },
+  "salamence": {
+    "baseStats": {
+      "hp": 95,
+      "attack": 135,
+      "defense": 80,
+      "spAttack": 110,
+      "spDefense": 80,
+      "speed": 100
+    },
+    "abilities": [
+      {
+        "id": "intimidate",
+        "hidden": false
+      },
+      {
+        "id": "moxie",
+        "hidden": true
+      }
+    ]
+  },
   "sceptile": {
     "baseStats": {
       "hp": 70,
@@ -2216,6 +2748,30 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "damp",
+        "hidden": true
+      }
+    ]
+  },
+  "seedot": {
+    "baseStats": {
+      "hp": 40,
+      "attack": 40,
+      "defense": 50,
+      "spAttack": 30,
+      "spDefense": 30,
+      "speed": 30
+    },
+    "abilities": [
+      {
+        "id": "chlorophyll",
+        "hidden": false
+      },
+      {
+        "id": "early-bird",
+        "hidden": false
+      },
+      {
+        "id": "pickpocket",
         "hidden": true
       }
     ]
@@ -2264,6 +2820,50 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "shelgon": {
+    "baseStats": {
+      "hp": 65,
+      "attack": 95,
+      "defense": 100,
+      "spAttack": 60,
+      "spDefense": 50,
+      "speed": 50
+    },
+    "abilities": [
+      {
+        "id": "rock-head",
+        "hidden": false
+      },
+      {
+        "id": "overcoat",
+        "hidden": true
+      }
+    ]
+  },
+  "shiftry": {
+    "baseStats": {
+      "hp": 90,
+      "attack": 100,
+      "defense": 60,
+      "spAttack": 90,
+      "spDefense": 60,
+      "speed": 80
+    },
+    "abilities": [
+      {
+        "id": "chlorophyll",
+        "hidden": false
+      },
+      {
+        "id": "wind-rider",
+        "hidden": false
+      },
+      {
+        "id": "pickpocket",
+        "hidden": true
+      }
+    ]
+  },
   "shroomish": {
     "baseStats": {
       "hp": 60,
@@ -2285,6 +2885,62 @@ export const OFFICIAL_POKEMON_DATA = {
       {
         "id": "quick-feet",
         "hidden": true
+      }
+    ]
+  },
+  "shuppet": {
+    "baseStats": {
+      "hp": 44,
+      "attack": 75,
+      "defense": 35,
+      "spAttack": 63,
+      "spDefense": 33,
+      "speed": 45
+    },
+    "abilities": [
+      {
+        "id": "insomnia",
+        "hidden": false
+      },
+      {
+        "id": "frisk",
+        "hidden": false
+      },
+      {
+        "id": "cursed-body",
+        "hidden": true
+      }
+    ]
+  },
+  "slaking": {
+    "baseStats": {
+      "hp": 150,
+      "attack": 160,
+      "defense": 100,
+      "spAttack": 95,
+      "spDefense": 65,
+      "speed": 100
+    },
+    "abilities": [
+      {
+        "id": "truant",
+        "hidden": false
+      }
+    ]
+  },
+  "slakoth": {
+    "baseStats": {
+      "hp": 60,
+      "attack": 60,
+      "defense": 60,
+      "spAttack": 35,
+      "spDefense": 35,
+      "speed": 30
+    },
+    "abilities": [
+      {
+        "id": "truant",
+        "hidden": false
       }
     ]
   },
@@ -2376,6 +3032,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "sudowoodo": {
+    "baseStats": {
+      "hp": 70,
+      "attack": 100,
+      "defense": 115,
+      "spAttack": 30,
+      "spDefense": 65,
+      "speed": 30
+    },
+    "abilities": [
+      {
+        "id": "sturdy",
+        "hidden": false
+      },
+      {
+        "id": "rock-head",
+        "hidden": false
+      },
+      {
+        "id": "rattled",
+        "hidden": true
+      }
+    ]
+  },
   "swampert": {
     "baseStats": {
       "hp": 100,
@@ -2392,6 +3072,30 @@ export const OFFICIAL_POKEMON_DATA = {
       },
       {
         "id": "damp",
+        "hidden": true
+      }
+    ]
+  },
+  "swinub": {
+    "baseStats": {
+      "hp": 50,
+      "attack": 50,
+      "defense": 40,
+      "spAttack": 30,
+      "spDefense": 30,
+      "speed": 50
+    },
+    "abilities": [
+      {
+        "id": "oblivious",
+        "hidden": false
+      },
+      {
+        "id": "snow-cloak",
+        "hidden": false
+      },
+      {
+        "id": "thick-fat",
         "hidden": true
       }
     ]
@@ -2520,6 +3224,30 @@ export const OFFICIAL_POKEMON_DATA = {
       }
     ]
   },
+  "tyrogue": {
+    "baseStats": {
+      "hp": 35,
+      "attack": 35,
+      "defense": 35,
+      "spAttack": 35,
+      "spDefense": 35,
+      "speed": 35
+    },
+    "abilities": [
+      {
+        "id": "guts",
+        "hidden": false
+      },
+      {
+        "id": "steadfast",
+        "hidden": false
+      },
+      {
+        "id": "vital-spirit",
+        "hidden": true
+      }
+    ]
+  },
   "venusaur": {
     "baseStats": {
       "hp": 80,
@@ -2537,6 +3265,22 @@ export const OFFICIAL_POKEMON_DATA = {
       {
         "id": "chlorophyll",
         "hidden": true
+      }
+    ]
+  },
+  "vigoroth": {
+    "baseStats": {
+      "hp": 80,
+      "attack": 80,
+      "defense": 80,
+      "spAttack": 55,
+      "spDefense": 55,
+      "speed": 90
+    },
+    "abilities": [
+      {
+        "id": "vital-spirit",
+        "hidden": false
       }
     ]
   },

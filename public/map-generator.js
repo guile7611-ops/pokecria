@@ -1,9 +1,10 @@
+import {inCity} from './safe-zones.js';
 import {attachNavigation,filterReachableSpawns,levelRangeAt} from './world-navigation.js';
 import {habitatAllows,layerForPortal} from './world-habitats.js';
 import { attachCollisions } from './collisions.js';
 import {objectDefinition} from './tilemap.js';
 import { WorldDefinition as W, WorldSeed, RegionDefinitions as regions, RoadDefinitions, StructureDefinitions, PoiDefinitions, BiomeDefinitions, SpawnZoneDefinitions } from './world-definition.js';
-import {NIGHT_SPECIES} from './day-night.js';
+import {NIGHT_SPECIES,speciesSpawnTime} from './day-night.js';
 export const noise = (x,y,seed=WorldSeed) => { const n=Math.sin(x*127.1+y*311.7+seed*.013)*43758.5453; return n-Math.floor(n); };
 export function inside(x,y,polygon) {
  let hit=false;
@@ -78,7 +79,7 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
  for(const zone of SpawnZoneDefinitions){const r=regions.find(r=>r.id===zone.region);let count=0;
   for(let i=0;i<2600&&count<zone.count;i++){const x=Math.floor(r.x+(noise(i,1,spawnSeed+zone.id.length)-.5)*r.rx*1.75),y=Math.floor(r.y+(noise(i,2,spawnSeed+zone.id.charCodeAt(0))-.5)*r.ry*1.75);if(biome[y]?.[x]!==regions.indexOf(r)||![0,4,5,6,9].includes(grid[y]?.[x]))continue;
    const startDistance=Math.hypot(x-7.5,y-17.5),bossDistance=Math.min(...PoiDefinitions.filter(p=>p.kind==='boss').map(p=>Math.hypot(p.x/tile-x,p.y/tile-y)));
-   if(startDistance<18||bossDistance<17)continue;
+   if(inCity({x:(x+.5)*tile,y:(y+.5)*tile})||startDistance<18||bossDistance<17)continue;
    if((startDistance<38||bossDistance<31)&&noise(i,7,spawnSeed)<.72)continue;
    if(PoiDefinitions.some(p=>Math.hypot(p.x/tile-x,p.y/tile-y)<10)||spawns.some(s=>s.zoneId===zone.id&&Math.hypot(s.x/tile-x,s.y/tile-y)<3.5))continue;
    // Only the first two local encounters favor plentiful species. Rare tiers always use the full weighted draw.
@@ -87,7 +88,7 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
    const total=pool.reduce((sum,entry)=>sum+(entry.weight||1),0),roll=noise(i,count+11,spawnSeed+zone.id.charCodeAt(0))*total;let cursor=0,entry=pool.at(-1);
    for(const candidate of pool){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
    const species=typeof entry==='string'?entry:entry.id,baseLevel=range[0]+Math.floor(noise(i,13,spawnSeed)*(range[1]-range[0]+1)),level=Math.max(baseLevel,entry.minLevel||1);
-   const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward,time:NIGHT_SPECIES.has(species)?'night':'day',protectedTier}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
+   const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward,time:speciesSpawnTime(species),protectedTier}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
   }
  }
  map.spawns=spawns;return filterReachableSpawns(map);

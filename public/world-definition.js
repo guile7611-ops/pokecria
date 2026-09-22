@@ -1,3 +1,5 @@
+import {NEW_SPAWN_RULES} from './roster-expansion.js';
+import {EVOLUTION_RULES,canSpawnSpecies} from './evolution-rules.js';
 // All coordinates are in tiles. These authored shapes are independent of seed.
 export const WorldSeed = 123456;
 export const WorldDefinition = {
@@ -30,6 +32,7 @@ export const RegionDefinitions = [
   region('cinzas','Terras das Cinzas','ash',626,204,62,80,[1,100],['numel','camerupt','slugma','magcargo','torkoal','houndour','houndoom','geodude','graveler'],'Fragmento de brasa'),
   region('jardim-leste','Bosque das Pétalas','grove',571,342,82,61,[1,100],['oddish','gloom','bellossom','shroomish','breloom','paras','parasect','ralts','kirlia','gardevoir','treecko'],'Pólen dourado'),
 ];
+for(const [id,rule] of Object.entries(NEW_SPAWN_RULES))for(const region of RegionDefinitions)if(rule.regions?.includes(region.id))region.species.push(id);
 const poi = (id,name,kind,x,y,region,secret=false) => ({id,name,kind,x:x*32,y:y*32,region,secret,level:RegionDefinitions.find(r=>r.id===region)?.level.join('–') || '1–3'});
 export const PoiDefinitions = [
   poi('posto-leste','Refúgio das Brisas','village',476,154,'estepe'),
@@ -104,14 +107,10 @@ export const SpawnRarityDefinitions={
 };
 const BaseRare=new Set(['abra','gastly','magnemite','voltorb','cubone','murkrow','larvitar','ralts','torkoal','bulbasaur','charmander','squirtle','chikorita','cyndaquil','totodile','treecko','torchic','mudkip']);
 const BaseUncommon=new Set(['spearow','paras','psyduck','poliwag','machop','drowzee','horsea','mareep','slugma','lotad','shroomish','carvanha','wailmer','houndour']);
-const EvolutionParent=Object.fromEntries([
- ['caterpie','metapod'],['metapod','butterfree'],['weedle','kakuna'],['kakuna','beedrill'],['pidgey','pidgeotto'],['pidgeotto','pidgeot'],['rattata','raticate'],['spearow','fearow'],['zubat','golbat'],['golbat','crobat'],['oddish','gloom'],['gloom','vileplume'],['gloom','bellossom'],['paras','parasect'],['psyduck','golduck'],['poliwag','poliwhirl'],['poliwhirl','poliwrath'],['poliwhirl','politoed'],['abra','kadabra'],['kadabra','alakazam'],['machop','machoke'],['machoke','machamp'],['geodude','graveler'],['graveler','golem'],['magnemite','magneton'],['magneton','magnezone'],['gastly','haunter'],['haunter','gengar'],['drowzee','hypno'],['krabby','kingler'],['voltorb','electrode'],['cubone','marowak'],['horsea','seadra'],['seadra','kingdra'],['sentret','furret'],['hoothoot','noctowl'],['spinarak','ariados'],['mareep','flaaffy'],['flaaffy','ampharos'],['wooper','quagsire'],['murkrow','honchkrow'],['slugma','magcargo'],['poochyena','mightyena'],['lotad','lombre'],['lombre','ludicolo'],['shroomish','breloom'],['ralts','kirlia'],['kirlia','gardevoir'],['aron','lairon'],['lairon','aggron'],['carvanha','sharpedo'],['wailmer','wailord'],['larvitar','pupitar'],['pupitar','tyranitar'],['numel','camerupt'],['houndour','houndoom'],['makuhita','hariyama'],
- ].map(([from,to])=>[to,from]));
-export const EvolutionMinimumLevel=Object.fromEntries([
- ['metapod',7],['butterfree',10],['kakuna',7],['beedrill',10],['pidgeotto',18],['pidgeot',36],['raticate',20],['fearow',20],['golbat',22],['crobat',36],['gloom',21],['vileplume',36],['bellossom',36],['parasect',24],['golduck',33],['poliwhirl',25],['poliwrath',36],['politoed',36],['kadabra',16],['alakazam',36],['machoke',28],['machamp',40],['graveler',25],['golem',40],['magneton',30],['magnezone',45],['haunter',25],['gengar',40],['hypno',26],['kingler',28],['electrode',30],['marowak',28],['seadra',32],['kingdra',44],['furret',15],['noctowl',20],['ariados',22],['flaaffy',15],['ampharos',30],['quagsire',20],['honchkrow',36],['magcargo',38],['mightyena',18],['lombre',14],['ludicolo',36],['breloom',23],['kirlia',20],['gardevoir',30],['lairon',32],['aggron',42],['sharpedo',30],['wailord',40],['pupitar',30],['tyranitar',55],['camerupt',33],['houndoom',24],['hariyama',24],
- ]);
-export function speciesRarity(id){let base=id,stage=0;while(EvolutionParent[base]&&stage<4){base=EvolutionParent[base];stage++;}const start=BaseRare.has(base)?2:BaseUncommon.has(base)?1:0;return ['common','uncommon','rare','epic','legendary','mythic'][Math.min(5,start+stage)];}
-export const SpawnZoneDefinitions = RegionDefinitions.filter(r=>r.biome!=='village').map(r=>({id:r.id,region:r.id,level:r.level,species:r.species.map(id=>{const rarity=speciesRarity(id);let stage=0,parent=id;while(EvolutionParent[parent]&&stage<4){parent=EvolutionParent[parent];stage++;}return{id,rarity,weight:SpawnRarityDefinitions[rarity].weight*(stage===0?1:stage===1?.45:.25),minLevel:EvolutionMinimumLevel[id]||1};}),count:Math.max(12,Math.min(27,Math.round(r.rx*r.ry/145)+(r.biome==='dense'?4:0))),reward:r.reward}));
+const EvolutionParent=Object.fromEntries(EVOLUTION_RULES.map(r=>[r.targetCreatureId,r.creatureId]));
+export const EvolutionMinimumLevel=Object.fromEntries(EVOLUTION_RULES.filter(r=>r.method==='level').map(r=>[r.targetCreatureId,r.requiredLevel]));
+export function speciesRarity(id){if(NEW_SPAWN_RULES[id]?.rarity)return NEW_SPAWN_RULES[id].rarity;let base=id,stage=0;while(EvolutionParent[base]&&stage<4){base=EvolutionParent[base];stage++;}const start=BaseRare.has(base)?2:BaseUncommon.has(base)?1:0;return ['common','uncommon','rare','epic','legendary','mythic'][Math.min(5,start+stage)];}
+export const SpawnZoneDefinitions = RegionDefinitions.filter(r=>r.biome!=='village').map(r=>({id:r.id,region:r.id,level:r.level,species:r.species.filter(canSpawnSpecies).map(id=>{const rarity=speciesRarity(id);let stage=0,parent=id;while(EvolutionParent[parent]&&stage<4){parent=EvolutionParent[parent];stage++;}return{id,rarity,weight:SpawnRarityDefinitions[rarity].weight*(stage===0?1:stage===1?.45:.25),minLevel:EvolutionMinimumLevel[id]||1};}),count:Math.max(12,Math.min(27,Math.round(r.rx*r.ry/145)+(r.biome==='dense'?4:0))),reward:r.reward}));
 // Local areas remain editable independently of their enclosing region.
 export const AreaDefinitions = PoiDefinitions.map(p=>({id:p.id+'-area',region:p.region,x:p.x/32,y:p.y/32,rx:p.kind==='village'?11:6,ry:p.kind==='village'?8:5,biome:p.kind==='cave'?'cave':p.kind==='ruins'?'ruins':'clearing',secret:p.secret,entrance:[p.x/32,p.y/32+3],exit:[p.x/32+4,p.y/32],reward:p.secret?'Relíquia escondida':'Descoberta regional'}));
 for (const r of RegionDefinitions) {

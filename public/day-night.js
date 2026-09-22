@@ -1,6 +1,8 @@
+import {NEW_SPAWN_RULES} from './roster-expansion.js';
+export const speciesSpawnTime=id=>NEW_SPAWN_RULES[id]?.time||(NIGHT_SPECIES.has(id)?'night':'day');
 // One shared wall-clock cycle keeps every online client in the same phase.
 export const DAY_LENGTH_MS=24*60*1000;
-export const NIGHT_SPECIES=new Set(['hoothoot','noctowl','murkrow','honchkrow','spinarak','ariados','gastly','haunter','gengar','zubat','golbat','crobat','houndour','houndoom']);
+export const NIGHT_SPECIES=new Set(['hoothoot','noctowl','murkrow','honchkrow','spinarak','ariados','gastly','haunter','gengar','zubat','golbat','crobat','houndour','houndoom',...Object.entries(NEW_SPAWN_RULES).filter(([,rule])=>rule.time==='night').map(([id])=>id)]);
 
 export function worldDaylight(now=Date.now()){
  const phase=((now%DAY_LENGTH_MS)+DAY_LENGTH_MS)%DAY_LENGTH_MS/DAY_LENGTH_MS;

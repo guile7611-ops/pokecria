@@ -38,8 +38,8 @@ test('every original wild Pokémon now has its complete evolution line',()=>{
  for(const id of ['bellossom','politoed',...lines.flat()])assert.ok(CREATURES[id],`${id} is not playable`);
 });
 
-test('branched old evolutions select both final forms through nature',()=>{
- for(const [base,expected] of [['oddish','bellossom'],['poliwag','politoed']]){
+test('item and trade branches stay locked until their mechanics exist',()=>{
+ for(const [base,expected] of [['oddish','gloom'],['poliwag','poliwhirl']]){
   const sim=new Simulation(base,{nature:'Calma'});sim.player.nature='Calma';
   sim.gainXP(100000);assert.equal(sim.player.id,expected);
  }

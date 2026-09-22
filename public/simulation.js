@@ -1,3 +1,5 @@
+import {inCity,CITY_HEAL_PER_SECOND} from './safe-zones.js';
+import {canSpawnSpecies} from './evolution-rules.js';
 import {freePosition,pathDistance,levelRangeAt} from './world-navigation.js';
 import {createInterior} from './collisions.js';
 import {encounterStats,cleanInventory} from './encounters.js';
@@ -20,6 +22,7 @@ export class Simulation {
     if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
     if (!Object.hasOwn(CREATURES, starter)) throw new RangeError('Criatura inicial inválida');
     this.definition = CREATURES[starter];
+    this.safeZonesEnabled=options.safeZones===true;
     this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || [],options.discoveryCols||60); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
     this.quest = { id: 'clear-clareira', goal: 3, progress: 0, complete: false, rewardXp: 60, drops: [] };
     this.inventory=cleanInventory(options.inventory);
@@ -37,7 +40,7 @@ export class Simulation {
       if(poi.id==='arena-guardiao')this.boss=boss;
       for(let i=0;i<6;i++){
         const angle=i*Math.PI/3,pos={x:boss.x+Math.cos(angle)*150,y:boss.y+Math.sin(angle)*150};
-        const speciesId=variant.guards[i],species=WILD_POKEMON.find(p=>p.id===speciesId);
+        const speciesId=variant.guards[i];if(!canSpawnSpecies(speciesId))continue;const species=WILD_POKEMON.find(p=>p.id===speciesId);
         this.enemies.push({...species,...pos,home:{...pos},uid:1100+(boss.uid-1000)*10+i,horde:true,bossUid:boss.uid,minLevel:Math.max(1,(boss.minLevel||1)-8),maxHp:species.hp,state:'Idle',timer:2,cooldown:0,path:[],facing:{x:0,y:1}});
       }
     }
@@ -56,6 +59,7 @@ export class Simulation {
     this.learn();
   }
   emit(type, data = {}) { this.events.push({ type, time: this.time, ...data }); if (this.events.length > 100) this.events.shift(); }
+  inSafeCity(point){return this.safeZonesEnabled&&inCity(point,this.map.scene);}
   activeSnapshot(){const p=this.player;return Object.fromEntries(['captureId','id','name','element','level','xp','hp','maxHp','attack','defense','spAttack','spDefense','speed','movementSpeed','nature','ability','ivs','evs','attributePoints','attributes','attributeSystemVersion','evolutionHistory','knownMoves','slots'].map(k=>[k,p[k]]));}
   syncActivePokemon(){if(!this.player.captureId)return;const index=this.pc.findIndex(p=>p.captureId===this.player.captureId);if(index>=0)this.pc[index]={...this.pc[index],...this.activeSnapshot()};}
   configureCapture(speciesId,enabled=true,ballId=this.capturePlan.ballId||'poke'){if(!WILD_POKEMON.some(p=>p.id===speciesId))return false;this.capturePlan={speciesId,enabled:!!enabled,ballId:pokeballById(ballId).id};this.emit('captureConfigured',{...this.capturePlan});return true;}
@@ -77,7 +81,7 @@ export class Simulation {
     }
   }
   investAttribute(name){const key={hp:'vitality',attack:'power',spAttack:'power',defense:'guard',spDefense:'guard',speed:'agility'}[name]||name,p=this.player;if(!['vitality','power','guard','agility'].includes(key)||p.attributePoints<1)return false;const oldMax=p.maxHp;p.attributePoints--;p.attributes[key]=(p.attributes[key]||0)+1;applyStats(p);p.hp=Math.min(p.maxHp,p.hp+(key==='vitality'?p.maxHp-oldMax:0));this.emit('attribute',{name:key});return true;}
-  applyPlayerStatus(a){
+  applyPlayerStatus(a){if(this.inSafeCity(this.player))return false;
     if(!a||a.behavior!=='debuff')return false;
     const p=this.player;
     p.buffs=(p.buffs||[]).filter(b=>b.id!==`pvp-${a.id}`);
@@ -268,6 +272,7 @@ export class Simulation {
     this.zones=this.zones.filter(zone=>!p.dead&&zone.until>this.time);
   }
   damage(e, amount, _type='Normal', final=false, nonlethal=false) {
+    if(this.inSafeCity(this.player)||this.inSafeCity(e))return 0;
     if (e.state === 'Dead' || e.defeated) return 0;
     if (!Number.isFinite(amount) || amount <= 0) return 0;
     if(nonlethal&&e.hp<=1)return 0;
@@ -309,6 +314,7 @@ export class Simulation {
     if (!Number.isFinite(dt) || dt <= 0) return;
     dt = Math.min(dt, .05); this.time += dt;
     const p = this.player;
+    if(!p.dead&&this.inSafeCity(p)){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*CITY_HEAL_PER_SECOND*dt);for(const key of ['poison','burn','leech'])p[key]=null;p.sleepUntil=0;p.yawnAt=0;}
     if(p.yawnAt&&this.time>=p.yawnAt){p.sleepUntil=this.time+2.5;p.yawnAt=0;}
     for(const key of ['poison','burn','leech']){const condition=p[key];if(!condition)continue;if(this.time>=condition.until){p[key]=null;continue;}if(this.time<condition.nextTick)continue;condition.nextTick=this.time+1;if(key==='poison')condition.stacks=Math.min(4,(condition.stacks||0)+1);const amount=Math.max(1,Math.ceil(p.maxHp*(key==='poison'?.018*condition.stacks:.018)));p.hp=Math.max(0,p.hp-amount);this.emit('hurt',{x:p.x,y:p.y,amount});}
     if(p.hp===0&&!p.dead){p.dead=true;p.deathStart=this.time;p.respawnIn=3;p.path=[];p.target=null;p.pendingCast=null;this.emit('death');}
@@ -396,7 +402,7 @@ export class Simulation {
   streamCreatures() {
     const p=this.player,near=[],now=this.worldNow();
     for(const e of this.enemies){
-      if(e.uid>=2000&&!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
+      if(!e.isBoss&&(!canSpawnSpecies(e.id)||this.inSafeCity(e.home))||e.uid>=2000&&!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
       if(e.horde){if(distance(e.home,p)<1800)near.push(e);else e.unloadedAt=this.time;continue;}
       if(e.uid<2000||distance(e.home,p)<1800){near.push(e);continue;}
       this.dormant.set(e.uid,{hp:e.hp,state:e.state,timer:e.timer,unloaded:this.time});this.creaturePool.release(e);
@@ -409,7 +415,7 @@ export class Simulation {
       guard.unloadedAt=0;this.enemies.push(guard);ids.add(guard.uid);if(this.sharedWildStates.has(guard.uid))this.applySharedWildState(this.sharedWildStates.get(guard.uid));
     }
     for(let cy=Math.floor(p.y/cs)-2;cy<=Math.floor(p.y/cs)+2;cy++)for(let cx=Math.floor(p.x/cs)-2;cx<=Math.floor(p.x/cs)+2;cx++)for(const spawn of this.map.chunks.get(`${cx},${cy}`)?.spawns||[]){
-      if(this.enemies.length>=48||ids.has(spawn.uid)||distance(spawn,p)>1500||!spawnAvailable(spawn,now))continue;
+      if(!canSpawnSpecies(spawn.species)||this.inSafeCity(spawn)||this.enemies.length>=48||ids.has(spawn.uid)||distance(spawn,p)>1500||!spawnAvailable(spawn,now))continue;
       const saved=this.dormant.get(spawn.uid),species=WILD_POKEMON.find(s=>s.id===spawn.species)||{...WILD_POKEMON[0],...CREATURES[spawn.species],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
       const stats=encounterStats(species,this.map,spawn,spawn.uid),hp=stats.maxHp;
       const dead=saved?.state==='Dead'&&this.time-saved.unloaded<saved.timer;
@@ -425,7 +431,7 @@ export class Simulation {
       const random=salt=>{const n=Math.sin((e.uid+serial*97+attempt*31+salt)*127.1+(this.spawnEpoch||0)*.013)*43758.5453;return n-Math.floor(n);};
       const x=(Math.floor(region.x+(random(1)-.5)*region.rx*1.7)+.5)*32,y=(Math.floor(region.y+(random(2)-.5)*region.ry*1.7)+.5)*32;
       const tileX=Math.floor(x/32),tileY=Math.floor(y/32),regionIndex=this.map.regions.indexOf(region);
-      if(!Number.isFinite(pathDistance(this.map,{x,y}))||(levelRangeAt(this.map,{x,y})?.[1]||Infinity)<(e.minLevel||1)||this.map.biome[tileY]?.[tileX]!==regionIndex||!walkable(this.map,x,y,e.radius||12)||distance({x,y},this.player)<230)continue;
+      if(this.inSafeCity({x,y})||!Number.isFinite(pathDistance(this.map,{x,y}))||(levelRangeAt(this.map,{x,y})?.[1]||Infinity)<(e.minLevel||1)||this.map.biome[tileY]?.[tileX]!==regionIndex||!walkable(this.map,x,y,e.radius||12)||distance({x,y},this.player)<230)continue;
       if(Math.hypot(x-REGION.spawn.x,y-REGION.spawn.y)<575||this.enemies.some(other=>other!==e&&other.isBoss&&Math.hypot(x-other.x,y-other.y)<540))continue;
       if(this.enemies.some(other=>other!==e&&other.state!=='Dead'&&Math.hypot(x-other.home.x,y-other.home.y)<105))continue;
       return{x,y};
@@ -435,7 +441,7 @@ export class Simulation {
   updateEnemyProjectiles(dt){
     const p=this.player;
     this.enemyProjectiles=this.enemyProjectiles.filter(shot=>{
-      if(p.dead||shot.remaining<=0)return false;
+      if(p.dead||this.inSafeCity(p)||shot.remaining<=0)return false;
       const from={x:shot.x,y:shot.y},length=Math.min(shot.remaining,shot.speed*dt),to={x:shot.x+shot.vx*length,y:shot.y+shot.vy*length};
       if(!clearSegment(this.map,from,to,3))return false;
       Object.assign(shot,to);shot.remaining-=length;
@@ -460,7 +466,7 @@ export class Simulation {
     if(!e.isBoss&&this.time<(e.staggerUntil||0)){e.moving=false;e.path=[];return;}
     const d = distance(p, e);
     if (e.isBoss) { this.updateBoss(e, dt, d); return; }
-    if (p.dead || distance(e, e.home) > e.leash) { e.state = 'ReturnToSpawn'; }
+    if (p.dead || this.inSafeCity(p)||this.inSafeCity(e)||distance(e, e.home) > e.leash) { e.state = 'ReturnToSpawn'; }
     if (e.state === 'ReturnToSpawn') {
       if (!e.path.length&&e.timer<=0) {e.path = findPath(this.map, e, e.home);e.timer=.75;}
       followPath(e, moveDt, this.map);
@@ -495,7 +501,7 @@ export class Simulation {
   }
   updateBoss(e, dt, d) {
     const p = this.player;
-    let homeDistance=distance(e,e.home);const returning=['ReturnToSpawn','Recover'].includes(e.state),mustReturn=p.dead||d>e.leash||homeDistance>(e.movementRadius||360);
+    let homeDistance=distance(e,e.home);const returning=['ReturnToSpawn','Recover'].includes(e.state),mustReturn=p.dead||this.inSafeCity(p)||this.inSafeCity(e)||d>e.leash||homeDistance>(e.movementRadius||360);
     if(mustReturn||returning){
       if(!returning){e.path=[];e.timer=0;}
       e.telegraph=null;e.attackVfx=null;e.attackUntil=0;e.hp=Math.min(e.maxHp,e.hp+e.maxHp*(e.regenerationRate||.1)*dt);

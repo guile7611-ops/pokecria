@@ -1,3 +1,4 @@
+import {inCity} from './safe-zones.js';
 import { MapController } from './map-controller.js';
 import { loadWorldSave, saveWorld } from './world-runtime.js';
 import { WorldView } from './world-view.js';
@@ -33,7 +34,8 @@ const STAT_LABELS={hp:'HP',attack:'Ataque',defense:'Defesa',spAttack:'Ataque Esp
 const ATTRIBUTE_ROWS=[['vitality','Vida','+3 HP máximo'],['power','Dano','+1 Ataque e Ataque Esp.'],['guard','Defesa','+1 Defesa e Defesa Esp.'],['agility','Velocidade','+1 Speed e mais movimento']];
 async function passwordDigest(password,salt){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bytes=await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt),iterations:150000,hash:'SHA-256'},key,256);return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
 let selectedStarter = worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
-let sim = new Simulation(selectedStarter, worldSave);
+const createSimulation=(starter,options={})=>new Simulation(starter,{...options,safeZones:true});
+let sim = createSimulation(selectedStarter, worldSave);
 if(account&&worldSave.activePokemon&&!sim.pc.some(p=>p.captureId===(worldSave.activePokemon.captureId||`starter-${account.starterId}`))){const snap={...sim.activeSnapshot(),captureId:worldSave.activePokemon.captureId||`starter-${account.starterId}`};sim.player.captureId=snap.captureId;sim.pc.unshift(snap);}
 const renderer = new Renderer($('world'), sim);
 renderer.playerNick=account?.nick||credentials?.username||'Treinador';
@@ -44,7 +46,7 @@ function restoreWorld(nextWorld){
   if(worldSave.inventory)localStorage.setItem('aurora-inventory',JSON.stringify(worldSave.inventory));
   else localStorage.removeItem('aurora-inventory');
   selectedStarter=worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
-  sim=new Simulation(selectedStarter,worldSave);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
+  sim=createSimulation(selectedStarter,worldSave);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
 }
 const cameraZoom=$('camera-zoom');
 const savedCameraZoom=Number(localStorage.getItem('aurora-camera-zoom'));
@@ -54,7 +56,7 @@ const online = new OnlineClient({
   world:({spawnEpoch})=>{
     if(sim.spawnEpoch===spawnEpoch)return;
     sim.syncActivePokemon();const previous=sim.player;
-    const next=new Simulation(previous.id,{seed:REGION.seed,spawnEpoch,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()});
+    const next=createSimulation(previous.id,{seed:REGION.seed,spawnEpoch,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()});
     Object.assign(next.player,previous,{path:[],target:null,moving:false});
     sim=next;for(const state of online.wilds.values())sim.applySharedWildState(state);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
   },
@@ -82,7 +84,7 @@ const online = new OnlineClient({
     if(impactVfx&&['fireBlast','hydroCannon'].includes(ability))renderer.networkEffects.push({from,ability,behavior:'stationary',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+(moving?duration:0),duration:.65,size:impactSize});
     if(['water','waterPulse','hydroPump','aquaWave'].includes(ability))for(const id of targets||[]){const target=online.players.find(player=>player.id===id);if(!target)continue;const travelTime=Math.hypot(target.x-x,target.y-y)/(ABILITIES[ability]?.speed||370);renderer.networkEffects.push({from,ability,behavior:'stationary',vfx:'pmd/0021',x:target.x,y:target.y,aimX:target.x,aimY:target.y,time:sim.time+travelTime,duration:.6,size:82});}
   },
-  'pvp-hit':({nick,damage,hp,ability})=>{sim.player.hp=Math.min(sim.player.hp,hp);sim.player.hitStart=sim.time;sim.player.hitUntil=sim.time+.25;if(ability==='basic')renderer.effects.push({x:sim.player.x,y:sim.player.y,time:sim.time,vfx:'slash'});note(`${nick} causou ${damage} de dano!`);if(sim.player.hp<=0&&!sim.player.dead){sim.player.dead=true;sim.player.deathStart=sim.time;sim.player.respawnIn=3;sim.player.path=[];sim.player.target=null;}},
+  'pvp-hit':({nick,damage,hp,ability})=>{if(inCity(sim.player,sim.map.scene))return;sim.player.hp=Math.min(sim.player.hp,hp);sim.player.hitStart=sim.time;sim.player.hitUntil=sim.time+.25;if(ability==='basic')renderer.effects.push({x:sim.player.x,y:sim.player.y,time:sim.time,vfx:'slash'});note(`${nick} causou ${damage} de dano!`);if(sim.player.hp<=0&&!sim.player.dead){sim.player.dead=true;sim.player.deathStart=sim.time;sim.player.respawnIn=3;sim.player.path=[];sim.player.target=null;}},
   'pvp-status':({nick,ability})=>{const move=ABILITIES[ability];if(move&&sim.applyPlayerStatus(move))note(`${nick} usou ${move.name} em você!`);},
   'pvp-result':({targetId,nick,damage,ability})=>{const entity=renderer.remoteEntities.get(targetId);if(entity){entity.hitStart=sim.time;entity.hitUntil=sim.time+.25;}note(`Você atingiu ${nick}: ${damage} de dano.`);},
   'guild-invite':({fromNick})=>{note(`${fromNick} convidou você para uma guilda. Abra H.`);if($('info').open)renderGuild();},
@@ -96,7 +98,7 @@ const online = new OnlineClient({
   error:()=>{},
 });
 const maps = new MapController(renderer, seed => {
-  const player=sim.player;sim.syncActivePokemon(); worldSave={seed,seen:[],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; const fresh=new Simulation(selectedStarter,worldSave);
+  const player=sim.player;sim.syncActivePokemon(); worldSave={seed,seen:[],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; const fresh=createSimulation(selectedStarter,worldSave);
   Object.assign(fresh.player,player,REGION.spawn,{path:[],target:null,moving:false,dead:false,hp:player.maxHp});
   sim=fresh;renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};saveWorld(localStorage,sim);
 });
@@ -136,7 +138,8 @@ function renderRunPC(){
 for(const id of ['run-pc-species','run-pc-nature','run-pc-ability','run-pc-sort'])$(id).onchange=renderRunPC;
 function toggleRunPC(){if($('run-pc').open){$('run-pc').close();return;}held=false;arrows.clear();sim.player.path=[];sim.player.target=null;renderRunPC();$('run-pc').showModal();}
 $('pc-open').onclick=toggleRunPC;$('run-pc-close').onclick=()=>$('run-pc').close();
-const shopProducts=$('shop-products');for(const ball of POKEBALLS.filter(ball=>ball.id!=='master')){const row=document.createElement('div');row.className='shop-product';row.innerHTML=`<div><strong>${ball.name} · ${ball.rarity}</strong><small>Força de captura ×${ball.multiplier}${ball.caveMultiplier?' (×3,5 em cavernas)':''}</small></div><b>${ball.price.toLocaleString('pt-BR')} moedas</b><button data-buy-ball="${ball.id}">Comprar</button>`;shopProducts.append(row);row.querySelector('button').onclick=()=>{if(sim.buyPokeballs(1,ball.id)){renderBag();saveWorld(localStorage,sim);note(`${ball.name} comprada.`);}else note('Moedas insuficientes.');};}
+function renderShopWallet(){$('shop-money').textContent=`Saldo: ${sim.inventory.money.toLocaleString('pt-BR')} moedas`;}
+const shopProducts=$('shop-products');for(const ball of POKEBALLS.filter(ball=>ball.id!=='master')){const row=document.createElement('div');row.className='shop-product';row.innerHTML=`<div><strong>${ball.name} · ${ball.rarity}</strong><small>Força de captura ×${ball.multiplier}${ball.caveMultiplier?' (×3,5 em cavernas)':''}</small></div><b>${ball.price.toLocaleString('pt-BR')} moedas</b><button data-buy-ball="${ball.id}">Comprar</button>`;shopProducts.append(row);row.querySelector('button').onclick=()=>{if(sim.buyPokeballs(1,ball.id)){renderBag();renderShopWallet();saveWorld(localStorage,sim);note(`${ball.name} comprada.`);}else note('Moedas insuficientes.');};}
 $('shop-close').onclick=()=>$('shop').close();
 function renderInfo(){
  const p=sim.player,natureData=NATURES[p.nature]||NATURES.hardy,
@@ -222,7 +225,7 @@ $('auth-form').onsubmit=async event=>{
       else{const salt=Array.from(crypto.getRandomValues(new Uint8Array(16))),digest=await passwordDigest(password,salt);credentials={username,salt,digest};}
       await online.leave();started=false;paused=false;account=null;localStorage.removeItem('aurora-account');localStorage.removeItem('aurora-world-v2');localStorage.removeItem('aurora-inventory');
       localStorage.setItem('aurora-credentials',JSON.stringify(credentials));
-      worldSave={seed:REGION.seed,seen:[],pc:[]};selectedStarter='bulbasaur';sim=new Simulation(selectedStarter,worldSave);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();renderer.playerNick=username;
+      worldSave={seed:REGION.seed,seen:[],pc:[]};selectedStarter='bulbasaur';sim=createSimulation(selectedStarter,worldSave);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();renderer.playerNick=username;
     }else{
       if(cloud.enabled){
         await cloud.signIn(username,password);credentials={username,cloud:true};localStorage.setItem('aurora-credentials',JSON.stringify(credentials));
@@ -241,7 +244,7 @@ for(const button of document.querySelectorAll('[data-egg]'))button.onclick=()=>{
   selectedStarter=starter.id;account={createdAt:Date.now(),starterId:starter.id,egg:Number(button.dataset.egg),nick};
   renderer.playerNick=nick;
   localStorage.setItem('aurora-account',JSON.stringify(account));
-  sim=new Simulation(starter.id,{seed:worldSave.seed,seen:worldSave.seen,discoveryCols:worldSave.discoveryCols,inventory:worldSave.inventory,pc:worldSave.pc||[]});
+  sim=createSimulation(starter.id,{seed:worldSave.seed,seen:worldSave.seen,discoveryCols:worldSave.discoveryCols,inventory:worldSave.inventory,pc:worldSave.pc||[]});
   sim.player.captureId=`starter-${starter.id}`;sim.pc.unshift({...sim.activeSnapshot(),captureId:sim.player.captureId});
   renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);
   $('egg-result').hidden=false;$('egg-result').innerHTML=`<img src="/assets/pokemon/${starter.id}/portrait.png" alt=""><div><small>SEU OVO CHOCOU!</small><strong>${starter.name}</strong><span>${starter.element}</span></div>`;
@@ -249,7 +252,7 @@ for(const button of document.querySelectorAll('[data-egg]'))button.onclick=()=>{
 };
 renderHub();
 function resetSession() {
-  sim.syncActivePokemon();selectedStarter=sim.player.id;worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; sim = new Simulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
+  sim.syncActivePokemon();selectedStarter=sim.player.id;worldSave={seed:sim.map.seed,seen:[...(sim.outdoor?.discovery||sim.discovery).seen],discoveryCols:(sim.outdoor?.discovery||sim.discovery).cols,inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()}; sim = createSimulation(selectedStarter,worldSave); renderer.sim = sim; renderer.effects = []; sim.events = [];
   moved = false; paused = false; accumulator = 0; held = false; pointerDirty = false; lastMove = 0; arrows.clear();
   renderer.playerNick=account?.nick||credentials?.username||'Treinador';$('player-name').textContent = renderer.playerNick; $('player-element').textContent = `✦ ${sim.player.name.toUpperCase()} · ${sim.player.element.toUpperCase()}`;
   $('player-portrait').src = `/assets/pokemon/${selectedStarter}/portrait.png`; $('player-portrait').alt = sim.player.name;
@@ -393,7 +396,7 @@ function frame(now) {
       if(online.token&&e.type==='kill'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-kill',{uid:e.uid,xp:e.xp,respawn:target?.respawn}).catch(()=>{});}
       if (['damage', 'hurt', 'kill', 'heal', 'slash','area','buff','castVisual','impact'].includes(e.type)) renderer.effects.push(e);
       if(e.type==='interaction')note(e.message);
-      if(e.type==='openShop'){$('shop').showModal();note('Loja aberta.');}
+      if(e.type==='openShop'){renderShopWallet();$('shop').showModal();note('Loja aberta.');}
       if(e.type==='loot'){note(e.item?`+${e.count} ${e.item} · +${e.money} moedas`:`+${e.money} moedas`);saveWorld(localStorage,sim);renderBag();}
       if(e.type==='captureThrow')note(`${e.ball} lançada em ${e.name}…`);
       if(e.type==='captureFail')note(`${e.name} escapou da ${e.ball}.`);

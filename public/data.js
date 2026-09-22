@@ -1,3 +1,5 @@
+import {NEW_SPECIES_DATA} from './new-species-data.js';
+import {EVOLUTION_RULES} from './evolution-rules.js';
 import {MOVE_CATALOG} from './move-catalog.js';
 import {LEVEL_LEARNSETS} from './level-learnsets.js';
 import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
@@ -224,6 +226,7 @@ WILD_POKEMON.push(
  wild('magcargo','Magcargo','Fire / Rock','rare',104,30,20,32,'Casco de Lava'),wild('mightyena','Mightyena','Dark','uncommon',82,25,9,85,'Presa Alfa'),
  wild('lombre','Lombre','Water / Grass','uncommon',75,18,10,55,'Folha Dançarina'),wild('ludicolo','Ludicolo','Water / Grass','rare',103,29,14,76,'Sombrero Tropical'),wild('breloom','Breloom','Grass / Fighting','rare',88,32,9,78,'Esporo de Combate')
 );
+for(const s of NEW_SPECIES_DATA)WILD_POKEMON.push(wild(s.id,s.name,s.element,'rare',70,18,8,70,'Essência Selvagem'));
 for(const starter of Object.values(STARTERS))WILD_POKEMON.push(wild(starter.id,starter.name,starter.element, 'rare',48,11,3,72,'Essência Elemental'));
 for(const species of WILD_POKEMON){
  if(STARTERS[species.id])continue;
@@ -242,6 +245,9 @@ const canonicalMoveIds={
   'blaze-kick':'blazeKick',
   'quick-attack':'quickAttack','take-down':'takeDown','rock-throw':'rockThrow',
   'giga-drain':'gigaDrain',
+  'taunt':'scaryFace','zen-headbutt':'headbutt','will-o-wisp':'fireFang','gunk-shot':'sludgeBomb',
+  'close-combat':'doubleKick','endure':'detect','work-up':'bulkUp','extreme-speed':'quickAttack',
+  'nuzzle':'thunderShock','spark':'discharge','volt-tackle':'takeDown',
 };
 for(const id of Object.keys(ABILITIES))canonicalMoveIds[id.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)]??=id;
 for(const move of MOVE_CATALOG)canonicalMoveIds[move.officialName.toLowerCase().replaceAll(' ','-')]=move.id;
@@ -264,35 +270,9 @@ for(const [id,rows] of Object.entries(CANONICAL_LEARNSETS)){
   }
   LEARNSETS[id].sort((a,b)=>a.level-b.level);
 }
-const additionalEvolutionLines = [
- ['caterpie','metapod',7],['metapod','butterfree',10],['weedle','kakuna',7],['kakuna','beedrill',10],
- ['pidgey','pidgeotto',18],['pidgeotto','pidgeot',36],['rattata','raticate',20],['spearow','fearow',20],
- ['zubat','golbat',22],['golbat','crobat',36],['oddish','gloom',21],['gloom','vileplume',36],['paras','parasect',24],
- ['psyduck','golduck',33],['poliwag','poliwhirl',25],['poliwhirl','poliwrath',36],['abra','kadabra',16],['kadabra','alakazam',36],
- ['machop','machoke',28],['machoke','machamp',40],['geodude','graveler',25],['graveler','golem',40],
- ['magnemite','magneton',30],['magneton','magnezone',45],['gastly','haunter',25],['haunter','gengar',40],
- ['drowzee','hypno',26],['krabby','kingler',28],['voltorb','electrode',30],['cubone','marowak',28],
- ['horsea','seadra',32],['seadra','kingdra',44],['sentret','furret',15],['hoothoot','noctowl',20],['spinarak','ariados',22],
- ['mareep','flaaffy',15],['flaaffy','ampharos',30],['wooper','quagsire',20],['murkrow','honchkrow',36],
- ['slugma','magcargo',38],['poochyena','mightyena',18],['lotad','lombre',14],['lombre','ludicolo',36],['shroomish','breloom',23],
- ['ralts','kirlia',20],['kirlia','gardevoir',30],
- ['aron','lairon',32],['lairon','aggron',42],
- ['carvanha','sharpedo',30],['wailmer','wailord',40],
- ['larvitar','pupitar',30],['pupitar','tyranitar',55],
- ['numel','camerupt',33],['houndour','houndoom',24],['makuhita','hariyama',24],
-];
-for(const [from,to,requiredLevel] of additionalEvolutionLines){
- EVOLUTIONS.push({creatureId:from,targetCreatureId:to,requiredLevel,method:'level'});
- const base=CREATURES[from].baseCreature||from;
- CREATURES[from].baseCreature=base;
- CREATURES[to].baseCreature=base;
- CREATURES[to].stage=(CREATURES[from].stage||0)+1;
-}
-EVOLUTIONS.unshift(
- {creatureId:'gloom',targetCreatureId:'bellossom',requiredLevel:36,method:'level',natures:['Calma','Serena','Tímida']},
- {creatureId:'poliwhirl',targetCreatureId:'politoed',requiredLevel:36,method:'level',natures:['Calma','Serena','Tímida']},
-);
-for(const [id,base,stage] of [['bellossom','oddish',2],['politoed','poliwag',2]])Object.assign(CREATURES[id],{baseCreature:base,stage});
+// Only unconditional level-up rules are executed. Conditional methods are catalogued for future actions.
+EVOLUTIONS.splice(0,EVOLUTIONS.length,...EVOLUTION_RULES);
+for(let pass=0;pass<4;pass++)for(const rule of EVOLUTIONS){const from=CREATURES[rule.creatureId],to=CREATURES[rule.targetCreatureId];if(!from||!to)continue;to.baseCreature=from.baseCreature||from.id;to.stage=(from.stage||0)+1;}
 for(const species of WILD_POKEMON){species.rarity=speciesRarity(species.id);species.rarityName=SPAWN_RARITIES[species.rarity].name;}
 const rangedSpecies=new Set(['oddish','gloom','vileplume','bellossom','psyduck','golduck','poliwag','poliwhirl','horsea','seadra','kingdra','abra','kadabra','alakazam','magnemite','magneton','magnezone','gastly','haunter','gengar','voltorb','electrode','mareep','flaaffy','ampharos','slugma','magcargo','numel','camerupt','ralts','kirlia','gardevoir','wailmer','wailord','bulbasaur','chikorita','treecko','charmander','cyndaquil','torchic','squirtle','totodile','mudkip']);
 for(const species of WILD_POKEMON)if(rangedSpecies.has(species.id)){species.ranged=true;species.range=185;const primary=species.element.split(' / ')[0];species.projectileVfx=primary==='Fire'||primary==='Fogo'?'fire':primary==='Water'||primary==='Água'?'water':primary==='Grass'||primary==='Grama'||primary==='Planta'?'leaf':'energy';}

@@ -1,3 +1,4 @@
+import {NEW_SPAWN_RULES} from './roster-expansion.js';
 import {habitatAllows} from './world-habitats.js';
 import {EvolutionMinimumLevel,SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 import {levelRangeAt} from './world-navigation.js';
@@ -26,7 +27,7 @@ export function populateLayer(map){
   const range=levelRangeAt(map,position);if(!range||map.layerExits.some(p=>Math.hypot(x-p.x,y-p.y)<200)||map.spawns.some(s=>Math.hypot(s.x-x,s.y-y)<130))continue;
   const available=pool.filter(id=>(EvolutionMinimumLevel[id]||1)<=range[1]);if(!available.length)continue;
   const weight=id=>SpawnRarityDefinitions[speciesRarity(id)].weight*((EvolutionMinimumLevel[id]||1)>1?.35:1),total=available.reduce((sum,id)=>sum+weight(id),0);let roll=random(i,3,map.seed)*total,species=available.at(-1);for(const id of available){roll-=weight(id);if(roll<=0){species=id;break;}}
-  const spawn={uid:system.baseUid+map.spawns.length,x,y,zoneId:system.id,species,minLevel:EvolutionMinimumLevel[species]||1,time:'any',reward:map.regions[0].reward};map.spawns.push(spawn);map.chunks.get(`${Math.floor(x/768)},${Math.floor(y/768)}`).spawns.push(spawn);
+  const spawn={uid:system.baseUid+map.spawns.length,x,y,zoneId:system.id,species,minLevel:EvolutionMinimumLevel[species]||1,time:NEW_SPAWN_RULES[species]?.time||'any',reward:map.regions[0].reward};map.spawns.push(spawn);map.chunks.get(`${Math.floor(x/768)},${Math.floor(y/768)}`).spawns.push(spawn);
  }
  return map;
 }
