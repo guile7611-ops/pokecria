@@ -1,5 +1,7 @@
+import {cloud} from './cloud-client.js';
+import {RealtimeOnline} from './realtime-online.js';
 export class OnlineClient {
-  constructor(handlers={}){this.handlers=handlers;this.id=null;this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.stream=null;this.sending=false;}
+  constructor(handlers={}){if(cloud.enabled)return new RealtimeOnline(handlers);this.handlers=handlers;this.id=null;this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.stream=null;this.sending=false;}
   async request(path,data={}){
     const response=await fetch(`/api/online/${path}`,{method:'POST',headers:{'Content-Type':'application/json',...(this.token?{'x-verdant-session':this.token}:{})},body:JSON.stringify(data)});
     const result=await response.json();if(!response.ok)throw Error(result.error||'Falha de conexão');return result;

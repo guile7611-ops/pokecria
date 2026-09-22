@@ -46,6 +46,13 @@ const savedCameraZoom=Number(localStorage.getItem('aurora-camera-zoom'));
 cameraZoom.value=String(renderer.setZoom(Number.isFinite(savedCameraZoom)&&savedCameraZoom>0?savedCameraZoom:1.45));
 cameraZoom.addEventListener('input',()=>{renderer.setZoom(cameraZoom.value);localStorage.setItem('aurora-camera-zoom',String(renderer.zoom));held=false;pointerDirty=false;});
 const online = new OnlineClient({
+  world:({spawnEpoch})=>{
+    if(sim.spawnEpoch===spawnEpoch)return;
+    sim.syncActivePokemon();const previous=sim.player;
+    const next=new Simulation(previous.id,{seed:REGION.seed,spawnEpoch,seen:[...sim.discovery.seen],inventory:sim.inventory,pc:sim.pc,capturePlan:sim.capturePlan,activePokemon:sim.activeSnapshot()});
+    Object.assign(next.player,previous,{path:[],target:null,moving:false});
+    sim=next;renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
+  },
   roster: ({players,safeRadius})=>{
     const current=new Set();
     for(const player of players){if(player.id===online.id)continue;current.add(player.id);let entity=renderer.remoteEntities.get(player.id);
@@ -252,7 +259,7 @@ function cast(slot) {
   if(used&&online.token)online.request('skill',{ability:a.id,x:aim.x,y:aim.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
   if (!used && a.behavior === 'heal' && sim.player.hp === sim.player.maxHp) note('Sua vida já está completa.');
 }
-$('start').onclick = () => { if(!account||!signedIn)return;if(!started)resetSession();started=true;paused=false;$('welcome').hidden=true;$('hud').hidden=false;online.join({nick:renderer.playerNick,pokemon:sim.player.id}).catch(error=>note(`Online indisponível: ${error.message}`)); };
+$('start').onclick = () => { if(!account||!signedIn)return;if(!started)resetSession();started=true;paused=false;$('welcome').hidden=true;$('hud').hidden=false;online.join({nick:renderer.playerNick,pokemon:sim.player.id,spawnEpoch:sim.spawnEpoch}).catch(error=>note(`Online indisponível: ${error.message}`)); };
 setInterval(()=>{if(started&&online.token){const p=sim.player;online.update({nick:renderer.playerNick,pokemon:p.id,level:p.level,x:p.x,y:p.y,hp:p.hp,maxHp:p.maxHp,scene:sim.map.scene||'world',moving:p.moving,facing:p.facing,attackActive:p.attackUntil>sim.time,attackAnimation:p.attackAnimation,attackFacing:p.attackFacing});}},160);
 $('resume').onclick = () => setPause(false);
 $('restart').onclick = () => { resetSession(); $('pause-screen').hidden = true; note('Uma nova jornada começa.'); };
@@ -346,7 +353,7 @@ function frame(now) {
       sim.step(1 / 60);if(sim.inputVector&&sim.player.moving)moved=true;accumulator -= 1 / 60;
     }
     for (const e of sim.events.splice(0)) {
-      if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}
+      if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}
       if(online.token&&e.type==='kill'&&Number.isInteger(e.uid))online.request('wild-kill',{uid:e.uid,xp:e.xp}).catch(()=>{});
       if (['damage', 'hurt', 'kill', 'heal', 'slash','area','buff','castVisual','impact'].includes(e.type)) renderer.effects.push(e);
       if(e.type==='interaction')note(e.message);
