@@ -58,7 +58,7 @@ export class RealtimeOnline {
     if(!message||message.from===this.id||message.targetId&&message.targetId!==this.id)return;
     const sender=this.players.find(player=>player.id===message.from);
     if(message.type==='player-state'){
-      if(Number.isSafeInteger(message.state?.seq)&&message.state.seq<(this.remoteStates.get(message.from)?.seq??-1))return;
+      if(Number.isSafeInteger(message.state?.seq)&&message.state.seq<Math.max(this.remoteStates.get(message.from)?.seq??-1,sender?.seq??-1))return;
       const state={...sender,...message.state,id:message.from,seenAt:Date.now()};this.remoteStates.set(message.from,state);
       if(sender)Object.assign(sender,state);else this.players.push(state);
       this.handlers.roster?.({players:this.players,safeRadius:340});return;
@@ -72,7 +72,7 @@ export class RealtimeOnline {
     if(message.type==='wild-kill')this.wilds.set(message.uid,{uid:message.uid,hp:0,respawnAt:Date.now()+(message.respawn||13)*1000});
     if(message.type==='wild-kill'&&sender?.guildId&&sender.guildId===this.guildId&&this.ownHits.delete(message.uid))this.handlers['guild-xp']?.({xp:Math.floor((message.xp||0)/2),from:sender.nick});
     if(message.type==='guild-invite')this.pendingInvite={fromId:message.from,fromNick:message.fromNick};
-    if(message.type==='guild-joined'){this.guildId=message.guildId;this.pendingInvite=null;this.track(true).catch(()=>{});}
+    if(message.type==='guild-joined'){this.guildId=message.guildId;this.pendingInvite=null;this.state.guildId=this.guildId;this.state.seq=++this.stateSeq;this.track(true).catch(()=>{});}
     if(message.type==='pvp-hit'&&message.targetId===this.id){this.state.hp=Math.max(0,(this.state.hp||0)-message.damage);message.hp=this.state.hp;}
     this.handlers[message.type]?.(message);
   }
@@ -94,6 +94,7 @@ export class RealtimeOnline {
       const invite=this.pendingInvite;this.pendingInvite=null;
       if(!data.accept)return {ok:true,accepted:false};
       this.guildId=this.players.find(player=>player.id===invite.fromId)?.guildId||crypto.randomUUID();
+      this.state.guildId=this.guildId;this.state.seq=++this.stateSeq;
       await this.track(true);await this.send('guild-joined',{guildId:this.guildId,nick:this.state.nick},invite.fromId);
       this.handlers['guild-joined']?.({guildId:this.guildId,nick:invite.fromNick});return {ok:true,accepted:true,guildId:this.guildId};
     }
