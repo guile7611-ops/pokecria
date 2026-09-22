@@ -1,8 +1,9 @@
 import {MOVE_CATALOG} from './move-catalog.js';
 import {LEVEL_LEARNSETS} from './level-learnsets.js';
 import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
+import {ZA_MOVE_ABILITIES} from './za-move-abilities.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
-import {LEGENDS_ZA_MOVE_METADATA} from './legends-za-data.js';
+import {LEGENDS_ZA_LEARNSETS,LEGENDS_ZA_MOVE_METADATA} from './legends-za-data.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
 export const STARTERS = {
@@ -125,6 +126,7 @@ Object.assign(ABILITIES, {
  starBurst:{...ABILITIES.solarBeam,id:'starBurst',name:'Explosão Estelar',type:'Normal',color:'#fff2a8',description:'Ultimate: libera uma poderosa rajada de energia.'},
 });
 for(const move of LEVEL_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
+for(const move of ZA_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
 for(const move of MOVE_CATALOG)ABILITIES[move.id]={...move,vfx:`moves/${move.id}`,catalogOnly:true,color:'#d9e8ff'};
 // Each equipped move has its own pre-rendered animation sheet, including
 // legacy starter moves. The catalog uses the same path convention.
@@ -247,7 +249,7 @@ for(const [slug,metadata] of Object.entries(LEGENDS_ZA_MOVE_METADATA)){
  const ability=ABILITIES[canonicalMoveIds[slug]];if(!ability)continue;
  Object.assign(ability,{power:metadata.power,accuracy:metadata.accuracy,category:metadata.category,officialMove:slug,officialSource:'legends-za'});
 }
-export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEVEL_LEARNSETS).map(([id,rows])=>[
+export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEGENDS_ZA_LEARNSETS).map(([id,rows])=>[
   id,rows.map(row=>({...row,ability:canonicalMoveIds[row.move]}))
 ]));
 for(const [id,rows] of Object.entries(CANONICAL_LEARNSETS)){

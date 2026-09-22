@@ -37,13 +37,13 @@ test('online presence, village safety, guild invitation and allied PvP lock', as
   }finally{server.close();await once(server,'close');}
 });
 
-test('future catalog moves are locked and Flame Wheel hits by moving contact online',async()=>{
+test('unacquired catalog moves are locked and Flame Wheel hits by moving contact online',async()=>{
  server.listen(0,'127.0.0.1');await once(server,'listening');
  const base=`http://127.0.0.1:${server.address().port}`;
  const post=async(path,data={},token)=>{const response=await fetch(`${base}/api/online/${path}`,{method:'POST',headers:{'content-type':'application/json',...(token?{'x-verdant-session':token}:{})},body:JSON.stringify(data)});return {status:response.status,...await response.json()};};
  try{
   const a=await post('join',{nick:'Roda',pokemon:'cyndaquil'}),b=await post('join',{nick:'Alvo',pokemon:'bulbasaur'});
-  assert.equal((await post('skill',{ability:'thunderbolt',x:900,y:560},a.token)).status,403);
+  assert.equal((await post('skill',{ability:'cut',x:900,y:560},a.token)).status,403);
   await post('state',{x:900,y:560,hp:100,maxHp:100,scene:'world'},a.token);
   await post('state',{x:980,y:560,hp:100,maxHp:100,scene:'world'},b.token);
   const cast=await post('skill',{ability:'flameWheel',x:980,y:560},a.token);assert.equal(cast.status,200);assert.equal(cast.victims.length,0);

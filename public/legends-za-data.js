@@ -3527,7 +3527,7 @@ export const LEGENDS_ZA_LEARNSETS = {
 export const LEGENDS_ZA_MOVE_METADATA = {
   "absorb": {
     "name": "Absorb",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 20,
     "accuracy": 100,
@@ -3535,7 +3535,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "aerial-ace": {
     "name": "Aerial Ace",
-    "type": "icon",
+    "type": "flying",
     "category": "physical",
     "power": 60,
     "accuracy": null,
@@ -3543,7 +3543,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "agility": {
     "name": "Agility",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3551,7 +3551,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "air-slash": {
     "name": "Air Slash",
-    "type": "icon",
+    "type": "flying",
     "category": "special",
     "power": 75,
     "accuracy": 95,
@@ -3559,7 +3559,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "amnesia": {
     "name": "Amnesia",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3567,7 +3567,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "aqua-jet": {
     "name": "Aqua Jet",
-    "type": "icon",
+    "type": "water",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -3575,7 +3575,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "aqua-ring": {
     "name": "Aqua Ring",
-    "type": "icon",
+    "type": "water",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3583,7 +3583,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bite": {
     "name": "Bite",
-    "type": "icon",
+    "type": "dark",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -3591,7 +3591,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "blaze-kick": {
     "name": "Blaze Kick",
-    "type": "icon",
+    "type": "fire",
     "category": "physical",
     "power": 85,
     "accuracy": 90,
@@ -3599,7 +3599,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "body-slam": {
     "name": "Body Slam",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 85,
     "accuracy": 100,
@@ -3607,7 +3607,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bonemerang": {
     "name": "Bonemerang",
-    "type": "icon",
+    "type": "ground",
     "category": "physical",
     "power": 50,
     "accuracy": 90,
@@ -3615,7 +3615,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bounce": {
     "name": "Bounce",
-    "type": "icon",
+    "type": "flying",
     "category": "physical",
     "power": 85,
     "accuracy": 85,
@@ -3623,7 +3623,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "brave-bird": {
     "name": "Brave Bird",
-    "type": "icon",
+    "type": "flying",
     "category": "physical",
     "power": 120,
     "accuracy": 100,
@@ -3631,7 +3631,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "breaking-swipe": {
     "name": "Breaking Swipe",
-    "type": "icon",
+    "type": "dragon",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -3639,7 +3639,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "brick-break": {
     "name": "Brick Break",
-    "type": "icon",
+    "type": "fighting",
     "category": "physical",
     "power": 75,
     "accuracy": 100,
@@ -3647,7 +3647,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "brutal-swing": {
     "name": "Brutal Swing",
-    "type": "icon",
+    "type": "dark",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -3655,7 +3655,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bubble-beam": {
     "name": "Bubble Beam",
-    "type": "icon",
+    "type": "water",
     "category": "special",
     "power": 65,
     "accuracy": 100,
@@ -3663,7 +3663,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bug-buzz": {
     "name": "Bug Buzz",
-    "type": "icon",
+    "type": "bug",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -3671,7 +3671,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bulk-up": {
     "name": "Bulk Up",
-    "type": "icon",
+    "type": "fighting",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3679,7 +3679,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bulldoze": {
     "name": "Bulldoze",
-    "type": "icon",
+    "type": "ground",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -3687,7 +3687,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "bullet-punch": {
     "name": "Bullet Punch",
-    "type": "icon",
+    "type": "steel",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -3695,7 +3695,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "calm-mind": {
     "name": "Calm Mind",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3703,7 +3703,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "charge": {
     "name": "Charge",
-    "type": "icon",
+    "type": "electric",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3711,7 +3711,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "charm": {
     "name": "Charm",
-    "type": "icon",
+    "type": "fairy",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -3719,7 +3719,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "confuse-ray": {
     "name": "Confuse Ray",
-    "type": "icon",
+    "type": "ghost",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -3727,7 +3727,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "confusion": {
     "name": "Confusion",
-    "type": "icon",
+    "type": "psychic",
     "category": "special",
     "power": 50,
     "accuracy": 100,
@@ -3735,7 +3735,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "cotton-guard": {
     "name": "Cotton Guard",
-    "type": "icon",
+    "type": "grass",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3743,7 +3743,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "crunch": {
     "name": "Crunch",
-    "type": "icon",
+    "type": "dark",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -3751,7 +3751,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "curse": {
     "name": "Curse",
-    "type": "icon",
+    "type": "ghost",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3759,7 +3759,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "dark-pulse": {
     "name": "Dark Pulse",
-    "type": "icon",
+    "type": "dark",
     "category": "special",
     "power": 80,
     "accuracy": 100,
@@ -3767,7 +3767,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "detect": {
     "name": "Detect",
-    "type": "icon",
+    "type": "fighting",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3775,7 +3775,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "disarming-voice": {
     "name": "Disarming Voice",
-    "type": "icon",
+    "type": "fairy",
     "category": "special",
     "power": 40,
     "accuracy": null,
@@ -3783,7 +3783,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "double-edge": {
     "name": "Double-Edge",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 120,
     "accuracy": 100,
@@ -3791,7 +3791,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "double-team": {
     "name": "Double Team",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3799,7 +3799,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "dragon-breath": {
     "name": "Dragon Breath",
-    "type": "icon",
+    "type": "dragon",
     "category": "special",
     "power": 60,
     "accuracy": 100,
@@ -3807,7 +3807,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "dragon-claw": {
     "name": "Dragon Claw",
-    "type": "icon",
+    "type": "dragon",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -3815,7 +3815,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "dragon-rush": {
     "name": "Dragon Rush",
-    "type": "icon",
+    "type": "dragon",
     "category": "physical",
     "power": 100,
     "accuracy": 75,
@@ -3823,7 +3823,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "draining-kiss": {
     "name": "Draining Kiss",
-    "type": "icon",
+    "type": "fairy",
     "category": "special",
     "power": 50,
     "accuracy": 100,
@@ -3831,7 +3831,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "drill-run": {
     "name": "Drill Run",
-    "type": "icon",
+    "type": "ground",
     "category": "physical",
     "power": 80,
     "accuracy": 95,
@@ -3839,7 +3839,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "dynamic-punch": {
     "name": "Dynamic Punch",
-    "type": "icon",
+    "type": "fighting",
     "category": "physical",
     "power": 100,
     "accuracy": 50,
@@ -3847,7 +3847,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "earth-power": {
     "name": "Earth Power",
-    "type": "icon",
+    "type": "ground",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -3855,7 +3855,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "earthquake": {
     "name": "Earthquake",
-    "type": "icon",
+    "type": "ground",
     "category": "physical",
     "power": 100,
     "accuracy": 100,
@@ -3863,7 +3863,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "ember": {
     "name": "Ember",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 40,
     "accuracy": 100,
@@ -3871,7 +3871,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "energy-ball": {
     "name": "Energy Ball",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -3879,7 +3879,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "false-swipe": {
     "name": "False Swipe",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -3887,7 +3887,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "feather-dance": {
     "name": "Feather Dance",
-    "type": "icon",
+    "type": "flying",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -3895,7 +3895,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "fire-fang": {
     "name": "Fire Fang",
-    "type": "icon",
+    "type": "fire",
     "category": "physical",
     "power": 65,
     "accuracy": 95,
@@ -3903,7 +3903,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "fire-spin": {
     "name": "Fire Spin",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 35,
     "accuracy": 85,
@@ -3911,7 +3911,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "flame-charge": {
     "name": "Flame Charge",
-    "type": "icon",
+    "type": "fire",
     "category": "physical",
     "power": 50,
     "accuracy": 100,
@@ -3919,7 +3919,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "flamethrower": {
     "name": "Flamethrower",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -3927,7 +3927,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "flare-blitz": {
     "name": "Flare Blitz",
-    "type": "icon",
+    "type": "fire",
     "category": "physical",
     "power": 120,
     "accuracy": 100,
@@ -3935,7 +3935,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "flip-turn": {
     "name": "Flip Turn",
-    "type": "icon",
+    "type": "water",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -3943,7 +3943,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "focus-energy": {
     "name": "Focus Energy",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3951,7 +3951,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "future-sight": {
     "name": "Future Sight",
-    "type": "icon",
+    "type": "psychic",
     "category": "special",
     "power": 120,
     "accuracy": 100,
@@ -3959,7 +3959,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "giga-drain": {
     "name": "Giga Drain",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 75,
     "accuracy": 100,
@@ -3967,7 +3967,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "giga-impact": {
     "name": "Giga Impact",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 150,
     "accuracy": 90,
@@ -3975,7 +3975,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "growl": {
     "name": "Growl",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -3983,7 +3983,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "growth": {
     "name": "Growth",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -3991,7 +3991,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "gust": {
     "name": "Gust",
-    "type": "icon",
+    "type": "flying",
     "category": "special",
     "power": 40,
     "accuracy": 100,
@@ -3999,7 +3999,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "harden": {
     "name": "Harden",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4007,7 +4007,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "haze": {
     "name": "Haze",
-    "type": "icon",
+    "type": "ice",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4015,7 +4015,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "head-smash": {
     "name": "Head Smash",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 150,
     "accuracy": 80,
@@ -4023,7 +4023,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "headbutt": {
     "name": "Headbutt",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 70,
     "accuracy": 100,
@@ -4031,7 +4031,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "heat-crash": {
     "name": "Heat Crash",
-    "type": "icon",
+    "type": "fire",
     "category": "physical",
     "power": null,
     "accuracy": 100,
@@ -4039,7 +4039,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "heavy-slam": {
     "name": "Heavy Slam",
-    "type": "icon",
+    "type": "steel",
     "category": "physical",
     "power": null,
     "accuracy": 100,
@@ -4047,7 +4047,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "hurricane": {
     "name": "Hurricane",
-    "type": "icon",
+    "type": "flying",
     "category": "special",
     "power": 110,
     "accuracy": 70,
@@ -4055,7 +4055,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "hydro-pump": {
     "name": "Hydro Pump",
-    "type": "icon",
+    "type": "water",
     "category": "special",
     "power": 110,
     "accuracy": 80,
@@ -4063,7 +4063,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "hyper-beam": {
     "name": "Hyper Beam",
-    "type": "icon",
+    "type": "normal",
     "category": "special",
     "power": 150,
     "accuracy": 90,
@@ -4071,7 +4071,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "hypnosis": {
     "name": "Hypnosis",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": 60,
@@ -4079,7 +4079,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "icy-wind": {
     "name": "Icy Wind",
-    "type": "icon",
+    "type": "ice",
     "category": "special",
     "power": 55,
     "accuracy": 95,
@@ -4087,7 +4087,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "infestation": {
     "name": "Infestation",
-    "type": "icon",
+    "type": "bug",
     "category": "special",
     "power": 20,
     "accuracy": 100,
@@ -4095,7 +4095,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "iron-defense": {
     "name": "Iron Defense",
-    "type": "icon",
+    "type": "steel",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4103,7 +4103,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "iron-head": {
     "name": "Iron Head",
-    "type": "icon",
+    "type": "steel",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -4111,7 +4111,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "iron-tail": {
     "name": "Iron Tail",
-    "type": "icon",
+    "type": "steel",
     "category": "physical",
     "power": 100,
     "accuracy": 75,
@@ -4119,7 +4119,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "knock-off": {
     "name": "Knock Off",
-    "type": "icon",
+    "type": "dark",
     "category": "physical",
     "power": 65,
     "accuracy": 100,
@@ -4127,7 +4127,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "lava-plume": {
     "name": "Lava Plume",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 80,
     "accuracy": 100,
@@ -4135,7 +4135,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leaf-blade": {
     "name": "Leaf Blade",
-    "type": "icon",
+    "type": "grass",
     "category": "physical",
     "power": 90,
     "accuracy": 100,
@@ -4143,7 +4143,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leaf-storm": {
     "name": "Leaf Storm",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 130,
     "accuracy": 90,
@@ -4151,7 +4151,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leafage": {
     "name": "Leafage",
-    "type": "icon",
+    "type": "grass",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4159,7 +4159,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leech-life": {
     "name": "Leech Life",
-    "type": "icon",
+    "type": "bug",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -4167,7 +4167,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leech-seed": {
     "name": "Leech Seed",
-    "type": "icon",
+    "type": "grass",
     "category": "status",
     "power": null,
     "accuracy": 90,
@@ -4175,7 +4175,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "leer": {
     "name": "Leer",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -4183,7 +4183,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "lick": {
     "name": "Lick",
-    "type": "icon",
+    "type": "ghost",
     "category": "physical",
     "power": 30,
     "accuracy": 100,
@@ -4191,7 +4191,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "light-screen": {
     "name": "Light Screen",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4199,7 +4199,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "liquidation": {
     "name": "Liquidation",
-    "type": "icon",
+    "type": "water",
     "category": "physical",
     "power": 85,
     "accuracy": 100,
@@ -4207,7 +4207,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "lunge": {
     "name": "Lunge",
-    "type": "icon",
+    "type": "bug",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -4215,7 +4215,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "magical-leaf": {
     "name": "Magical Leaf",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 60,
     "accuracy": null,
@@ -4223,7 +4223,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "megahorn": {
     "name": "Megahorn",
-    "type": "icon",
+    "type": "bug",
     "category": "physical",
     "power": 120,
     "accuracy": 85,
@@ -4231,7 +4231,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "metal-claw": {
     "name": "Metal Claw",
-    "type": "icon",
+    "type": "steel",
     "category": "physical",
     "power": 50,
     "accuracy": 95,
@@ -4239,7 +4239,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "metal-sound": {
     "name": "Metal Sound",
-    "type": "icon",
+    "type": "steel",
     "category": "status",
     "power": null,
     "accuracy": 85,
@@ -4247,7 +4247,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "moonblast": {
     "name": "Moonblast",
-    "type": "icon",
+    "type": "fairy",
     "category": "special",
     "power": 95,
     "accuracy": 100,
@@ -4255,7 +4255,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "mud-shot": {
     "name": "Mud Shot",
-    "type": "icon",
+    "type": "ground",
     "category": "special",
     "power": 55,
     "accuracy": 95,
@@ -4263,7 +4263,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "muddy-water": {
     "name": "Muddy Water",
-    "type": "icon",
+    "type": "water",
     "category": "special",
     "power": 90,
     "accuracy": 85,
@@ -4271,7 +4271,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "mystical-fire": {
     "name": "Mystical Fire",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 75,
     "accuracy": 100,
@@ -4279,7 +4279,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "nasty-plot": {
     "name": "Nasty Plot",
-    "type": "icon",
+    "type": "dark",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4287,7 +4287,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "night-slash": {
     "name": "Night Slash",
-    "type": "icon",
+    "type": "dark",
     "category": "physical",
     "power": 70,
     "accuracy": 100,
@@ -4295,7 +4295,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "outrage": {
     "name": "Outrage",
-    "type": "icon",
+    "type": "dragon",
     "category": "physical",
     "power": 120,
     "accuracy": 100,
@@ -4303,7 +4303,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "overheat": {
     "name": "Overheat",
-    "type": "icon",
+    "type": "fire",
     "category": "special",
     "power": 130,
     "accuracy": 90,
@@ -4311,7 +4311,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "peck": {
     "name": "Peck",
-    "type": "icon",
+    "type": "flying",
     "category": "physical",
     "power": 35,
     "accuracy": 100,
@@ -4319,7 +4319,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "perish-song": {
     "name": "Perish Song",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4327,7 +4327,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "phantom-force": {
     "name": "Phantom Force",
-    "type": "icon",
+    "type": "ghost",
     "category": "physical",
     "power": 90,
     "accuracy": 100,
@@ -4335,7 +4335,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "pin-missile": {
     "name": "Pin Missile",
-    "type": "icon",
+    "type": "bug",
     "category": "physical",
     "power": 25,
     "accuracy": 95,
@@ -4343,7 +4343,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "poison-fang": {
     "name": "Poison Fang",
-    "type": "icon",
+    "type": "poison",
     "category": "physical",
     "power": 50,
     "accuracy": 100,
@@ -4351,7 +4351,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "poison-jab": {
     "name": "Poison Jab",
-    "type": "icon",
+    "type": "poison",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -4359,7 +4359,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "poison-powder": {
     "name": "Poison Powder",
-    "type": "icon",
+    "type": "poison",
     "category": "status",
     "power": null,
     "accuracy": 75,
@@ -4367,7 +4367,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "poison-sting": {
     "name": "Poison Sting",
-    "type": "icon",
+    "type": "poison",
     "category": "physical",
     "power": 15,
     "accuracy": 100,
@@ -4375,7 +4375,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "power-gem": {
     "name": "Power Gem",
-    "type": "icon",
+    "type": "rock",
     "category": "special",
     "power": 80,
     "accuracy": 100,
@@ -4383,7 +4383,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "power-up-punch": {
     "name": "Power-Up Punch",
-    "type": "icon",
+    "type": "fighting",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4391,7 +4391,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "protect": {
     "name": "Protect",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4399,7 +4399,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "psybeam": {
     "name": "Psybeam",
-    "type": "icon",
+    "type": "psychic",
     "category": "special",
     "power": 65,
     "accuracy": 100,
@@ -4407,7 +4407,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "psychic": {
     "name": "Psychic",
-    "type": "icon",
+    "type": "psychic",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -4415,7 +4415,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "psycho-cut": {
     "name": "Psycho Cut",
-    "type": "icon",
+    "type": "psychic",
     "category": "physical",
     "power": 70,
     "accuracy": 100,
@@ -4423,7 +4423,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "psyshock": {
     "name": "Psyshock",
-    "type": "icon",
+    "type": "psychic",
     "category": "special",
     "power": 80,
     "accuracy": 100,
@@ -4431,7 +4431,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "quick-attack": {
     "name": "Quick Attack",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4439,7 +4439,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "razor-leaf": {
     "name": "Razor Leaf",
-    "type": "icon",
+    "type": "grass",
     "category": "physical",
     "power": 55,
     "accuracy": 95,
@@ -4447,7 +4447,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "recover": {
     "name": "Recover",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4455,7 +4455,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "reflect": {
     "name": "Reflect",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4463,7 +4463,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "roar": {
     "name": "Roar",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4471,7 +4471,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "rock-blast": {
     "name": "Rock Blast",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 25,
     "accuracy": 90,
@@ -4479,7 +4479,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "rock-slide": {
     "name": "Rock Slide",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 75,
     "accuracy": 90,
@@ -4487,7 +4487,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "rock-smash": {
     "name": "Rock Smash",
-    "type": "icon",
+    "type": "fighting",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4495,7 +4495,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "rock-throw": {
     "name": "Rock Throw",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 50,
     "accuracy": 90,
@@ -4503,7 +4503,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "rock-tomb": {
     "name": "Rock Tomb",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 60,
     "accuracy": 95,
@@ -4511,7 +4511,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "safeguard": {
     "name": "Safeguard",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4519,7 +4519,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "sand-tomb": {
     "name": "Sand Tomb",
-    "type": "icon",
+    "type": "ground",
     "category": "physical",
     "power": 35,
     "accuracy": 85,
@@ -4527,7 +4527,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "screech": {
     "name": "Screech",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 85,
@@ -4535,7 +4535,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "shadow-ball": {
     "name": "Shadow Ball",
-    "type": "icon",
+    "type": "ghost",
     "category": "special",
     "power": 80,
     "accuracy": 100,
@@ -4543,7 +4543,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "shadow-claw": {
     "name": "Shadow Claw",
-    "type": "icon",
+    "type": "ghost",
     "category": "physical",
     "power": 70,
     "accuracy": 100,
@@ -4551,7 +4551,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "shadow-sneak": {
     "name": "Shadow Sneak",
-    "type": "icon",
+    "type": "ghost",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4559,7 +4559,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "slash": {
     "name": "Slash",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 70,
     "accuracy": 100,
@@ -4567,7 +4567,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "sleep-powder": {
     "name": "Sleep Powder",
-    "type": "icon",
+    "type": "grass",
     "category": "status",
     "power": null,
     "accuracy": 75,
@@ -4575,7 +4575,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "sludge-bomb": {
     "name": "Sludge Bomb",
-    "type": "icon",
+    "type": "poison",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -4583,7 +4583,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "sludge-wave": {
     "name": "Sludge Wave",
-    "type": "icon",
+    "type": "poison",
     "category": "special",
     "power": 95,
     "accuracy": 100,
@@ -4591,7 +4591,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "smokescreen": {
     "name": "Smokescreen",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -4599,7 +4599,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "snarl": {
     "name": "Snarl",
-    "type": "icon",
+    "type": "dark",
     "category": "special",
     "power": 55,
     "accuracy": 95,
@@ -4607,7 +4607,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "solar-beam": {
     "name": "Solar Beam",
-    "type": "icon",
+    "type": "grass",
     "category": "special",
     "power": 120,
     "accuracy": 100,
@@ -4615,7 +4615,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "sticky-web": {
     "name": "Sticky Web",
-    "type": "icon",
+    "type": "bug",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4623,7 +4623,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "stone-edge": {
     "name": "Stone Edge",
-    "type": "icon",
+    "type": "rock",
     "category": "physical",
     "power": 100,
     "accuracy": 80,
@@ -4631,7 +4631,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "string-shot": {
     "name": "String Shot",
-    "type": "icon",
+    "type": "bug",
     "category": "status",
     "power": null,
     "accuracy": 95,
@@ -4639,7 +4639,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "supersonic": {
     "name": "Supersonic",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 55,
@@ -4647,7 +4647,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "surf": {
     "name": "Surf",
-    "type": "icon",
+    "type": "water",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -4655,7 +4655,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "swords-dance": {
     "name": "Swords Dance",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4663,7 +4663,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "synthesis": {
     "name": "Synthesis",
-    "type": "icon",
+    "type": "grass",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4671,7 +4671,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "tackle": {
     "name": "Tackle",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 40,
     "accuracy": 100,
@@ -4679,7 +4679,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "tail-whip": {
     "name": "Tail Whip",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": 100,
@@ -4687,7 +4687,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "take-down": {
     "name": "Take Down",
-    "type": "icon",
+    "type": "normal",
     "category": "physical",
     "power": 90,
     "accuracy": 85,
@@ -4695,7 +4695,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "teleport": {
     "name": "Teleport",
-    "type": "icon",
+    "type": "psychic",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4703,7 +4703,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "thunder": {
     "name": "Thunder",
-    "type": "icon",
+    "type": "electric",
     "category": "special",
     "power": 110,
     "accuracy": 70,
@@ -4711,7 +4711,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "thunder-shock": {
     "name": "Thunder Shock",
-    "type": "icon",
+    "type": "electric",
     "category": "special",
     "power": 40,
     "accuracy": 100,
@@ -4719,7 +4719,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "thunder-wave": {
     "name": "Thunder Wave",
-    "type": "icon",
+    "type": "electric",
     "category": "status",
     "power": null,
     "accuracy": 90,
@@ -4727,7 +4727,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "thunderbolt": {
     "name": "Thunderbolt",
-    "type": "icon",
+    "type": "electric",
     "category": "special",
     "power": 90,
     "accuracy": 100,
@@ -4735,7 +4735,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "toxic-spikes": {
     "name": "Toxic Spikes",
-    "type": "icon",
+    "type": "poison",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4743,7 +4743,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "twister": {
     "name": "Twister",
-    "type": "icon",
+    "type": "dragon",
     "category": "special",
     "power": 40,
     "accuracy": 100,
@@ -4751,7 +4751,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "vine-whip": {
     "name": "Vine Whip",
-    "type": "icon",
+    "type": "grass",
     "category": "physical",
     "power": 45,
     "accuracy": 100,
@@ -4759,7 +4759,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "water-gun": {
     "name": "Water Gun",
-    "type": "icon",
+    "type": "water",
     "category": "special",
     "power": 40,
     "accuracy": 100,
@@ -4767,7 +4767,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "whirlwind": {
     "name": "Whirlwind",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4775,7 +4775,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "wing-attack": {
     "name": "Wing Attack",
-    "type": "icon",
+    "type": "flying",
     "category": "physical",
     "power": 60,
     "accuracy": 100,
@@ -4783,7 +4783,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "wish": {
     "name": "Wish",
-    "type": "icon",
+    "type": "normal",
     "category": "status",
     "power": null,
     "accuracy": null,
@@ -4791,7 +4791,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "x-scissor": {
     "name": "X-Scissor",
-    "type": "icon",
+    "type": "bug",
     "category": "physical",
     "power": 80,
     "accuracy": 100,
@@ -4799,7 +4799,7 @@ export const LEGENDS_ZA_MOVE_METADATA = {
   },
   "zap-cannon": {
     "name": "Zap Cannon",
-    "type": "icon",
+    "type": "electric",
     "category": "special",
     "power": 120,
     "accuracy": 50,

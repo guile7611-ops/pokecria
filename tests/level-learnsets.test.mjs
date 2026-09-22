@@ -3,35 +3,34 @@ import assert from 'node:assert/strict';
 import {ABILITIES,CANONICAL_LEARNSETS,CREATURES,LEARNSETS,XP_CURVE} from '../public/data.js';
 import {LEVEL_LEARNSETS,LEVEL_LEARNSET_VERSIONS} from '../public/level-learnsets.js';
 import {LEVEL_MOVE_METADATA} from '../public/level-move-metadata.js';
+import {LEGENDS_ZA_AVAILABLE,LEGENDS_ZA_LEARNSETS,LEGENDS_ZA_MOVE_METADATA} from '../public/legends-za-data.js';
 import {Simulation} from '../public/simulation.js';
 
 const levelTo=(sim,level)=>{while(sim.player.level<level)sim.gainXP(XP_CURVE[sim.player.level]);};
 
-test('latest available level tables cover every playable species and retain move types beyond its own',()=>{
- assert.deepEqual(Object.keys(LEVEL_LEARNSETS).sort(),Object.keys(CREATURES).sort());
- assert.ok(Object.values(LEVEL_LEARNSETS).every(rows=>rows.length>0));
- assert.deepEqual(Object.keys(LEVEL_MOVE_METADATA).sort(),[...new Set(Object.values(LEVEL_LEARNSETS).flat().map(row=>row.move))].sort());
- assert.equal(LEVEL_MOVE_METADATA['double-kick'].type,'fighting');
- assert.equal(LEVEL_MOVE_METADATA['mud-shot'].type,'ground');
- assert.equal(LEVEL_LEARNSET_VERSIONS.pidgey,'brilliant-diamond-shining-pearl');
- assert.ok(CANONICAL_LEARNSETS.blaziken.some(row=>row.move==='double-kick'&&row.ability==='doubleKick'));
- assert.ok(CANONICAL_LEARNSETS.swampert.some(row=>row.move==='mud-shot'&&row.ability==='mudShot'));
+test('Legends Z-A is the sole canonical level-up source',()=>{
+ assert.deepEqual(Object.keys(LEGENDS_ZA_LEARNSETS).sort(),Object.keys(CREATURES).sort());
+ assert.ok(LEGENDS_ZA_AVAILABLE.length>0);
+ assert.equal(LEGENDS_ZA_MOVE_METADATA['flare-blitz'].type,'fire');
+ assert.equal(LEGENDS_ZA_MOVE_METADATA['mud-shot'].type,'ground');
+ assert.ok(CANONICAL_LEARNSETS.blaziken.some(row=>row.move==='brave-bird'&&row.ability==='braveBird'));
+ assert.ok(CANONICAL_LEARNSETS.swampert.some(row=>row.move==='sludge-wave'&&row.ability==='sludgeWave'));
  for(const [id,rows] of Object.entries(LEARNSETS))for(const row of rows)assert.ok(ABILITIES[row.ability],`${id}: ${row.ability}`);
 });
 
-test('Torchic gains canonical Flame Charge, then Combusken learns Fighting Double Kick',()=>{
+test('Torchic gains Z-A Flame Charge and Combusken later learns Blaze Kick',()=>{
  const sim=new Simulation('torchic');levelTo(sim,9);
  assert.ok(sim.player.knownMoves.includes('flameCharge'));
- levelTo(sim,16);
- assert.equal(sim.player.id,'combusken');
- assert.ok(sim.player.knownMoves.includes('doubleKick'));
- assert.ok(sim.equipMove('doubleKick',2));
+ levelTo(sim,44);
+ assert.equal(sim.player.id,'blaziken');
+ assert.ok(sim.player.knownMoves.includes('blazeKick'));
+ assert.ok(sim.equipMove('blazeKick',2));
  sim.time=sim.player.evolutionUntil;
  const foe=sim.enemies[0];Object.assign(foe,{x:sim.player.x+25,y:sim.player.y,hp:500,maxHp:500,defense:0,state:'Idle',defeated:false});
  const before=foe.hp;
  assert.ok(sim.command({type:'cast',slot:2,x:foe.x,y:foe.y}));
  assert.ok(foe.hp<before);
- assert.equal(sim.events.filter(e=>e.type==='slash'&&e.vfx===ABILITIES.doubleKick.vfx).length,2);
+ assert.equal(sim.events.filter(e=>e.type==='slash'&&e.vfx===ABILITIES.blazeKick.vfx).length,1);
 });
 
 test('Mud Shot joins the learned moves after evolving to Marshtomp and slows on impact',()=>{
@@ -60,11 +59,11 @@ test('Take Down recoils while Absorb heals only from damage dealt',()=>{
  assert.ok(sim.player.hp>sim.player.maxHp-10);
 });
 
-test('a high-level evolved capture recovers its whole lineage of implemented level moves',()=>{
- const sim=new Simulation('torchic',{pc:[{captureId:'capture-blaziken',id:'blaziken',name:'Blaziken',level:43,xp:0,hp:500,maxHp:500,knownMoves:[],slots:[null,null,null,null],attributes:{},evolutionHistory:[]}]});
+test('a high-level evolved capture recovers its Z-A lineage of implemented level moves',()=>{
+ const sim=new Simulation('torchic',{pc:[{captureId:'capture-blaziken',id:'blaziken',name:'Blaziken',level:60,xp:0,hp:500,maxHp:500,knownMoves:[],slots:[null,null,null,null],attributes:{},evolutionHistory:[]}]});
  assert.ok(sim.selectCaptured('capture-blaziken'));
- for(const move of ['ember','flameCharge','doubleKick','blazeKick'])assert.ok(sim.player.knownMoves.includes(move),move);
- assert.equal(sim.player.level,43);
+ for(const move of ['ember','flameCharge','blazeKick','flareBlitz','braveBird'])assert.ok(sim.player.knownMoves.includes(move),move);
+ assert.equal(sim.player.level,60);
 });
 
 test('learning a move early does not unlock the third or fourth shortcut early',()=>{
@@ -75,3 +74,4 @@ test('learning a move early does not unlock the third or fourth shortcut early',
  assert.equal(sim.equipMove('flameCharge',3),false);
  levelTo(sim,25);assert.ok(sim.equipMove('flameCharge',3));
 });
+

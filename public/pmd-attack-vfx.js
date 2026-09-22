@@ -14,6 +14,10 @@ export const PMD_MOVE_SPRITES={
  surf:'0251',waterfallMove:'0021',cut:'0149',strength:'0231',fly:'0232',
  rockSmash:'0221',flashMove:'0253',dive:'0021',auraSphere:'0203',
  energyBall:'0067',flameCharge:'0225',
+ aquaJet:'0021',aquaRing:'0058',bonemerang:'0104',braveBird:'0232',bugBuzz:'0126',bulldoze:'0259',bulletPunch:'0137',
+ calmMind:'0142',darkPulse:'0176',dragonBreath:'0203',dragonClaw:'0123',drainingKiss:'0160',earthPower:'0259',flareBlitz:'0225',
+ hurricane:'0244',icyWind:'0141',ironHead:'0231',leafBlade:'0149',liquidation:'0021',mysticalFire:'0070',psybeam:'0017',reflect:'0135',
+ sludgeWave:'0234',swordsDance:'0253',thunder:'0019',thunderWave:'0019',vineWhip:'0131',wingAttack:'0244',
 };
 
 // These starter attacks have phase-specific art; their other phases remain

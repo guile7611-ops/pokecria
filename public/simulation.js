@@ -205,9 +205,9 @@ export class Simulation {
     if(a.ailment||a.sleep||a.poison||a.leech||a.yawn)this.emit('status',{x:e.x,y:e.y,uid:e.uid,name:a.name,vfx:a.vfx});
   }
   moveDamage(e,a,multiplier=1,powerScale=1){
-    const p=this.player,type=a.type||'Normal',category=a.category||(['direct','rolling','whip'].includes(a.behavior)?'Physical':'Special');
+    const p=this.player,type=a.type||'Normal',category=String(a.category||(['direct','rolling','whip'].includes(a.behavior)?'physical':'special')).toLowerCase();
     const power=Math.max(1,Math.round((a.power||Math.max(20,(a.damage||1)*2.5))*powerScale));
-    const attack=category==='Special'?(p.spAttack||p.attack):p.attack,defense=category==='Special'?(e.spDefense||e.defense):e.defense;
+    const attack=category==='special'?(p.spAttack||p.attack):p.attack,defense=category==='special'?(e.spDefense||e.defense):e.defense;
     const stab=normalizeTypes(p.element).some(value=>value.toLowerCase()===String(type).toLowerCase())?1.5:1;
     const typeEffectiveness=effectiveness(type,e.element);
     return officialDamage({level:p.level,power,attack,defense,stab,effectiveness:typeEffectiveness,random:.925})*multiplier;
@@ -243,7 +243,7 @@ export class Simulation {
       if(active.behavior==='beam'){
         if(!active.fired&&this.time>=active.fireAt){active.fired=true;for(const e of this.lineTargets(p,active.direction,a.range,18)){this.damage(e,this.moveDamage(e,a,active.attackMultiplier),a.type,true);}this.emit('beamFired',{x:p.x,y:p.y,ability:a.id});}
       }else if(active.behavior==='channel'){
-        if(this.time>=active.nextTick&&this.time<=active.until){active.nextTick=this.time+a.hitInterval;for(const e of this.enemies){if(e.state==='Dead'||e.defeated||!lineOfSight(this.map,p,e))continue;const x=e.x-p.x,y=e.y-p.y,along=x*active.direction.x+y*active.direction.y,cross=Math.abs(x*active.direction.y-y*active.direction.x);if(along<0||along>a.range||cross>12+along*.32+(e.radius||12))continue;this.damage(e,this.moveDamage(e,a,active.attackMultiplier),a.type,true);}}
+        if(this.time>=active.nextTick&&this.time<=active.until){active.nextTick=this.time+a.hitInterval;for(const e of this.enemies){if(e.state==='Dead'||e.defeated||!lineOfSight(this.map,p,e))continue;const x=e.x-p.x,y=e.y-p.y,along=x*active.direction.x+y*active.direction.y,cross=Math.abs(x*active.direction.y-y*active.direction.x);if(along<0||along>a.range||cross>12+along*.32+(e.radius||12))continue;this.damage(e,this.moveDamage(e,a,active.attackMultiplier,a.hitInterval/a.duration),a.type,true);}}
       }else if(active.behavior==='whip'&&active.ticks<2&&this.time>=active.nextTick){
         active.ticks++;active.nextTick=this.time+.16;for(const e of this.lineTargets(p,active.direction,a.range,23)){this.damage(e,this.moveDamage(e,a,active.attackMultiplier,.62),a.type,true);}
       }
@@ -251,7 +251,7 @@ export class Simulation {
     this.activeAttacks=this.activeAttacks.filter(active=>!p.dead&&active.until>this.time);
     for(const zone of this.zones){
       if(this.time<zone.nextTick||p.dead)continue;const a=ABILITIES[zone.id];zone.nextTick=this.time+a.hitInterval;
-      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;this.damage(e,this.moveDamage(e,a,zone.attackMultiplier),a.type,true);
+      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;this.damage(e,this.moveDamage(e,a,zone.attackMultiplier,a.hitInterval/a.duration),a.type,true);
         if(zone.id==='whirlpool'&&!e.isBoss&&e.state!=='Dead'){const d=Math.max(1,distance(e,zone)),x=e.x+(zone.x-e.x)/d*10,y=e.y+(zone.y-e.y)/d*10;if(walkable(this.map,x,y,e.radius||12)){e.x=x;e.y=y;e.path=[];}}
       }
     }

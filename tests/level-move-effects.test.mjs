@@ -63,5 +63,8 @@ test('Teleport lands on walkable terrain and the previously uncovered species le
  assert.ok(sim.cast(ABILITIES.teleport,{x:p.x+100,y:p.y}));
  assert.ok(p.x>start.x);
  assert.ok(sim.events.filter(event=>event.type==='buff'&&event.vfx===ABILITIES.teleport.vfx).length===2);
- for(const [species,move] of [['abra','teleport'],['metapod','harden'],['kakuna','harden'],['weedle','poisonSting']])assert.ok(CANONICAL_LEARNSETS[species].some(row=>row.ability===move),species);
+ assert.ok(CANONICAL_LEARNSETS.abra.some(row=>row.ability==='teleport'));
+ assert.deepEqual(CANONICAL_LEARNSETS.metapod,[],'metapod is unavailable in Z-A');
+ assert.ok(CANONICAL_LEARNSETS.kakuna.some(row=>row.ability==='harden'));
+ assert.ok(CANONICAL_LEARNSETS.weedle.some(row=>row.ability==='poisonSting'));
 });

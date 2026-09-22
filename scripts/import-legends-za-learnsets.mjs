@@ -10,7 +10,7 @@ async function worker(){
   const marker=`learns the following moves in Pokémon Legends: Z-A at the levels specified.`;let start=html.indexOf(marker);
   if(start<0){learnsets[id]=[];continue;}start=html.indexOf('<tbody>',start);const end=html.indexOf('</tbody>',start),body=html.slice(start,end);
   const rows=[];for(const match of body.matchAll(/<tr>([\s\S]*?)<\/tr>/g)){const cells=[...match[1].matchAll(/<td([^>]*)>([\s\S]*?)<\/td>/g)].map(cell=>({attrs:cell[1],html:cell[2]}));if(cells.length<6)continue;
-   const moveMatch=cells[1].html.match(/href="\/move\/([^"]+)"[^>]*>([^<]+)</),typeMatch=cells[2].html.match(/type-([a-z-]+)/),category=cells[3].attrs.match(/data-sort-value="([^"]+)"/i)?.[1];if(!moveMatch||!typeMatch||!category)continue;
+   const moveMatch=cells[1].html.match(/href="\/move\/([^"]+)"[^>]*>([^<]+)</),typeMatch=cells[2].html.match(/type-icon\s+type-([a-z-]+)/),category=cells[3].attrs.match(/data-sort-value="([^"]+)"/i)?.[1];if(!moveMatch||!typeMatch||!category)continue;
    const move=moveMatch[1],power=Number(clean(cells[4].html)),accuracy=Number(clean(cells[5].html));rows.push({level:Number(clean(cells[0].html)),move});metadata[move]={...(metadata[move]||{}),name:clean(moveMatch[2]),type:typeMatch[1],category,power:Number.isFinite(power)?power:null,accuracy:Number.isFinite(accuracy)?accuracy:null,source:'pokemon-legends-za'};
   }
   if(!rows.length)throw Error(`${id}: empty Pokémon Legends: Z-A level-up table`);learnsets[id]=rows;
