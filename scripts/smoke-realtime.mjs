@@ -3,11 +3,11 @@ import {once} from 'node:events';
 import {chromium} from '@playwright/test';
 import {server} from '../server.mjs';
 
-server.listen(0,'127.0.0.1');
-await once(server,'listening');
+const externalUrl=process.env.SMOKE_URL;
+if(!externalUrl){server.listen(0,'127.0.0.1');await once(server,'listening');}
 const browser=await chromium.launch({headless:true});
 try{
-  const url=`http://127.0.0.1:${server.address().port}/`;
+  const url=externalUrl||`http://127.0.0.1:${server.address().port}/`;
   const first=await browser.newPage(),second=await browser.newPage();
   await Promise.all([first.goto(url),second.goto(url)]);
   const join=(page,nick,spawnEpoch)=>page.evaluate(async({nick,spawnEpoch})=>{
@@ -43,4 +43,4 @@ try{
   await assert.rejects(first.evaluate(id=>window.smokeOnline.request('pvp',{targetId:id}),secondId),/Membros da guilda/);
   await Promise.all([first.evaluate(()=>window.smokeOnline.leave()),second.evaluate(()=>window.smokeOnline.leave())]);
   console.log('Realtime: duas sessões compartilham presença, mapa, PvP, guilda e vida do boss.');
-}finally{await browser.close();server.close();await once(server,'close');}
+}finally{await browser.close();if(!externalUrl){server.close();await once(server,'close');}}
