@@ -1,0 +1,95 @@
+// All coordinates are in tiles. These authored shapes are independent of seed.
+export const WorldSeed = 123456;
+export const WorldDefinition = {
+  id: 'aurora-v2', name: 'Arquipélago de Aurora', cols: 480, rows: 340, tile: 32, chunkSize: 24,
+  coast: [[2,6],[22,3],[48,9],[64,27],[91,38],[114,25],[131,9],[170,17],[190,35],[223,21],[260,10],[294,28],[313,54],[344,37],[373,46],[391,77],[418,82],[431,109],[413,128],[442,157],[453,188],[430,202],[448,227],[416,242],[403,272],[370,287],[354,314],[324,307],[306,280],[277,290],[260,269],[232,293],[206,278],[183,309],[151,318],[140,285],[111,271],[84,284],[67,263],[90,237],[69,214],[42,206],[30,177],[48,147],[35,119],[57,96],[37,76],[16,60],[2,40]],
+  islands: [[[408,298],[429,283],[446,291],[451,311],[435,326],[416,320]], [[29,246],[44,237],[55,250],[48,265],[30,263]]],
+  ridges: [ [[128,38],[159,51],[188,43],[218,54],[249,36],[281,51],[305,75]], [[344,74],[365,101],[349,129],[370,151],[359,179]], [[125,184],[140,206],[128,232]] ],
+  rivers: [ { width: 2.6, points: [[217,53],[208,70],[224,88],[207,110],[188,126],[202,148],[224,170],[231,197],[258,215],[268,240],[260,269]] }, { width: 1.7, points: [[294,60],[278,81],[288,99],[268,117],[241,127],[219,151]] }, { width: 1.4, points: [[141,58],[132,82],[149,99],[170,112],[183,125]] } ],
+  lakes: [ { x:190,y:126,rx:25,ry:18 }, { x:291,y:205,rx:15,ry:10 }, { x:100,y:167,rx:10,ry:15 } ],
+};
+const region = (id,name,biome,x,y,rx,ry,level,species,reward) => ({id,name,biome,x,y,rx,ry,level,species,reward, difficulty: level[0] < 4 ? 'Tranquila' : level[0] < 8 ? 'Moderada' : 'Perigosa'});
+export const RegionDefinitions = [
+  region('vila','Vila Aurora','village',13,18,17,19,[1,2],['pidgey','rattata','sentret'],'Abrigo e suprimentos'),
+  region('bosque','Bosque dos Brotos','forest',47,40,32,26,[1,3],['caterpie','metapod','weedle','kakuna','pidgey','oddish','spinarak'],'Fibra de Seda'),
+  region('campos','Campos do Vento','field',100,95,55,49,[2,4],['pidgey','pidgeotto','rattata','raticate','spearow','fearow','sentret','furret','mareep','flaaffy','poochyena','mightyena','ralts','makuhita'],'Pena Brisa'),
+  region('mata','Mata Esmeralda','dense',159,87,35,28,[4,7],['caterpie','metapod','butterfree','weedle','kakuna','beedrill','oddish','gloom','vileplume','bellossom','paras','parasect','shroomish','breloom','abra','ralts','kirlia'],'Sementes antigas'),
+  region('lago','Bacia da Lua','lake',190,132,37,30,[3,6],['psyduck','golduck','poliwag','poliwhirl','poliwrath','politoed','wooper','quagsire','lotad','lombre','ludicolo','wailmer','carvanha'],'Pérola da Lua'),
+  region('norte','Coroa Boreal','conifer',235,43,91,27,[8,12],['hoothoot','noctowl','murkrow','honchkrow','mareep','flaaffy','ampharos','spearow','fearow','larvitar','pupitar'],'Cristal da serra'),
+  region('encosta','Passos de Granito','rock',352,123,36,64,[8,12],['geodude','graveler','golem','machop','machoke','machamp','cubone','marowak','zubat','golbat','crobat','aron','lairon','aggron','makuhita','hariyama'],'Minério antigo'),
+  region('vulcao','Caldeira Rubra','volcano',387,205,46,32,[10,14],['slugma','magcargo','geodude','graveler','cubone','marowak','numel','camerupt','torkoal','houndour','houndoom'],'Fragmento de brasa'),
+  region('deserto','Mar de Âmbar','desert',322,255,51,28,[7,10],['cubone','marowak','spearow','fearow','poochyena','mightyena','drowzee','hypno','numel','camerupt','houndour'],'Vidro do deserto'),
+  region('pantano','Pântano dos Sussurros','swamp',114,215,36,37,[6,9],['wooper','quagsire','lotad','lombre','ludicolo','oddish','gloom','spinarak','ariados','gastly','haunter','carvanha'],'Musgo luminoso'),
+  region('pradaria','Pradaria das Flores','meadow',185,240,49,41,[4,7],['mareep','flaaffy','ampharos','oddish','gloom','bellossom','sentret','furret','shroomish','breloom','abra','kadabra','ralts','kirlia','gardevoir','makuhita'],'Pólen dourado'),
+  region('ruinas','Vale dos Reis','ruins',280,110,36,29,[6,9],['drowzee','hypno','gastly','haunter','gengar','magnemite','magneton','magnezone','voltorb','electrode','abra','kadabra','alakazam','ralts','kirlia','gardevoir','larvitar'],'Relíquia dos reis'),
+  region('caverna','Grutas de Cristal','cave',330,86,14,12,[7,10],['zubat','golbat','crobat','geodude','graveler','golem','machop','machoke','machamp','gastly','haunter','gengar','aron','lairon','larvitar','pupitar','tyranitar'],'Cristal azul'),
+  region('costa','Costa das Marés','beach',189,293,47,17,[3,6],['krabby','kingler','horsea','seadra','kingdra','psyduck','golduck','poliwag','poliwhirl','poliwrath','politoed','wailmer','wailord','carvanha','sharpedo'],'Concha azul'),
+];
+const poi = (id,name,kind,x,y,region,secret=false) => ({id,name,kind,x:x*32,y:y*32,region,secret,level:RegionDefinitions.find(r=>r.id===region)?.level.join('–') || '1–3'});
+export const PoiDefinitions = [
+  poi('vila-aurora','Vila Aurora','village',8,17,'vila'), poi('arena-guardiao','Santuário do Guardião','boss',61,49,'bosque'),
+  poi('bosque','Clareira dos Brotos','camp',53,44,'bosque'), poi('posto','Estalagem do Vento','village',101,99,'campos'),
+  poi('templo','Templo das Raízes','ruins',151,91,'mata'), poi('lago','Porto da Lua','village',174,146,'lago'),
+  poi('ilha','Ilha do Oráculo','ruins',190,126,'lago',true), poi('cachoeira','Véu da Lua','waterfall',208,76,'norte'),
+  poi('segredo-agua','Gruta sob o Véu','cave',202,73,'norte',true), poi('passo','Portão Boreal','gate',245,59,'norte'),
+  poi('torre','Torre da Vigília','tower',281,70,'norte'), poi('ruinas','Cidadela dos Reis','ruins',280,112,'ruinas'),
+  poi('gruta','Gruta de Cristal','cave',330,86,'caverna'), poi('vale','Refúgio da Serra','camp',350,138,'encosta'),
+  poi('mina','Mina Esquecida','cave',373,163,'encosta'), poi('vulcao','Cratera do Sol','boss',389,208,'vulcao'),
+  poi('oasis','Oásis de Âmbar','village',311,250,'deserto'), poi('dunas','Altar das Dunas','ruins',344,272,'deserto'),
+  poi('brejo','Cabanas do Brejo','village',104,214,'pantano'), poi('cripta','Cripta Afogada','cave',125,234,'pantano',true),
+  poi('jardim','Jardim das Estrelas','camp',180,245,'pradaria'), poi('porto','Porto das Marés','village',175,290,'costa'),
+  poi('bosque-secreto','Bosque Silencioso','ruins',144,116,'mata',true), poi('praia','Enseada das Conchas','camp',91,259,'costa'),
+];
+// Curved roads connect the authored POIs. Side paths form loops and secrets.
+export const RoadDefinitions = [
+ [[8,17],[18,17],[27,17],[33,24],[43,31],[53,44],[66,64],[87,82],[101,99]],
+ [[53,44],[57,47],[61,49]],
+ [[101,99],[121,92],[151,91],[164,106],[174,146]],
+ [[151,91],[178,80],[202,73],[208,76],[229,68],[245,59],[265,64],[281,70],[307,76],[330,86]],
+ [[174,146],[196,156],[220,155],[249,137],[280,112],[311,100],[330,86]],
+ [[280,112],[309,122],[332,128],[350,138],[360,155],[373,163],[384,184],[389,208]],
+ [[389,208],[374,235],[344,272],[325,264],[311,250],[277,246],[241,249],[211,257],[180,245]],
+ [[101,99],[87,135],[82,177],[104,214],[130,242],[155,250],[180,245],[172,267],[175,290]],
+ [[174,146],[163,177],[174,211],[180,245]],
+ [[104,214],[94,233],[91,259]], [[104,214],[118,223],[125,234]], [[151,91],[143,104],[144,116]],
+ [[174,146],[165,146],[165,138],[178,130],[190,126]],
+];
+export const BiomeDefinitions = {
+ field: {color:'#88aa52',tree:.025}, forest:{color:'#608e48',tree:.18}, dense:{color:'#3f7847',tree:.36}, village:{color:'#91a764',tree:0}, meadow:{color:'#9cb860',tree:.02},
+ conifer:{color:'#769383',tree:.14}, rock:{color:'#a09b80',tree:.025}, volcano:{color:'#65544c',tree:0}, desert:{color:'#d6b873',tree:0}, swamp:{color:'#567f68',tree:.12},
+ lake:{color:'#80a774',tree:.08}, ruins:{color:'#98a278',tree:.08}, cave:{color:'#7d8585',tree:.01}, beach:{color:'#dfca91',tree:.006},
+};
+export const TerrainDefinitions = { ground:0, tree:1, water:2, mountain:3, sand:4, swamp:5, volcanic:6, road:7, bridge:8, cave:9, structure:10, passage:11 };
+export const WALKABLE = new Set([0,4,5,6,7,8,9,11]);
+export const StructureDefinitions = PoiDefinitions.flatMap(p => {
+ const x=p.x/32,y=p.y/32;
+ const base = {poi:p.id,region:p.region};
+ if(p.kind==='village') return [
+  {...base,id:p.id+'-heal',kind:'heal',x:x-2.5,y:y-4,w:3,h:2.5}, {...base,id:p.id+'-shop',kind:'shop',x:x+3.8,y:y-3.3,w:2.7,h:2.3},
+  {...base,id:p.id+'-home',kind:'house',x:x-3,y:y+3.5,w:2.4,h:2}, {...base,id:p.id+'-hall',kind:'hall',x:x+5,y:y+4,w:3.4,h:2.7},
+  {...base,id:p.id+'-gate',kind:'gate',x:x+8,y:y+.5,w:2,h:1}, {...base,id:p.id+'-well',kind:'well',x:x+.7,y:y-1,w:1,h:1},
+ ];
+ return [{...base,id:p.id,kind:p.kind,x,y:y-2,w:p.kind==='boss'?5:3,h:p.kind==='boss'?2:2.5}];
+});
+export const SpawnRarityDefinitions={
+ common:{name:'Comum',weight:100,captureChance:.68},uncommon:{name:'Incomum',weight:34,captureChance:.48},rare:{name:'Raro',weight:9,captureChance:.29},
+ epic:{name:'Épico',weight:2,captureChance:.15},legendary:{name:'Lendário',weight:.35,captureChance:.07},mythic:{name:'Mítico',weight:.06,captureChance:.035},
+};
+const BaseRare=new Set(['abra','gastly','magnemite','voltorb','cubone','murkrow','larvitar','torkoal']);
+const BaseUncommon=new Set(['spearow','paras','psyduck','poliwag','machop','drowzee','horsea','mareep','slugma','lotad','shroomish','ralts','carvanha','wailmer','houndour']);
+const EvolutionParent=Object.fromEntries([
+ ['caterpie','metapod'],['metapod','butterfree'],['weedle','kakuna'],['kakuna','beedrill'],['pidgey','pidgeotto'],['pidgeotto','pidgeot'],['rattata','raticate'],['spearow','fearow'],['zubat','golbat'],['golbat','crobat'],['oddish','gloom'],['gloom','vileplume'],['gloom','bellossom'],['paras','parasect'],['psyduck','golduck'],['poliwag','poliwhirl'],['poliwhirl','poliwrath'],['poliwhirl','politoed'],['abra','kadabra'],['kadabra','alakazam'],['machop','machoke'],['machoke','machamp'],['geodude','graveler'],['graveler','golem'],['magnemite','magneton'],['magneton','magnezone'],['gastly','haunter'],['haunter','gengar'],['drowzee','hypno'],['krabby','kingler'],['voltorb','electrode'],['cubone','marowak'],['horsea','seadra'],['seadra','kingdra'],['sentret','furret'],['hoothoot','noctowl'],['spinarak','ariados'],['mareep','flaaffy'],['flaaffy','ampharos'],['wooper','quagsire'],['murkrow','honchkrow'],['slugma','magcargo'],['poochyena','mightyena'],['lotad','lombre'],['lombre','ludicolo'],['shroomish','breloom'],['ralts','kirlia'],['kirlia','gardevoir'],['aron','lairon'],['lairon','aggron'],['carvanha','sharpedo'],['wailmer','wailord'],['larvitar','pupitar'],['pupitar','tyranitar'],['numel','camerupt'],['houndour','houndoom'],['makuhita','hariyama'],
+ ].map(([from,to])=>[to,from]));
+export const EvolutionMinimumLevel=Object.fromEntries([
+ ['metapod',7],['butterfree',10],['kakuna',7],['beedrill',10],['pidgeotto',18],['pidgeot',36],['raticate',20],['fearow',20],['golbat',22],['crobat',36],['gloom',21],['vileplume',36],['bellossom',36],['parasect',24],['golduck',33],['poliwhirl',25],['poliwrath',36],['politoed',36],['kadabra',16],['alakazam',36],['machoke',28],['machamp',40],['graveler',25],['golem',40],['magneton',30],['magnezone',45],['haunter',25],['gengar',40],['hypno',26],['kingler',28],['electrode',30],['marowak',28],['seadra',32],['kingdra',44],['furret',15],['noctowl',20],['ariados',22],['flaaffy',15],['ampharos',30],['quagsire',20],['honchkrow',36],['magcargo',38],['mightyena',18],['lombre',14],['ludicolo',36],['breloom',23],['kirlia',20],['gardevoir',30],['lairon',32],['aggron',42],['sharpedo',30],['wailord',40],['pupitar',30],['tyranitar',55],['camerupt',33],['houndoom',24],['hariyama',24],
+ ]);
+export function speciesRarity(id){let base=id,stage=0;while(EvolutionParent[base]&&stage<4){base=EvolutionParent[base];stage++;}const start=BaseRare.has(base)?2:BaseUncommon.has(base)?1:0;return ['common','uncommon','rare','epic','legendary','mythic'][Math.min(5,start+stage)];}
+export const SpawnZoneDefinitions = RegionDefinitions.filter(r=>r.biome!=='village').map(r=>({id:r.id,region:r.id,level:r.level,species:r.species.map(id=>{const rarity=speciesRarity(id);return{id,rarity,weight:SpawnRarityDefinitions[rarity].weight,minLevel:EvolutionMinimumLevel[id]||1};}),count:Math.max(12,Math.min(27,Math.round(r.rx*r.ry/145)+(r.biome==='dense'?4:0))),reward:r.reward}));
+// Local areas remain editable independently of their enclosing region.
+export const AreaDefinitions = PoiDefinitions.map(p=>({id:p.id+'-area',region:p.region,x:p.x/32,y:p.y/32,rx:p.kind==='village'?11:6,ry:p.kind==='village'?8:5,biome:p.kind==='cave'?'cave':p.kind==='ruins'?'ruins':'clearing',secret:p.secret,entrance:[p.x/32,p.y/32+3],exit:[p.x/32+4,p.y/32],reward:p.secret?'Relíquia escondida':'Descoberta regional'}));
+for (const r of RegionDefinitions) {
+ r.areas=AreaDefinitions.filter(a=>a.region===r.id).map(a=>a.id);
+ r.entrances=AreaDefinitions.filter(a=>a.region===r.id).map(a=>a.entrance);
+ r.exits=AreaDefinitions.filter(a=>a.region===r.id).map(a=>a.exit);
+}
+
