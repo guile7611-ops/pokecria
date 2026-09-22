@@ -54,3 +54,16 @@ test('authored encounter population is broad and rare species keep lower weights
  assert.ok(weights.every((weight,index)=>!index||weight<weights[index-1]));
  assert.ok(sim.map.spawns.every(s=>Math.hypot(s.x/32-7.5,s.y/32-17.5)>=18));
 });
+
+test('only common and uncommon tiers receive protected regional slots',()=>{
+ for(let epoch=120;epoch<126;epoch++){
+  const sim=new Simulation('bulbasaur',{spawnEpoch:epoch});
+  for(const zone of SpawnZoneDefinitions){
+   const protectedSpawns=sim.map.spawns.filter(spawn=>spawn.zoneId===zone.id&&spawn.protectedTier);
+   assert.ok(protectedSpawns.length<=2);
+   assert.ok(protectedSpawns.every(spawn=>['common','uncommon'].includes(WILD_POKEMON.find(p=>p.id===spawn.species).rarity)));
+  }
+ }
+ assert.equal(WILD_POKEMON.find(p=>p.id==='ralts').rarity,'rare');
+ assert.equal(WILD_POKEMON.find(p=>p.id==='larvitar').rarity,'rare');
+});

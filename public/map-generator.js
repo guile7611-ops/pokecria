@@ -74,14 +74,13 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
    if(startDistance<18||bossDistance<17)continue;
    if((startDistance<38||bossDistance<31)&&noise(i,7,spawnSeed)<.72)continue;
    if(PoiDefinitions.some(p=>Math.hypot(p.x/tile-x,p.y/tile-y)<10)||spawns.some(s=>s.zoneId===zone.id&&Math.hypot(s.x/tile-x,s.y/tile-y)<3.5))continue;
-   const nocturnal=zone.species.filter(candidate=>NIGHT_SPECIES.has(candidate.id));
-   const nightSlot=count>=zone.guaranteed.length&&nocturnal.length>0&&count-zone.guaranteed.length<Math.min(3,Math.ceil(zone.count*.14));
-   const pool=nightSlot?nocturnal:zone.species.filter(candidate=>!NIGHT_SPECIES.has(candidate.id));
+   // Only the first two local encounters favor plentiful species. Rare tiers always use the full weighted draw.
+   const protectedTier=count<2,plentiful=zone.species.filter(candidate=>candidate.rarity==='common'||candidate.rarity==='uncommon');
+   const pool=protectedTier&&plentiful.length?plentiful:zone.species;
    const total=pool.reduce((sum,entry)=>sum+(entry.weight||1),0),roll=noise(i,count+11,spawnSeed+zone.id.charCodeAt(0))*total;let cursor=0,entry=pool.at(-1);
-   if(count<zone.guaranteed.length)entry=zone.species.find(candidate=>candidate.id===zone.guaranteed[count]);
-   else for(const candidate of pool){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
+   for(const candidate of pool){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
    const species=typeof entry==='string'?entry:entry.id,baseLevel=zone.level[0]+Math.floor(noise(i,13,spawnSeed)*(zone.level[1]-zone.level[0]+1)),level=Math.max(baseLevel,entry.minLevel||1);
-   const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward,time:nightSlot?'night':'any'}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
+   const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward,time:NIGHT_SPECIES.has(species)?'night':'any',protectedTier}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
   }
  }
  return attachCollisions({grid,biome,altitude,cols,rows,tile,seed,chunks,objects,spawns,roads,rivers,regions,pois:PoiDefinitions,structures:StructureDefinitions});

@@ -23,14 +23,13 @@ test('an active Pokémon keeps a modest movement advantage after being captured 
  assert.equal(reloaded.player.speed,wildSpeed);
 });
 
-test('all nine starters appear as wild encounters in suitable authored biomes',()=>{
- const sim=new Simulation('bulbasaur',{spawnEpoch:234});
- for(const id of Object.keys(STARTERS)){
-  const spawn=sim.map.spawns.find(s=>s.species===id);
-  assert.ok(spawn,`${id} absent from map`);
-  assert.ok(['bosque','lago','deserto','vulcao'].includes(spawn.zoneId));
-  assert.ok(WILD_POKEMON.some(p=>p.id===id));
- }
+test('rare starters are valid regional encounters without being guaranteed in every world',()=>{
+ const appearances=Object.fromEntries(Object.keys(STARTERS).map(id=>[id,0]));
+ let worldWithoutStarter=false;
+ for(let spawnEpoch=230;spawnEpoch<242;spawnEpoch++){const ids=new Set(new Simulation('bulbasaur',{spawnEpoch}).map.spawns.map(spawn=>spawn.species));if(Object.keys(STARTERS).some(id=>!ids.has(id)))worldWithoutStarter=true;for(const id of ids)if(id in appearances)appearances[id]++;}
+ assert.ok(worldWithoutStarter,'rare starters must not be guaranteed in each world');
+ assert.ok(Object.values(appearances).some(count=>count>0),'rare starters must remain obtainable');
+ for(const id of Object.keys(STARTERS))assert.ok(WILD_POKEMON.some(p=>p.id===id));
 });
 test('fresh players enter the same world and receive wild state even before it streams in',()=>{
  const first=new Simulation(),second=new Simulation();

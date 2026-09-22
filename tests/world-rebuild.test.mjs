@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {spawnAvailable} from '../public/day-night.js';
 import { createMap, walkable, findPath, followPath } from '../public/world.js';
 import { generateWorld } from '../public/map-generator.js';
 import { WorldDefinition, WALKABLE, RegionDefinitions, PoiDefinitions } from '../public/world-definition.js';
@@ -30,7 +31,7 @@ test('actual routes negotiate village buildings and reach the first exploration 
 test('spawns use their geographical region and stream under an active cap',()=>{
  const sim=new Simulation();assert.ok(sim.map.spawns.length>100);
  for(const s of sim.map.spawns){const r=RegionDefinitions.find(r=>r.id===s.zoneId);assert.ok(r.species.includes(s.species));assert.equal(sim.map.regions[sim.map.biome[Math.floor(s.y/32)][Math.floor(s.x/32)]].id,r.id);assert.ok(walkable(sim.map,s.x,s.y,12));}
- for(const s of sim.map.spawns.filter((_,i)=>i%10===0)){Object.assign(sim.player,{x:s.x,y:s.y});sim.streamCreatures();assert.ok(sim.enemies.length<=48);assert.ok(sim.enemies.some(e=>e.uid===s.uid));}
+ for(const s of sim.map.spawns.filter((spawn,i)=>i%10===0&&spawnAvailable(spawn))){Object.assign(sim.player,{x:s.x,y:s.y});sim.streamCreatures();assert.ok(sim.enemies.length<=48);assert.ok(sim.enemies.some(e=>e.uid===s.uid));}
  assert.ok(sim.dormant.size>0);
 });
 test('discovery states and seed survive save/load without revealing the world',()=>{
