@@ -44,8 +44,8 @@ try{
   await first.evaluate(()=>window.smokeOnline.request('skill',{ability:'growl',x:960,y:560}));
   await second.waitForFunction(()=>window.smokeEvents.some(event=>event.type==='pvp-status'&&event.ability==='growl'));
   assert.equal(await second.evaluate(()=>window.smokeOnline.state.hp),hpAfterAttack);
-  await first.evaluate(()=>window.smokeOnline.request('wild-hit',{uid:1000,damage:30,isBoss:true,hp:390,maxHp:420,respawn:45}));
-  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.uid===1000&&event.hp===390));
+  await first.evaluate(()=>window.smokeOnline.request('wild-hit',{uid:999998,damage:30,isBoss:true,hp:390,maxHp:420,respawn:45}));
+  await second.waitForFunction(()=>window.smokeEvents.some(event=>event.uid===999998&&event.hp===390));
   await first.evaluate(id=>window.smokeOnline.request('guild/invite',{targetId:id}),secondId);
   await second.waitForFunction(()=>window.smokeOnline.pendingInvite?.fromNick==='SmokeA');
   await second.evaluate(()=>window.smokeOnline.request('guild/reply',{accept:true}));
