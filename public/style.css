@@ -183,3 +183,8 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
 /* Exploration HUD keeps only controls and status that matter while playing. */
 #bag-open{left:20px;bottom:18px;top:auto;right:auto;padding:3px 5px;background:none;border:0;box-shadow:none;border-radius:0;color:#fff7d6;font:900 11px "Courier New",monospace;letter-spacing:.3px;text-shadow:1px 2px #142331,0 0 5px #142331}
 #bag-open:hover{background:none;border:0;box-shadow:none;color:#ffe28b;text-decoration:underline}
+#pc-open{left:120px;bottom:18px;top:auto;right:auto;padding:3px 5px;background:none;border:0;box-shadow:none;border-radius:0;color:#fff7d6;font:900 11px "Courier New",monospace;text-shadow:1px 2px #142331,0 0 5px #142331}
+#pc-open:hover{color:#ffe28b;text-decoration:underline}
+#shop-products{display:grid;gap:8px;max-height:55vh;overflow:auto;margin-top:12px}
+#run-pc .pc-list{max-height:48vh}
+@media(max-width:650px){#pc-open{left:110px;bottom:18px}.shop-product{grid-template-columns:1fr auto}.shop-product button{grid-column:1/-1}}

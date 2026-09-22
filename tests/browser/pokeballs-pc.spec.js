@@ -1,0 +1,31 @@
+import {test,expect} from '@playwright/test';
+
+test('shop excludes Master Ball and PC switches a captured Pokémon during play',async({page})=>{
+  await page.goto('/');
+  await page.locator('#auth-user').fill('pc_teste');
+  await page.locator('#auth-password').fill('senha12345');
+  await page.locator('#auth-submit').click();
+  await page.locator('#trainer-nick').fill('Teste');
+  await page.locator('[data-egg="0"]').click();
+  await page.locator('#start').click();
+  await page.evaluate(async()=>{const {Renderer}=await import('/renderer.js');const draw=Renderer.prototype.draw;Renderer.prototype.draw=function(...args){draw.apply(this,args);window.pcQA=this.sim;};});
+  await page.waitForFunction(()=>window.pcQA);
+  const capture=await page.evaluate(()=>{const sim=window.pcQA,enemy=sim.enemies.find(e=>!e.isBoss);sim.inventory.items['Master Bola']=1;sim.configureCapture(enemy.id,true,'master');sim.damage(enemy,999999);return {id:enemy.id,state:enemy.state,pc:sim.pc.map(p=>p.id),events:sim.events.map(event=>event.type)};});
+  expect(capture.pc.length,JSON.stringify(capture)).toBe(2);
+  await page.keyboard.press('b');
+  await expect(page.locator('#capture-ball')).toHaveValue('master');
+  await page.locator('#bag-close').click();
+  await page.keyboard.press('p');
+  await expect(page.locator('#run-pc')).toBeVisible();
+  await expect(page.locator('#run-pc-list .pc-card')).toHaveCount(2);
+  await page.locator('#run-pc-list button[data-run-capture]:not([disabled])').click();
+  await expect(page.locator('#run-pc')).toBeHidden();
+  await expect(page.locator('#welcome')).toBeHidden();
+  await expect(page.locator('#player-element')).not.toContainText('BULBASAUR');
+  await expect(page.locator('#shop-products')).not.toContainText('Master Bola');
+  await expect(page.locator('#shop-products .shop-product')).toHaveCount(4);
+  const selected=await page.locator('#player-element').textContent();
+  await page.reload();
+  await page.locator('#start').click();
+  await expect(page.locator('#player-element')).toHaveText(selected);
+});

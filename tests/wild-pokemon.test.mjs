@@ -30,7 +30,8 @@ test('wild Pokémon use their own idle and lateral sprite atlases', () => {
 test('wild defeats create species drops and complete the clearing quest once', () => {
   const sim = new Simulation();
   for (const enemy of sim.enemies.filter(candidate => !candidate.isBoss).slice(0, 3)) sim.damage(enemy, 999);
-  assert.equal(sim.quest.drops.length,3);assert.ok(sim.quest.drops.every(Boolean));
+  assert.equal(sim.quest.drops.length,3);
+  assert.equal(sim.quest.drops.filter(Boolean).length,sim.events.filter(event=>event.type==='drop').length);
   assert.equal(sim.quest.progress, 3); assert.equal(sim.quest.complete, true);
   assert.equal(sim.events.filter(event => event.type === 'questComplete').length, 1);
 });

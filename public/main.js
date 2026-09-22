@@ -10,6 +10,7 @@ import {baseDamageLabel} from './move-info.js';
 import { nextEvolution, evolutionLine } from './progression.js';
 import {TYPES,effectiveness,normalizeTypes} from './type-system.js';
 import {cloud} from './cloud-client.js';
+import {POKEBALLS,pokeballById} from './pokeballs.js';
 const $ = id => document.getElementById(id);
 await cloud.bootstrap();
 let cloudGame=null;
@@ -99,13 +100,28 @@ function showCaptureAlert(specimen){
  clearTimeout(captureAlertTimer);
  captureAlertTimer=setTimeout(()=>{alert.classList.add('leaving');setTimeout(()=>alert.hidden=true,250);},3400);
 }
-function renderBag(){const bag=sim.inventory;$('bag-money').textContent=`${bag.money.toLocaleString('pt-BR')} moedas`;$('bag-items').replaceChildren();const entries=Object.entries(bag.items);if(!entries.length)$('bag-items').textContent='Sua mochila está vazia. Derrote Pokémon para recolher itens e moedas.';for(const [name,count]of entries){const row=document.createElement('div');row.className='bag-item';const title=document.createElement('span'),quantity=document.createElement('strong');title.textContent=name;quantity.textContent='× '+count;row.append(title,quantity);$('bag-items').append(row);}const select=$('capture-species');if(!select.options.length)for(const p of WILD_POKEMON){const o=document.createElement('option');o.value=p.id;o.textContent=`${p.name} · ${p.rarityName}`;select.append(o);}select.value=sim.capturePlan.speciesId;$('capture-enabled').checked=sim.capturePlan.enabled;}
+function renderBag(){const bag=sim.inventory;$('bag-money').textContent=`${bag.money.toLocaleString('pt-BR')} moedas`;$('bag-items').replaceChildren();const entries=Object.entries(bag.items);if(!entries.length)$('bag-items').textContent='Sua mochila está vazia.';for(const [name,count]of entries){const row=document.createElement('div');row.className='bag-item';const title=document.createElement('span'),quantity=document.createElement('strong');title.textContent=name;quantity.textContent='× '+count;row.append(title,quantity);$('bag-items').append(row);}const select=$('capture-species');if(!select.options.length)for(const p of WILD_POKEMON){const o=document.createElement('option');o.value=p.id;o.textContent=`${p.name} · ${p.rarityName}`;select.append(o);}select.value=sim.capturePlan.speciesId;const ballSelect=$('capture-ball');if(!ballSelect.options.length)for(const ball of POKEBALLS){const option=document.createElement('option');option.value=ball.id;option.textContent=`${ball.name} · ${ball.rarity}`;ballSelect.append(option);}ballSelect.value=pokeballById(sim.capturePlan.ballId).id;$('capture-enabled').checked=sim.capturePlan.enabled;$('capture-chance-note').textContent=`${pokeballById(sim.capturePlan.ballId).name}: ${bag.items[pokeballById(sim.capturePlan.ballId).name]||0} disponível(is). A chance também depende da raridade e do nível do alvo.`;}
 function toggleBag(){if($('bag').open){$('bag').close();return;}held=false;arrows.clear();sim.player.path=[];sim.player.target=null;renderBag();$('bag').showModal();}
 $('bag-open').onclick=toggleBag;$('bag-close').onclick=()=>$('bag').close();
-$('capture-species').onchange=()=>{sim.configureCapture($('capture-species').value,$('capture-enabled').checked);saveWorld(localStorage,sim);};$('capture-enabled').onchange=()=>{sim.configureCapture($('capture-species').value,$('capture-enabled').checked);saveWorld(localStorage,sim);};
+$('capture-species').onchange=$('capture-enabled').onchange=$('capture-ball').onchange=()=>{sim.configureCapture($('capture-species').value,$('capture-enabled').checked,$('capture-ball').value);renderBag();saveWorld(localStorage,sim);};
 function renderPC(){const filters={species:$('pc-species').value,nature:$('pc-nature').value,ability:$('pc-ability').value};for(const [id,key] of [['pc-species','id'],['pc-nature','nature'],['pc-ability','ability']]){const el=$(id),value=el.value,first=el.options[0];el.replaceChildren(first);for(const v of [...new Set(sim.pc.map(p=>p[key]))].sort()){const o=document.createElement('option');o.value=v;o.textContent=key==='id'?(CREATURES[v]?.name||v):v;el.append(o);}el.value=value;}const sort=$('pc-sort').value;const list=sim.pc.filter(p=>(!filters.species||p.id===filters.species)&&(!filters.nature||p.nature===filters.nature)&&(!filters.ability||p.ability===filters.ability)).sort((a,b)=>(b[sort]||0)-(a[sort]||0));$('pc-list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${p.id}/portrait.png" alt=""><div><strong>${p.name} · Nv. ${p.level}</strong><span>${p.rarityName||'Comum'} · ${p.nature} · ${p.ability}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · VEL ${p.speed}</small></div><button data-capture="${p.captureId}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';document.querySelectorAll('[data-capture]').forEach(b=>b.onclick=()=>{if(sim.selectCaptured(b.dataset.capture)){selectedStarter=sim.player.id;saveWorld(localStorage,sim);renderHub();note(`${sim.player.name} agora acompanha você.`);}});}
 for(const id of ['pc-species','pc-nature','pc-ability','pc-sort'])$(id).onchange=renderPC;
-$('shop-close').onclick=()=>$('shop').close();$('buy-pokeball').onclick=()=>{if(sim.buyPokeballs()){renderBag();saveWorld(localStorage,sim);note('Poké Bola comprada.');}else note('Moedas insuficientes.');};
+function renderRunPC(){
+  sim.syncActivePokemon();
+  const prefix='run-pc-',filters={species:$(prefix+'species').value,nature:$(prefix+'nature').value,ability:$(prefix+'ability').value};
+  for(const [suffix,key] of [['species','id'],['nature','nature'],['ability','ability']]){
+    const el=$(prefix+suffix),value=el.value,first=el.options[0];el.replaceChildren(first);
+    for(const entry of [...new Set(sim.pc.map(p=>p[key]).filter(Boolean))].sort()){const option=document.createElement('option');option.value=entry;option.textContent=key==='id'?(CREATURES[entry]?.name||entry):entry;el.append(option);}el.value=value;
+  }
+  const sort=$(prefix+'sort').value,list=sim.pc.filter(p=>(!filters.species||p.id===filters.species)&&(!filters.nature||p.nature===filters.nature)&&(!filters.ability||p.ability===filters.ability)).sort((a,b)=>(b[sort]||0)-(a[sort]||0));
+  $(prefix+'list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${encodeURIComponent(p.id)}/portrait.png" alt=""><div><strong>${safeText(p.name)} · Nv. ${p.level}</strong><span>${safeText(p.rarityName||'Comum')} · ${safeText(p.nature)} · ${safeText(p.ability)}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · VEL ${p.speed}</small></div><button data-run-capture="${safeText(p.captureId)}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';
+  $(prefix+'list').querySelectorAll('[data-run-capture]').forEach(button=>button.onclick=()=>{if(!sim.selectCaptured(button.dataset.runCapture))return;selectedStarter=sim.player.id;saveWorld(localStorage,sim);renderRunPC();renderInfo();renderMoves();addTypeInfo();renderGuild();updateUI();note(`${sim.player.name} agora acompanha você.`);$('run-pc').close();});
+}
+for(const id of ['run-pc-species','run-pc-nature','run-pc-ability','run-pc-sort'])$(id).onchange=renderRunPC;
+function toggleRunPC(){if($('run-pc').open){$('run-pc').close();return;}held=false;arrows.clear();sim.player.path=[];sim.player.target=null;renderRunPC();$('run-pc').showModal();}
+$('pc-open').onclick=toggleRunPC;$('run-pc-close').onclick=()=>$('run-pc').close();
+const shopProducts=$('shop-products');for(const ball of POKEBALLS.filter(ball=>ball.id!=='master')){const row=document.createElement('div');row.className='shop-product';row.innerHTML=`<div><strong>${ball.name} · ${ball.rarity}</strong><small>Força de captura ×${ball.multiplier}${ball.caveMultiplier?' (×3,5 em cavernas)':''}</small></div><b>${ball.price.toLocaleString('pt-BR')} moedas</b><button data-buy-ball="${ball.id}">Comprar</button>`;shopProducts.append(row);row.querySelector('button').onclick=()=>{if(sim.buyPokeballs(1,ball.id)){renderBag();saveWorld(localStorage,sim);note(`${ball.name} comprada.`);}else note('Moedas insuficientes.');};}
+$('shop-close').onclick=()=>$('shop').close();
 function renderInfo(){const p=sim.player,a=p.attributes||{},nature={Calma:'Aumenta a resistência: recebe 10% menos dano quando está com mais de 70% de HP.',Brava:'Aumenta o dano dos ataques básicos em 10%, mas reduz a defesa em 1.',Serena:'Aumenta a velocidade de movimento em 8% e reduz o tempo de recarga em 3%.'}[p.nature]||'Uma natureza equilibrada, sem modificadores negativos.',ability={Clorofila:'Em áreas de floresta, ganha 12% de velocidade e recupera 1% do HP máximo a cada 5 segundos.', 'Chama do Sol':'Ataques de fogo causam 15% mais dano quando o HP está abaixo de 50%.','Couraça Torrencial':'Ao ficar abaixo de 35% de HP, recebe 20% menos dano por 4 segundos; recarga de 12 segundos.'}[p.ability]||'Habilidade passiva exclusiva deste Pokémon.';if(!$('info-body'))return;$('info-title').textContent=`${p.name} · Nv. ${p.level}`;$('info-body').innerHTML=`<div class="info-identity"><img src="/assets/pokemon/${p.id}/portrait.png" alt=""><div><b>${p.nature}</b><small>Natureza</small><p class="info-description">${nature}</p><b>${p.ability}</b><small>Habilidade única</small><p class="info-description">${ability}</p></div></div><p class="info-section-title"><img src="/assets/ui/stats.png" alt=""> Atributos</p><p class="info-points">Pontos disponíveis: <strong>${p.attributePoints||0}</strong></p><div class="attributes">${[['vitality','Vitalidade',p.maxHp],['power','Poder',p.attack],['guard','Defesa',p.defense],['agility','Agilidade',p.speed]].map(([id,label,value])=>`<div class="attribute"><span><b>${label}</b><small>${value}</small></span><button data-attribute="${id}" ${p.attributePoints?'':'disabled'}>+1</button></div>`).join('')}</div><div class="info-stats"><span>HP máximo <b>${p.maxHp}</b></span><span>Ataque <b>${p.attack}</b></span><span>Defesa <b>${p.defense}</b></span><span>Velocidade <b>${p.speed}</b></span><span>XP <b>${p.xp}</b></span></div>`;document.querySelectorAll('[data-attribute]').forEach(b=>b.onclick=()=>{if(sim.investAttribute(b.dataset.attribute)){renderInfo();renderMoves();addTypeInfo();renderGuild();saveWorld(localStorage,sim);}});}
 function addTypeInfo(){const p=sim.player,types=normalizeTypes(p.element),weak=TYPES.filter(t=>types.some(def=>effectiveness(t,def)>1)),resist=TYPES.filter(t=>types.every(def=>effectiveness(t,def)<1)),el=document.createElement('p');el.className='type-matchups';el.innerHTML=`<span class="info-section-title"><img src="/assets/ui/types.png" alt=""> Tipagens</span><b>Fraquezas:</b> ${weak.join(', ')||'Nenhuma'}<br><b>Resistências:</b> ${resist.join(', ')||'Nenhuma'}`;$('info-body').append(el);}
 function renderMoves(){
@@ -269,7 +285,7 @@ window.addEventListener('keydown', e => {
   const key = e.key.toUpperCase();
   if(key==='B'&&started&&!e.repeat){toggleBag();return;}
   if(key==='H'&&started&&!e.repeat){toggleInfo();return;}
-  if(key==='P'&&started&&!e.repeat){openHub('pokemon');return;}
+  if(key==='P'&&started&&!e.repeat){toggleRunPC();return;}
   if(key==='S'&&started&&!paused){e.preventDefault();held=false;pointerDirty=false;arrows.clear();sim.inputVector=null;sim.player.path=[];sim.player.target=null;sim.player.moving=false;return;}
   if($('bag').open)return;
   if (['ARROWUP', 'ARROWDOWN', 'ARROWLEFT', 'ARROWRIGHT', ' '].includes(key)) e.preventDefault();
@@ -287,6 +303,7 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => {arrows.delete(e.key.toUpperCase());if(e.key==='Shift')sim.player.running=false;});
 function updateUI() {
   $('bag-open').hidden=!started;
+  $('pc-open').hidden=!started;
   $('bag-open').querySelector('span').textContent='B · Mochila';
   $('info-open').hidden=!started;
   const p = sim.player;
@@ -333,11 +350,12 @@ function frame(now) {
       if (['damage', 'hurt', 'kill', 'heal', 'slash','area','buff','castVisual','impact'].includes(e.type)) renderer.effects.push(e);
       if(e.type==='interaction')note(e.message);
       if(e.type==='openShop'){$('shop').showModal();note('Loja aberta.');}
-      if(e.type==='loot'){note(`+${e.count} ${e.item} · +${e.money} moedas`);try{localStorage.setItem('aurora-inventory',JSON.stringify(sim.inventory));}catch{}renderBag();}
-      if(e.type==='captureThrow')note(`Poké Bola lançada em ${e.name}…`);
-      if(e.type==='captureFail')note(`${e.name} escapou da Poké Bola.`);
+      if(e.type==='loot'){note(e.item?`+${e.count} ${e.item} · +${e.money} moedas`:`+${e.money} moedas`);saveWorld(localStorage,sim);renderBag();}
+      if(e.type==='captureThrow')note(`${e.ball} lançada em ${e.name}…`);
+      if(e.type==='captureFail')note(`${e.name} escapou da ${e.ball}.`);
       if(e.type==='captureThrow'){saveWorld(localStorage,sim);renderBag();}
       if(e.type==='captured'){note(`${e.name} capturado e enviado ao PC!`);showCaptureAlert(e.specimen);renderPC();saveWorld(localStorage,sim);}
+      if(e.type==='masterBallFound'){note(`Master Bola encontrada ao derrotar ${e.name}!`);saveWorld(localStorage,sim);}
       if(e.type==='typeEffect'&&e.message)note(e.message);
       if (e.type === 'level') note(`Nível ${e.level} alcançado!`);
       if (e.type === 'evolve'){note(`${CREATURES[e.from].name} evoluiu para ${CREATURES[e.to].name}!\n${ABILITIES[CREATURES[e.to].projectile].name} disponível em Q.`);saveWorld(localStorage,sim);}

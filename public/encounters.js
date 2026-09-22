@@ -9,6 +9,7 @@ export function encounterStats(species,map,position,uid,{boss=false,horde=false}
  const f=RARITIES[rarity].factor,scale=1+(level-1)*.16;
  return {level,rarity,rarityName:RARITIES[rarity].name,spawnRarity:species.rarity||'common',spawnRarityName:RARITIES[species.rarity||'common'].name,regionId:region.id,
   hp:Math.round(species.hp*scale*f),maxHp:Math.round(species.hp*scale*f),attack:Math.round((species.attack+(level-1)*1.7)*f),defense:Math.round((species.defense+(level-1)*.65)*f),
-  xp:Math.round(species.xp*(1+(level-1)*.3)*f),money:Math.round((3+level*3)*f),drop:species.drop||(boss?'Relíquia do Guardião':region.reward),dropCount:rarity==='common'?1:2};
+  xp:Math.round(species.xp*(1+(level-1)*.3)*f),money:Math.round((3+level*3)*f),drop:species.drop||(boss?'Relíquia do Guardião':region.reward),dropCount:boss?2:1,
+  dropChance:boss?1:horde?.1:({common:.18,uncommon:.22,rare:.27,epic:.34,legendary:.42,mythic:.5}[rarity]||.18)};
 }
 export function cleanInventory(value){const items={};for(const [name,count]of Object.entries(value?.items||{}))if(name.length<100&&Number.isSafeInteger(count)&&count>0)items[name]=Math.min(count,999999);return {money:Number.isSafeInteger(value?.money)&&value.money>=0?Math.min(value.money,999999999):0,items};}
