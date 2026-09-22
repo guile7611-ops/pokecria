@@ -4,6 +4,7 @@ import { WorldView } from './world-view.js';
 import { Simulation } from './simulation.js';
 import { Renderer } from './renderer.js';
 import { OnlineClient } from './online-client.js';
+import {setRemoteTarget} from './remote-motion.js';
 import { ABILITIES, KEYS, STARTERS, CREATURES, WILD_POKEMON, XP_CURVE, REGION } from './data.js';
 import {MOVE_CATALOG} from './move-catalog.js';
 import {baseDamageLabel} from './move-info.js';
@@ -58,8 +59,8 @@ const online = new OnlineClient({
     for(const player of players){if(player.id===online.id)continue;current.add(player.id);let entity=renderer.remoteEntities.get(player.id);
       if(!entity){entity={uid:`remote-${player.id}`,id:player.pokemon,name:player.nick,x:player.x,y:player.y,targetX:player.x,targetY:player.y,hp:player.hp,maxHp:player.maxHp,level:player.level,scene:player.scene,moving:false,facing:{x:0,y:1},remote:true,state:'Idle'};renderer.remoteEntities.set(player.id,entity);}
       const attacking=entity.attackUntil>sim.time;
-      if(entity.scene!==player.scene||Math.hypot(player.x-entity.x,player.y-entity.y)>500){entity.x=player.x;entity.y=player.y;}
-      Object.assign(entity,{id:player.pokemon,name:player.nick,targetX:player.x,targetY:player.y,hp:player.hp,maxHp:player.maxHp,level:player.level,scene:player.scene,moving:player.moving,facing:player.facing||{x:0,y:1},rolling:player.rolling,guildId:player.guildId});
+      setRemoteTarget(entity,player,performance.now());
+      Object.assign(entity,{id:player.pokemon,name:player.nick,hp:player.hp,maxHp:player.maxHp,level:player.level,scene:player.scene,moving:player.moving,facing:player.facing||{x:0,y:1},rolling:player.rolling,guildId:player.guildId});
       if(player.attackActive){if(!attacking)entity.attackStart=sim.time;entity.attackUntil=sim.time+.24;entity.attackAnimation=player.attackAnimation||'Attack';entity.attackFacing=player.attackFacing||entity.facing;}
     }
     for(const id of renderer.remoteEntities.keys())if(!current.has(id))renderer.remoteEntities.delete(id);
@@ -76,7 +77,7 @@ const online = new OnlineClient({
     if(impactVfx&&['fireBlast','hydroCannon'].includes(ability))renderer.networkEffects.push({from,ability,behavior:'stationary',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+(moving?duration:0),duration:.65,size:impactSize});
     if(['water','waterPulse','hydroPump','aquaWave'].includes(ability))for(const id of targets||[]){const target=online.players.find(player=>player.id===id);if(!target)continue;const travelTime=Math.hypot(target.x-x,target.y-y)/(ABILITIES[ability]?.speed||370);renderer.networkEffects.push({from,ability,behavior:'stationary',vfx:'pmd/0021',x:target.x,y:target.y,aimX:target.x,aimY:target.y,time:sim.time+travelTime,duration:.6,size:82});}
   },
-  'pvp-hit':({nick,damage,hp,ability})=>{sim.player.hp=Math.min(sim.player.hp,hp);sim.player.hitStart=sim.time;sim.player.hitUntil=sim.time+.25;if(ability==='basic')renderer.effects.push({x:sim.player.x,y:sim.player.y,time:sim.time,vfx:'slash'});note(`${nick} causou ${damage} de dano!`);if(sim.player.hp<=0&&!sim.player.dead){sim.player.dead=true;sim.player.respawnIn=3;sim.player.path=[];sim.player.target=null;}},
+  'pvp-hit':({nick,damage,hp,ability})=>{sim.player.hp=Math.min(sim.player.hp,hp);sim.player.hitStart=sim.time;sim.player.hitUntil=sim.time+.25;if(ability==='basic')renderer.effects.push({x:sim.player.x,y:sim.player.y,time:sim.time,vfx:'slash'});note(`${nick} causou ${damage} de dano!`);if(sim.player.hp<=0&&!sim.player.dead){sim.player.dead=true;sim.player.deathStart=sim.time;sim.player.respawnIn=3;sim.player.path=[];sim.player.target=null;}},
   'pvp-status':({nick,ability})=>{const move=ABILITIES[ability];if(move&&sim.applyPlayerStatus(move))note(`${nick} usou ${move.name} em você!`);},
   'pvp-result':({targetId,nick,damage,ability})=>{const entity=renderer.remoteEntities.get(targetId);if(entity){entity.hitStart=sim.time;entity.hitUntil=sim.time+.25;}note(`Você atingiu ${nick}: ${damage} de dano.`);},
   'guild-invite':({fromNick})=>{note(`${fromNick} convidou você para uma guilda. Abra H.`);if($('info').open)renderGuild();},

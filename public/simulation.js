@@ -290,7 +290,7 @@ export class Simulation {
     const p = this.player;
     if(p.yawnAt&&this.time>=p.yawnAt){p.sleepUntil=this.time+2.5;p.yawnAt=0;}
     for(const key of ['poison','burn','leech']){const condition=p[key];if(!condition)continue;if(this.time>=condition.until){p[key]=null;continue;}if(this.time<condition.nextTick)continue;condition.nextTick=this.time+1;if(key==='poison')condition.stacks=Math.min(4,(condition.stacks||0)+1);const amount=Math.max(1,Math.ceil(p.maxHp*(key==='poison'?.018*condition.stacks:.018)));p.hp=Math.max(0,p.hp-amount);this.emit('hurt',{x:p.x,y:p.y,amount});}
-    if(p.hp===0&&!p.dead){p.dead=true;p.respawnIn=3;p.path=[];p.target=null;p.pendingCast=null;this.emit('death');}
+    if(p.hp===0&&!p.dead){p.dead=true;p.deathStart=this.time;p.respawnIn=3;p.path=[];p.target=null;p.pendingCast=null;this.emit('death');}
     const pendingEvolution=nextEvolution(p.id);
     if(pendingEvolution&&p.level>=pendingEvolution.requiredLevel){for(const evolution of applyEvolutions(p,this.time))this.emit('evolve',evolution);this.definition=CREATURES[p.id];this.learn();}
     p.buffs=(p.buffs||[]).map(b=>({...b,remaining:b.remaining-dt})).filter(b=>b.remaining>0);
