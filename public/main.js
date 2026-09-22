@@ -12,6 +12,7 @@ import { nextEvolution, evolutionLine } from './progression.js';
 import {TYPES,effectiveness,normalizeTypes} from './type-system.js';
 import {cloud} from './cloud-client.js';
 import {POKEBALLS,pokeballById} from './pokeballs.js';
+import {NATURES,STAT_KEYS} from './official-mechanics.js';
 const $ = id => document.getElementById(id);
 await cloud.bootstrap();
 let cloudGame=null;
@@ -27,6 +28,8 @@ if(cloud.enabled){credentials=cloud.session?.user?{username:cloud.session.user.u
 let signedIn=cloud.enabled?!!cloud.session?.access_token:!!credentials&&sessionStorage.getItem('aurora-auth')===credentials.username;
 let authMode=credentials?'login':'register';
 const safeText=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const displayId=value=>String(value||'').split('-').map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(' ');
+const STAT_LABELS={hp:'HP',attack:'Ataque',defense:'Defesa',spAttack:'Ataque Esp.',spDefense:'Defesa Esp.',speed:'Velocidade'};
 async function passwordDigest(password,salt){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bytes=await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt),iterations:150000,hash:'SHA-256'},key,256);return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
 let selectedStarter = worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
 let sim = new Simulation(selectedStarter, worldSave);
@@ -114,7 +117,7 @@ function renderBag(){const bag=sim.inventory;$('bag-money').textContent=`${bag.m
 function toggleBag(){if($('bag').open){$('bag').close();return;}held=false;arrows.clear();sim.player.path=[];sim.player.target=null;renderBag();$('bag').showModal();}
 $('bag-open').onclick=toggleBag;$('bag-close').onclick=()=>$('bag').close();
 $('capture-species').onchange=$('capture-enabled').onchange=$('capture-ball').onchange=()=>{sim.configureCapture($('capture-species').value,$('capture-enabled').checked,$('capture-ball').value);renderBag();saveWorld(localStorage,sim);};
-function renderPC(){const filters={species:$('pc-species').value,nature:$('pc-nature').value,ability:$('pc-ability').value};for(const [id,key] of [['pc-species','id'],['pc-nature','nature'],['pc-ability','ability']]){const el=$(id),value=el.value,first=el.options[0];el.replaceChildren(first);for(const v of [...new Set(sim.pc.map(p=>p[key]))].sort()){const o=document.createElement('option');o.value=v;o.textContent=key==='id'?(CREATURES[v]?.name||v):v;el.append(o);}el.value=value;}const sort=$('pc-sort').value;const list=sim.pc.filter(p=>(!filters.species||p.id===filters.species)&&(!filters.nature||p.nature===filters.nature)&&(!filters.ability||p.ability===filters.ability)).sort((a,b)=>(b[sort]||0)-(a[sort]||0));$('pc-list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${p.id}/portrait.png" alt=""><div><strong>${p.name} · Nv. ${p.level}</strong><span>${p.rarityName||'Comum'} · ${p.nature} · ${p.ability}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · VEL ${p.speed}</small></div><button data-capture="${p.captureId}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';document.querySelectorAll('[data-capture]').forEach(b=>b.onclick=()=>{if(sim.selectCaptured(b.dataset.capture)){selectedStarter=sim.player.id;saveWorld(localStorage,sim);renderHub();note(`${sim.player.name} agora acompanha você.`);}});}
+function renderPC(){const filters={species:$('pc-species').value,nature:$('pc-nature').value,ability:$('pc-ability').value};for(const [id,key] of [['pc-species','id'],['pc-nature','nature'],['pc-ability','ability']]){const el=$(id),value=el.value,first=el.options[0];el.replaceChildren(first);for(const v of [...new Set(sim.pc.map(p=>p[key]))].sort()){const o=document.createElement('option');o.value=v;o.textContent=key==='id'?(CREATURES[v]?.name||v):key==='nature'?(NATURES[v]?.name||displayId(v)):displayId(v);el.append(o);}el.value=value;}const sort=$('pc-sort').value;const list=sim.pc.filter(p=>(!filters.species||p.id===filters.species)&&(!filters.nature||p.nature===filters.nature)&&(!filters.ability||p.ability===filters.ability)).sort((a,b)=>(b[sort]||0)-(a[sort]||0));$('pc-list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${p.id}/portrait.png" alt=""><div><strong>${p.name} · Nv. ${p.level}</strong><span>${p.rarityName||'Comum'} · ${NATURES[p.nature]?.name||displayId(p.nature)} · ${displayId(p.ability)}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · A.ESP ${p.spAttack} · D.ESP ${p.spDefense} · VEL ${p.speed}</small></div><button data-capture="${p.captureId}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';document.querySelectorAll('[data-capture]').forEach(b=>b.onclick=()=>{if(sim.selectCaptured(b.dataset.capture)){selectedStarter=sim.player.id;saveWorld(localStorage,sim);renderHub();note(`${sim.player.name} agora acompanha você.`);}});}
 for(const id of ['pc-species','pc-nature','pc-ability','pc-sort'])$(id).onchange=renderPC;
 function renderRunPC(){
   sim.syncActivePokemon();
@@ -124,7 +127,7 @@ function renderRunPC(){
     for(const entry of [...new Set(sim.pc.map(p=>p[key]).filter(Boolean))].sort()){const option=document.createElement('option');option.value=entry;option.textContent=key==='id'?(CREATURES[entry]?.name||entry):entry;el.append(option);}el.value=value;
   }
   const sort=$(prefix+'sort').value,list=sim.pc.filter(p=>(!filters.species||p.id===filters.species)&&(!filters.nature||p.nature===filters.nature)&&(!filters.ability||p.ability===filters.ability)).sort((a,b)=>(b[sort]||0)-(a[sort]||0));
-  $(prefix+'list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${encodeURIComponent(p.id)}/portrait.png" alt=""><div><strong>${safeText(p.name)} · Nv. ${p.level}</strong><span>${safeText(p.rarityName||'Comum')} · ${safeText(p.nature)} · ${safeText(p.ability)}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · VEL ${p.speed}</small></div><button data-run-capture="${safeText(p.captureId)}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';
+  $(prefix+'list').innerHTML=list.length?list.map(p=>`<article class="pc-card"><img src="/assets/pokemon/${encodeURIComponent(p.id)}/portrait.png" alt=""><div><strong>${safeText(p.name)} · Nv. ${p.level}</strong><span>${safeText(p.rarityName||'Comum')} · ${safeText(NATURES[p.nature]?.name||displayId(p.nature))} · ${safeText(displayId(p.ability))}</span><small>HP ${p.maxHp} · ATQ ${p.attack} · DEF ${p.defense} · A.ESP ${p.spAttack} · D.ESP ${p.spDefense} · VEL ${p.speed}</small></div><button data-run-capture="${safeText(p.captureId)}" ${p.captureId===sim.player.captureId?'disabled':''}>${p.captureId===sim.player.captureId?'EM USO':'ESCOLHER'}</button></article>`).join(''):'<p>Nenhum Pokémon capturado com estes filtros.</p>';
   $(prefix+'list').querySelectorAll('[data-run-capture]').forEach(button=>button.onclick=()=>{if(!sim.selectCaptured(button.dataset.runCapture))return;selectedStarter=sim.player.id;saveWorld(localStorage,sim);renderRunPC();renderInfo();renderMoves();addTypeInfo();renderGuild();updateUI();note(`${sim.player.name} agora acompanha você.`);$('run-pc').close();});
 }
 for(const id of ['run-pc-species','run-pc-nature','run-pc-ability','run-pc-sort'])$(id).onchange=renderRunPC;
@@ -133,9 +136,9 @@ $('pc-open').onclick=toggleRunPC;$('run-pc-close').onclick=()=>$('run-pc').close
 const shopProducts=$('shop-products');for(const ball of POKEBALLS.filter(ball=>ball.id!=='master')){const row=document.createElement('div');row.className='shop-product';row.innerHTML=`<div><strong>${ball.name} · ${ball.rarity}</strong><small>Força de captura ×${ball.multiplier}${ball.caveMultiplier?' (×3,5 em cavernas)':''}</small></div><b>${ball.price.toLocaleString('pt-BR')} moedas</b><button data-buy-ball="${ball.id}">Comprar</button>`;shopProducts.append(row);row.querySelector('button').onclick=()=>{if(sim.buyPokeballs(1,ball.id)){renderBag();saveWorld(localStorage,sim);note(`${ball.name} comprada.`);}else note('Moedas insuficientes.');};}
 $('shop-close').onclick=()=>$('shop').close();
 function renderInfo(){
- const p=sim.player,
-  nature={Calma:'Aumenta a resistência: recebe 10% menos dano quando está com mais de 70% de HP.',Brava:'Aumenta o dano dos ataques básicos em 10%, mas reduz a defesa em 1.',Serena:'Aumenta a velocidade de movimento em 8% e reduz o tempo de recarga em 3%.'}[p.nature]||'Uma natureza equilibrada, sem modificadores negativos.',
-  ability={Clorofila:'Em áreas de floresta, ganha 12% de velocidade e recupera 1% do HP máximo a cada 5 segundos.', 'Chama do Sol':'Ataques de fogo causam 15% mais dano quando o HP está abaixo de 50%.','Couraça Torrencial':'Ao ficar abaixo de 35% de HP, recebe 20% menos dano por 4 segundos; recarga de 12 segundos.'}[p.ability]||'Habilidade passiva exclusiva deste Pokémon.';
+ const p=sim.player,natureData=NATURES[p.nature]||NATURES.hardy,
+  nature=natureData.up?`Aumenta ${STAT_LABELS[natureData.up]} em 10% e reduz ${STAT_LABELS[natureData.down]} em 10%.`:'Natureza neutra, sem alteração nos atributos.',
+  ability='Habilidade oficial desta espécie. Seus efeitos de combate serão ativados conforme cada mecânica for implementada.',evTotal=STAT_KEYS.reduce((sum,key)=>sum+(p.evs?.[key]||0),0);
  if(!$('info-body'))return;
  const hpPercent=Math.max(0,Math.min(100,Math.round(p.hp/Math.max(1,p.maxHp)*100)));
  $('info-title').textContent=`${p.name} · Nv. ${p.level}`;
@@ -144,15 +147,15 @@ function renderInfo(){
    <div class="info-portrait"><img src="/assets/pokemon/${p.id}/portrait.png" alt="Retrato de ${p.name}"><span>COMPANHEIRO ATIVO</span></div>
    <div class="info-profile">
     <div class="info-profile-meta"><span>${p.element||'Normal'}</span><span>NÍVEL ${p.level}</span></div>
-    <div class="info-trait"><small>NATUREZA</small><b>${p.nature}</b><p class="info-description">${nature}</p></div>
-    <div class="info-trait"><small>HABILIDADE ÚNICA</small><b>${p.ability}</b><p class="info-description">${ability}</p></div>
+    <div class="info-trait"><small>NATUREZA</small><b>${natureData.name}</b><p class="info-description">${nature}</p></div>
+    <div class="info-trait"><small>HABILIDADE</small><b>${displayId(p.ability)}</b><p class="info-description">${ability}</p></div>
    </div>
   </div>
   <div class="info-vitals"><div><span>HP ATUAL</span><strong>${p.hp} <small>/ ${p.maxHp}</small></strong></div><div class="info-vitals-track"><i style="width:${hpPercent}%"></i></div></div>
   <div class="info-section-heading"><span class="info-section-title"><img src="/assets/ui/stats.png" alt=""> ATRIBUTOS</span><span class="info-section-rule" aria-hidden="true"></span></div>
-  <p class="info-points">PONTOS DISPONÍVEIS <strong>${p.attributePoints||0}</strong></p>
-  <div class="attributes">${[['vitality','Vitalidade',p.maxHp],['power','Poder',p.attack],['guard','Defesa',p.defense],['agility','Agilidade',p.speed]].map(([id,label,value])=>`<div class="attribute"><span><b>${label}</b><small>${value}</small></span><button data-attribute="${id}" aria-label="Aumentar ${label}" ${p.attributePoints?'':'disabled'}>+1</button></div>`).join('')}</div>
-  <div class="info-stats"><span>HP máximo <b>${p.maxHp}</b></span><span>Ataque <b>${p.attack}</b></span><span>Defesa <b>${p.defense}</b></span><span>Velocidade <b>${p.speed}</b></span><span>XP acumulada <b>${p.xp}</b></span></div>`;
+  <p class="info-points">PONTOS DISPONÍVEIS <strong>${p.attributePoints||0}</strong> · EV ${evTotal}/510</p>
+  <div class="attributes">${STAT_KEYS.map(id=>`<div class="attribute"><span><b>${STAT_LABELS[id]}</b><small>${p[id==='hp'?'maxHp':id]} · IV ${p.ivs?.[id]??0}/31 · EV ${p.evs?.[id]??0}/252</small></span><button data-attribute="${id}" aria-label="Treinar ${STAT_LABELS[id]}" ${p.attributePoints&&evTotal<510&&(p.evs?.[id]||0)<252?'':'disabled'}>+4 EV</button></div>`).join('')}</div>
+  <div class="info-stats"><span>HP máximo <b>${p.maxHp}</b></span><span>Ataque <b>${p.attack}</b></span><span>Defesa <b>${p.defense}</b></span><span>Ataque Esp. <b>${p.spAttack}</b></span><span>Defesa Esp. <b>${p.spDefense}</b></span><span>Velocidade <b>${p.speed}</b></span><span>Movimento <b>${p.movementSpeed}</b></span><span>XP acumulada <b>${p.xp}</b></span></div>`;
  $('info-body').querySelectorAll('[data-attribute]').forEach(b=>b.onclick=()=>{if(sim.investAttribute(b.dataset.attribute)){const scroll=$('info-body').scrollTop;renderInfo();addTypeInfo();renderMoves();renderGuild();$('info-body').scrollTop=scroll;saveWorld(localStorage,sim);}});
 }
 function addTypeInfo(){const p=sim.player,types=normalizeTypes(p.element),weak=TYPES.filter(t=>types.some(def=>effectiveness(t,def)>1)),resist=TYPES.filter(t=>types.every(def=>effectiveness(t,def)<1)),el=document.createElement('p');el.className='type-matchups';el.innerHTML=`<span class="info-section-title"><img src="/assets/ui/types.png" alt=""> Tipagens</span><b>Fraquezas:</b> ${weak.join(', ')||'Nenhuma'}<br><b>Resistências:</b> ${resist.join(', ')||'Nenhuma'}`;$('info-body').append(el);}

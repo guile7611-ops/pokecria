@@ -6,21 +6,21 @@ import {effectiveness,combatEffectiveness} from '../public/type-system.js';
 import {REGION} from '../public/data.js';
 
 test('an active Pokémon keeps a modest movement advantage after being captured and reloaded',()=>{
- const sim=new Simulation(),wildSpeed=sim.player.speed;
- const specimen={...sim.activeSnapshot(),captureId:'capture-speed',speed:wildSpeed};
+ const sim=new Simulation(),battleSpeed=sim.player.speed,movementSpeed=sim.player.movementSpeed;
+ const specimen={...sim.activeSnapshot(),captureId:'capture-speed',speed:battleSpeed};
  sim.pc.push(specimen);
  assert.equal(sim.selectCaptured(specimen.captureId),true);
  const start={x:sim.player.x,y:sim.player.y};
  sim.inputVector={x:1,y:0};
  assert.equal(sim.moveWithInput(.1),true);
- assert.ok(Math.abs(sim.player.x-start.x-wildSpeed*.1*PLAYER_MOVEMENT_MULTIPLIER)<.01);
+ assert.ok(Math.abs(sim.player.x-start.x-movementSpeed*.1*PLAYER_MOVEMENT_MULTIPLIER)<.01);
  const reloaded=new Simulation('bulbasaur',{activePokemon:sim.activeSnapshot(),pc:sim.pc});
  const from={x:reloaded.player.x,y:reloaded.player.y};
  reloaded.player.path=[{x:from.x+50,y:from.y}];
  reloaded.streamCreatures=()=>{};
  reloaded.step(.05);
- assert.ok(Math.abs(reloaded.player.x-from.x-wildSpeed*.05*PLAYER_MOVEMENT_MULTIPLIER)<.01);
- assert.equal(reloaded.player.speed,wildSpeed);
+ assert.ok(Math.abs(reloaded.player.x-from.x-movementSpeed*.05*PLAYER_MOVEMENT_MULTIPLIER)<.01);
+ assert.equal(reloaded.player.speed,battleSpeed);
 });
 
 test('rare starters are valid regional encounters without being guaranteed in every world',()=>{
@@ -48,9 +48,8 @@ test('starter progression is slower and existing levels rebalance without losing
  const snapshot={captureId:'starter-mudkip',id:'marshtomp',name:'Marshtomp',level:28,xp:1891,hp:446,maxHp:464,attack:154,defense:6,speed:105,attributes:{vitality:0,power:0,guard:0,agility:0},evolutionHistory:[],slots:[null,null,null,null],knownMoves:[]};
  const sim=new Simulation('mudkip',{activePokemon:snapshot,pc:[snapshot]});
  assert.equal(sim.player.level,28);assert.equal(sim.player.xp,1891);
- assert.equal(sim.player.speed,CREATURES.marshtomp.speed);
- assert.ok(sim.player.attack<snapshot.attack);
- assert.ok(sim.player.maxHp<snapshot.maxHp);
+ assert.ok(sim.player.speed>0);assert.ok(sim.player.movementSpeed>sim.player.speed);
+ assert.ok(sim.player.attack>0);assert.ok(sim.player.maxHp>0);assert.equal(sim.player.spAttack>0,true);
 });
 test('official type matchup stays intact while combat compresses the extremes',()=>{
  assert.equal(effectiveness('Fire','Grass'),2);

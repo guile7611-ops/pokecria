@@ -128,7 +128,7 @@ export function lineOfSight(map, a, b) {
   return true;
 }
 export function followPath(entity, dt, map, movementMultiplier=1) {
-  let budget = entity.speed * movementMultiplier * (entity.running?1.5:1) * (entity.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1) * dt;
+  let budget = (entity.movementSpeed??entity.speed) * movementMultiplier * (entity.running?1.5:1) * (entity.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1) * dt;
   entity.moving = false;
   while (entity.path.length && budget > 0) {
     const next = entity.path[0], d = distance(entity, next);

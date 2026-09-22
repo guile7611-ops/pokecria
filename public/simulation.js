@@ -1,6 +1,6 @@
 import {createInterior} from './collisions.js';
 import {encounterStats,cleanInventory} from './encounters.js';
-import {effectiveness,effectivenessText,combatEffectiveness} from './type-system.js';
+import {effectiveness,effectivenessText,normalizeTypes} from './type-system.js';
 import {prepareBossAttack,bossAttackHits,REGIONAL_BOSSES} from './boss-attacks.js';
 import {enemySkillSet} from './enemy-skills.js';
 import { Discovery, ObjectPool } from './world-runtime.js';
@@ -10,6 +10,7 @@ import {pokeballById,pokeballCaptureChance} from './pokeballs.js';
 import { applyStats, applyEvolutions, nextEvolution } from './progression.js';
 import { clearSegment, createMap, distance, findPath, findPathNearObstacle, followPath, lineOfSight, walkable } from './world.js';
 import {spawnAvailable} from './day-night.js';
+import {officialDamage} from './official-mechanics.js';
 
 export const PLAYER_MOVEMENT_MULTIPLIER = 1.12;
 
@@ -21,11 +22,11 @@ export class Simulation {
     this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || []); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
     this.quest = { id: 'clear-clareira', goal: 3, progress: 0, complete: false, rewardXp: 60, drops: [] };
     this.inventory=cleanInventory(options.inventory);
-    this.pc=Array.isArray(options.pc)?options.pc:[];this.capturePlan=options.capturePlan&&typeof options.capturePlan==='object'?options.capturePlan:{enabled:false,speciesId:'caterpie'};this.captureSerial=Number(options.captureSerial)||this.pc.length;
+    this.pc=Array.isArray(options.pc)?options.pc:[];for(const specimen of this.pc)if(CREATURES[specimen.id]){const ratio=(specimen.hp||specimen.maxHp||1)/Math.max(1,specimen.maxHp||1);applyStats(specimen);specimen.hp=Math.min(specimen.maxHp,Math.max(1,Math.ceil(specimen.maxHp*ratio)));}this.capturePlan=options.capturePlan&&typeof options.capturePlan==='object'?options.capturePlan:{enabled:false,speciesId:'caterpie'};this.captureSerial=Number(options.captureSerial)||this.pc.length;
     const grass=['bulbasaur','chikorita','treecko'].includes(starter),fire=['charmander','cyndaquil','torchic'].includes(starter);
-    this.player = { ...this.definition, ...REGION.spawn, maxHp: this.definition.hp, level: 1, xp: 0, evolutionHistory: [], slots: [null, null, null, null], knownMoves:[], cooldowns: {}, buffs:[], path: [], facing: { x: 0, y: 1 }, dead: false, target: null, attributePoints: options.attributePoints||0, attributes: options.attributes||{vitality:0,power:0,guard:0,agility:0}, nature: options.nature||(grass?'Calma':fire?'Brava':'Serena'), ability: options.ability||(grass?'Clorofila':fire?'Chama do Sol':'Couraça Torrencial') };
+    this.player = { ...this.definition, ...REGION.spawn, maxHp: this.definition.hp, level: 1, xp: 0, evolutionHistory: [], slots: [null, null, null, null], knownMoves:[], cooldowns: {}, buffs:[], path: [], facing: { x: 0, y: 1 }, dead: false, target: null, attributePoints: options.attributePoints||0, attributes: options.attributes||{vitality:0,power:0,guard:0,agility:0}, nature: options.nature, ability: options.ability };
     if(options.activePokemon&&options.activePokemon.id===starter)Object.assign(this.player,options.activePokemon,{...REGION.spawn,path:[],target:null,moving:false,dead:false,cooldowns:{}});
-    if(this.player.captureId?.startsWith('starter-')){const ratio=this.player.hp/Math.max(1,this.player.maxHp);applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,Math.ceil(this.player.maxHp*ratio));}
+    {const ratio=this.player.hp/Math.max(1,this.player.maxHp);applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,Math.max(1,Math.ceil(this.player.maxHp*ratio)));}
     this.enemies = REGION.spawnZones.slice(0,2).map((pos, i) => { const zone = SPAWN_ZONES[i % SPAWN_ZONES.length],species=[WILD_POKEMON[0],WILD_POKEMON.find(p=>p.id==='pidgey')][i]; return { ...species, ...pos, home: { ...pos }, zoneId: zone.id, levelRange: zone.level, maxHp: species.hp, uid: i + 1, state: 'Idle', timer: i * .7, cooldown: 0, path: [], facing: { x: 0, y: 1 }, moving: false }; });
     for(const poi of this.map.pois.filter(p=>p.kind==='boss')){
       const variant=REGIONAL_BOSSES[poi.id];if(!variant)continue;
@@ -54,12 +55,12 @@ export class Simulation {
     this.learn();
   }
   emit(type, data = {}) { this.events.push({ type, time: this.time, ...data }); if (this.events.length > 100) this.events.shift(); }
-  activeSnapshot(){const p=this.player;return Object.fromEntries(['captureId','id','name','element','level','xp','hp','maxHp','attack','defense','speed','nature','ability','attributePoints','attributes','evolutionHistory','knownMoves','slots'].map(k=>[k,p[k]]));}
+  activeSnapshot(){const p=this.player;return Object.fromEntries(['captureId','id','name','element','level','xp','hp','maxHp','attack','defense','spAttack','spDefense','speed','movementSpeed','nature','ability','ivs','evs','attributePoints','attributes','evolutionHistory','knownMoves','slots'].map(k=>[k,p[k]]));}
   syncActivePokemon(){if(!this.player.captureId)return;const index=this.pc.findIndex(p=>p.captureId===this.player.captureId);if(index>=0)this.pc[index]={...this.pc[index],...this.activeSnapshot()};}
   configureCapture(speciesId,enabled=true,ballId=this.capturePlan.ballId||'poke'){if(!WILD_POKEMON.some(p=>p.id===speciesId))return false;this.capturePlan={speciesId,enabled:!!enabled,ballId:pokeballById(ballId).id};this.emit('captureConfigured',{...this.capturePlan});return true;}
   buyPokeballs(count=1,ballId='poke'){const ball=pokeballById(ballId);if(ball.price===null)return false;count=Math.max(1,Math.min(99,Math.floor(count)));const cost=count*ball.price;if(this.inventory.money<cost)return false;this.inventory.money-=cost;this.inventory.items[ball.name]=(this.inventory.items[ball.name]||0)+count;this.emit('purchase',{count,cost,ball:ball.name});return true;}
-  captureDefeated(e){const ball=pokeballById(this.capturePlan.ballId);if(!this.capturePlan.enabled||this.capturePlan.speciesId!==e.id||!(this.inventory.items[ball.name]>0))return;this.inventory.items[ball.name]--;if(!this.inventory.items[ball.name])delete this.inventory.items[ball.name];const base=SPAWN_RARITIES[e.spawnRarity]?.captureChance||.35,chance=pokeballCaptureChance(base,e.level,ball.id,this.map.scene),roll=((Math.imul(e.uid+this.kills+1,2654435761)^this.map.seed)>>>0)/4294967296;this.emit('captureThrow',{name:e.name,chance,ball:ball.name});if(roll>chance){this.emit('captureFail',{name:e.name,chance,ball:ball.name});return;}const natures=['Calma','Brava','Serena','Audaz','Tímida'],abilities=['Instinto','Foco','Resistência','Impulso','Sintonia'],captureId=`capture-${++this.captureSerial}-${e.id}`,iv=(salt)=>1+(((e.uid*31+salt*17)>>>0)%10);const specimen={captureId,id:e.id,name:e.name,element:e.element,level:e.level,xp:0,nature:natures[(e.uid+e.level)%natures.length],ability:abilities[(e.uid*3+e.level)%abilities.length],attributePoints:0,attributes:{vitality:iv(1),power:iv(2),guard:iv(3),agility:iv(4)},evolutionHistory:[],knownMoves:[],slots:[null,null,null,null],hp:e.maxHp,maxHp:e.maxHp,attack:e.attack,defense:e.defense,speed:Math.round((CREATURES[e.id]?.speed||80)*(1+iv(4)/100)),rarity:e.spawnRarity,rarityName:e.spawnRarityName};this.pc.push(specimen);this.emit('captured',{name:e.name,specimen,ball:ball.name});}
-  selectCaptured(captureId){const specimen=this.pc.find(p=>p.captureId===captureId);if(!specimen||!CREATURES[specimen.id])return false;this.syncActivePokemon();const position={x:this.player.x,y:this.player.y};this.definition=CREATURES[specimen.id];this.player={...this.definition,...specimen,...position,hp:Math.min(specimen.hp||specimen.maxHp,specimen.maxHp),slots:specimen.slots||[null,null,null,null],knownMoves:specimen.knownMoves||[],cooldowns:{},buffs:[],path:[],facing:{x:0,y:1},dead:false,target:null,hurtbox:{radius:12,layer:32},collisionLayer:2};if(specimen.captureId?.startsWith('starter-')){const ratio=this.player.hp/Math.max(1,this.player.maxHp);applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,Math.ceil(this.player.maxHp*ratio));}this.learn();this.emit('pokemonSelected',{name:specimen.name,level:specimen.level});return true;}
+  captureDefeated(e){const ball=pokeballById(this.capturePlan.ballId);if(!this.capturePlan.enabled||this.capturePlan.speciesId!==e.id||!(this.inventory.items[ball.name]>0))return;this.inventory.items[ball.name]--;if(!this.inventory.items[ball.name])delete this.inventory.items[ball.name];const base=SPAWN_RARITIES[e.spawnRarity]?.captureChance||.35,chance=pokeballCaptureChance(base,e.level,ball.id,this.map.scene),roll=((Math.imul(e.uid+this.kills+1,2654435761)^this.map.seed)>>>0)/4294967296;this.emit('captureThrow',{name:e.name,chance,ball:ball.name});if(roll>chance){this.emit('captureFail',{name:e.name,chance,ball:ball.name});return;}const captureId=`capture-${++this.captureSerial}-${e.id}`,specimen={captureId,id:e.id,name:e.name,element:e.element,level:e.level,xp:0,attributePoints:0,evolutionHistory:[],knownMoves:[],slots:[null,null,null,null],hp:e.maxHp,rarity:e.spawnRarity,rarityName:e.spawnRarityName};applyStats(specimen);specimen.hp=specimen.maxHp;this.pc.push(specimen);this.emit('captured',{name:e.name,specimen,ball:ball.name});}
+  selectCaptured(captureId){const specimen=this.pc.find(p=>p.captureId===captureId);if(!specimen||!CREATURES[specimen.id])return false;this.syncActivePokemon();const position={x:this.player.x,y:this.player.y},ratio=(specimen.hp||specimen.maxHp)/Math.max(1,specimen.maxHp);this.definition=CREATURES[specimen.id];this.player={...this.definition,...specimen,...position,hp:specimen.hp||specimen.maxHp,slots:specimen.slots||[null,null,null,null],knownMoves:specimen.knownMoves||[],cooldowns:{},buffs:[],path:[],facing:{x:0,y:1},dead:false,target:null,hurtbox:{radius:12,layer:32},collisionLayer:2};applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,Math.max(1,Math.ceil(this.player.maxHp*ratio)));this.learn();this.emit('pokemonSelected',{name:specimen.name,level:specimen.level});return true;}
   learn() { const p=this.player,stages=[p.id];for(let i=0;i<Object.keys(CREATURES).length;i++){const previous=EVOLUTIONS.find(e=>e.targetCreatureId===stages[0]);if(!previous)break;stages.unshift(previous.creatureId);}p.knownMoves??=[];for(const id of stages)for(const row of LEARNSETS[id]||[])if(row.level<=p.level&&ABILITIES[row.ability]&&!p.knownMoves.includes(row.ability)){p.knownMoves.push(row.ability);if(Number.isInteger(row.slot)&&!p.slots[row.slot])p.slots[row.slot]=row.ability;this.emit('learn',{name:ABILITIES[row.ability].name,ability:row.ability});} }
   equipMove(abilityId,slot){const p=this.player;if(!Number.isInteger(slot)||slot<0||slot>3||(slot===2&&p.level<10)||(slot===3&&p.level<25)||!p.knownMoves?.includes(abilityId)||!ABILITIES[abilityId])return false;const previous=p.slots.indexOf(abilityId);if(previous>=0)p.slots[previous]=p.slots[slot]||null;p.slots[slot]=abilityId;this.emit('moveEquipped',{name:ABILITIES[abilityId].name,slot});return true;}
   gainXP(amount) {
@@ -74,7 +75,7 @@ export class Simulation {
       this.learn();
     }
   }
-  investAttribute(name){if(!['vitality','power','guard','agility'].includes(name)||this.player.attributePoints<1)return false;this.player.attributePoints--;this.player.attributes[name]++;applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,this.player.hp+(name==='vitality'?8:0));this.emit('attribute',{name});return true;}
+  investAttribute(name){const aliases={vitality:'hp',power:'attack',guard:'defense',agility:'speed'},key=aliases[name]||name,p=this.player,total=Object.values(p.evs||{}).reduce((sum,value)=>sum+value,0);if(!['hp','attack','defense','spAttack','spDefense','speed'].includes(key)||p.attributePoints<1||(p.evs?.[key]||0)>=252||total>=510)return false;const oldMax=p.maxHp;p.attributePoints--;p.evs[key]=Math.min(252,p.evs[key]+4,510-total);applyStats(p);p.hp=Math.min(p.maxHp,p.hp+(key==='hp'?p.maxHp-oldMax:0));this.emit('attribute',{name:key});return true;}
   applyPlayerStatus(a){
     if(!a||a.behavior!=='debuff')return false;
     const p=this.player;
@@ -149,12 +150,12 @@ export class Simulation {
       const target=remoteTarget||e;
       if(!target||distance(p,target)>a.range||!lineOfSight(this.map,p,target))return false;
       if(a.lunge){const length=Math.min(a.lunge,Math.max(0,distance(p,target)-p.radius-(target.radius||12)-2)),d=Math.max(1,distance(p,target)),dx=(target.x-p.x)/d,dy=(target.y-p.y)/d;for(let step=4;step<=length;step+=4){const x=p.x+dx*4,y=p.y+dy*4;if(!walkable(this.map,x,y,p.radius))break;p.x=x;p.y=y;}p.path=[];p.target=null;}
-      if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*attackMultiplier/(a.hits||1),a.type||'Normal');if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));
+      if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,this.moveDamage(e,a,attackMultiplier,1/(a.hits||1)),a.type||'Normal',true);if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));
         if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}this.applyEnemyEffect(e,a);
         for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,effectiveness:effectivenessText(mult)});
       }else this.emit('slash',{x:target.x,y:target.y,vfx:a.vfx||`moves/${a.id}`,size:78});
     } else if(a.behavior==='area'){
-      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*attackMultiplier,a.type||'Normal');this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits});
+      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,this.moveDamage(e,a,attackMultiplier),a.type||'Normal',true);this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits});
     } else if(a.behavior==='rolling'){
       p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,speedMultiplier:a.speedMultiplier,hitAt:{}});
       this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
@@ -203,6 +204,14 @@ export class Simulation {
     if(a.ailment==='confusion')e.staggerUntil=Math.max(e.staggerUntil||0,this.time+.6);
     if(a.ailment||a.sleep||a.poison||a.leech||a.yawn)this.emit('status',{x:e.x,y:e.y,uid:e.uid,name:a.name,vfx:a.vfx});
   }
+  moveDamage(e,a,multiplier=1,powerScale=1){
+    const p=this.player,type=a.type||'Normal',category=a.category||(['direct','rolling','whip'].includes(a.behavior)?'Physical':'Special');
+    const power=Math.max(1,Math.round((a.power||Math.max(20,(a.damage||1)*2.5))*powerScale));
+    const attack=category==='Special'?(p.spAttack||p.attack):p.attack,defense=category==='Special'?(e.spDefense||e.defense):e.defense;
+    const stab=normalizeTypes(p.element).some(value=>value.toLowerCase()===String(type).toLowerCase())?1.5:1;
+    const typeEffectiveness=effectiveness(type,e.element);
+    return officialDamage({level:p.level,power,attack,defense,stab,effectiveness:typeEffectiveness,random:.925})*multiplier;
+  }
   updateEnemyConditions(e){
     if(e.yawnAt&&this.time>=e.yawnAt){e.sleepUntil=this.time+2.5;e.yawnAt=0;}
     for(const [key,rate] of [['poison',.025],['burn',.018],['leech',.025]]){
@@ -232,27 +241,27 @@ export class Simulation {
     for(const active of this.activeAttacks){
       const a=ABILITIES[active.id];if(p.dead)continue;
       if(active.behavior==='beam'){
-        if(!active.fired&&this.time>=active.fireAt){active.fired=true;for(const e of this.lineTargets(p,active.direction,a.range,18)){const mult=effectiveness(a.type,e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*active.attackMultiplier,a.type);}this.emit('beamFired',{x:p.x,y:p.y,ability:a.id});}
+        if(!active.fired&&this.time>=active.fireAt){active.fired=true;for(const e of this.lineTargets(p,active.direction,a.range,18)){this.damage(e,this.moveDamage(e,a,active.attackMultiplier),a.type,true);}this.emit('beamFired',{x:p.x,y:p.y,ability:a.id});}
       }else if(active.behavior==='channel'){
-        if(this.time>=active.nextTick&&this.time<=active.until){active.nextTick=this.time+a.hitInterval;for(const e of this.enemies){if(e.state==='Dead'||e.defeated||!lineOfSight(this.map,p,e))continue;const x=e.x-p.x,y=e.y-p.y,along=x*active.direction.x+y*active.direction.y,cross=Math.abs(x*active.direction.y-y*active.direction.x);if(along<0||along>a.range||cross>12+along*.32+(e.radius||12))continue;const mult=effectiveness(a.type,e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*active.attackMultiplier,a.type);}}
+        if(this.time>=active.nextTick&&this.time<=active.until){active.nextTick=this.time+a.hitInterval;for(const e of this.enemies){if(e.state==='Dead'||e.defeated||!lineOfSight(this.map,p,e))continue;const x=e.x-p.x,y=e.y-p.y,along=x*active.direction.x+y*active.direction.y,cross=Math.abs(x*active.direction.y-y*active.direction.x);if(along<0||along>a.range||cross>12+along*.32+(e.radius||12))continue;this.damage(e,this.moveDamage(e,a,active.attackMultiplier),a.type,true);}}
       }else if(active.behavior==='whip'&&active.ticks<2&&this.time>=active.nextTick){
-        active.ticks++;active.nextTick=this.time+.16;for(const e of this.lineTargets(p,active.direction,a.range,23)){const mult=effectiveness(a.type,e.element);this.damage(e,(p.attack+a.damage*.62)*combatEffectiveness(mult)*active.attackMultiplier,a.type);}
+        active.ticks++;active.nextTick=this.time+.16;for(const e of this.lineTargets(p,active.direction,a.range,23)){this.damage(e,this.moveDamage(e,a,active.attackMultiplier,.62),a.type,true);}
       }
     }
     this.activeAttacks=this.activeAttacks.filter(active=>!p.dead&&active.until>this.time);
     for(const zone of this.zones){
       if(this.time<zone.nextTick||p.dead)continue;const a=ABILITIES[zone.id];zone.nextTick=this.time+a.hitInterval;
-      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;const mult=effectiveness(a.type,e.element);this.damage(e,(p.attack+a.damage)*combatEffectiveness(mult)*zone.attackMultiplier,a.type);
+      for(const e of this.enemies){if(e.state==='Dead'||e.defeated||distance(e,zone)>a.radius+(e.radius||12)||!lineOfSight(this.map,zone,e))continue;this.damage(e,this.moveDamage(e,a,zone.attackMultiplier),a.type,true);
         if(zone.id==='whirlpool'&&!e.isBoss&&e.state!=='Dead'){const d=Math.max(1,distance(e,zone)),x=e.x+(zone.x-e.x)/d*10,y=e.y+(zone.y-e.y)/d*10;if(walkable(this.map,x,y,e.radius||12)){e.x=x;e.y=y;e.path=[];}}
       }
     }
     this.zones=this.zones.filter(zone=>!p.dead&&zone.until>this.time);
   }
-  damage(e, amount) {
+  damage(e, amount, _type='Normal', final=false) {
     if (e.state === 'Dead' || e.defeated) return 0;
     if (!Number.isFinite(amount) || amount <= 0) return 0;
     const defenseMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.defenseMultiplier||1),1);
-    const damage = Math.max(1, Math.round(amount - e.defense*defenseMultiplier)); e.hp = Math.max(0, e.hp - damage);
+    const damage = Math.max(1, Math.round(final?amount:amount-e.defense*defenseMultiplier)); e.hp = Math.max(0, e.hp - damage);
     this.emit('damage', { x: e.x, y: e.y, uid:e.uid, amount: damage }); e.hitUntil = this.time + .16;
     if (e.hp === 0) {
       e.deathStart=this.time;e.state = 'Dead'; e.path = []; this.kills++; this.gainXP(e.xp); this.emit('kill', { x: e.x, y: e.y, uid:e.uid, xp: e.xp });
@@ -274,7 +283,7 @@ export class Simulation {
     const p=this.player,input=this.inputVector;
     if(!input||!Number.isFinite(input.x)||!Number.isFinite(input.y)||(!input.x&&!input.y))return false;
     const magnitude=Math.hypot(input.x,input.y),dx=input.x/magnitude,dy=input.y/magnitude;
-    const speed=p.speed*PLAYER_MOVEMENT_MULTIPLIER*(p.running?1.5:1)*(p.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1);
+    const speed=(p.movementSpeed||p.speed)*PLAYER_MOVEMENT_MULTIPLIER*(p.running?1.5:1)*(p.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1);
     const step=speed*dt,from={x:p.x,y:p.y},destination={x:p.x+dx*step,y:p.y+dy*step};
     p.path=[];p.target=null;p.pendingCast=null;p.repathAt=0;p.facing={x:dx,y:dy};p.moving=false;
     if(clearSegment(this.map,from,destination,p.radius,p.navigation||{})){p.x=destination.x;p.y=destination.y;p.moving=true;return true;}
@@ -314,7 +323,7 @@ export class Simulation {
         followPath(p, dt, this.map, PLAYER_MOVEMENT_MULTIPLIER);
       }else this.moveWithInput(dt);
       const rolling=p.buffs?.find(b=>b.id==='flameWheel');
-      if(rolling){const a=ABILITIES.flameWheel;for(const enemy of this.enemies){if(enemy.state==='Dead'||enemy.defeated||distance(p,enemy)>a.radius+(enemy.hurtbox?.radius||enemy.radius||12))continue;if((rolling.hitAt[enemy.uid]??-Infinity)>this.time)continue;rolling.hitAt[enemy.uid]=this.time+a.hitInterval;const mult=effectiveness(a.type,enemy.element);this.damage(enemy,(p.attack+a.damage)*combatEffectiveness(mult),a.type);this.emit('slash',{x:enemy.x,y:enemy.y,vfx:a.vfx,effectiveness:effectivenessText(mult)});}}
+      if(rolling){const a=ABILITIES.flameWheel;for(const enemy of this.enemies){if(enemy.state==='Dead'||enemy.defeated||distance(p,enemy)>a.radius+(enemy.hurtbox?.radius||enemy.radius||12))continue;if((rolling.hitAt[enemy.uid]??-Infinity)>this.time)continue;rolling.hitAt[enemy.uid]=this.time+a.hitInterval;const mult=effectiveness(a.type,enemy.element);this.damage(enemy,this.moveDamage(enemy,a),a.type,true);this.emit('slash',{x:enemy.x,y:enemy.y,vfx:a.vfx,effectiveness:effectivenessText(mult)});}}
       if(this.pendingInteraction&&distance(p,this.pendingInteraction)<=this.pendingInteraction.radius){const target=this.pendingInteraction;this.pendingInteraction=null;this.interact(target);}
     }
     this.updateSpecialAttacks();
@@ -324,12 +333,12 @@ export class Simulation {
         shot.x += shot.vx * dt / steps; shot.y += shot.vy * dt / steps; shot.remaining -= length / steps;
         if (!walkable(this.map, shot.x, shot.y, 0)) { shot.remaining = 0; break; }
         const hit = this.enemies.find(e => e.state !== 'Dead'&&!e.defeated&&!shot.hitIds.has(e.uid)&&distance(e, shot) < (e.hurtbox?.radius||e.radius||12) + shot.hitbox.radius);
-        if (hit) {shot.hitIds.add(hit.uid);const mult=effectiveness(a.type||'Normal',hit.element),speedBonus=a.speedScaling?Math.max(.75,Math.min(2,p.speed/Math.max(1,hit.speed||60))):1,dealt=this.damage(hit, Math.round((p.attack + a.damage)*(shot.bonusDamage||1)*speedBonus*combatEffectiveness(mult)),a.type||'Normal');if(a.slow&&!hit.isBoss&&hit.state!=='Dead')hit.slowUntil=this.time+a.slow;this.applyEnemyEffect(hit,a);if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal)); if(mult!==1)this.emit('typeEffect',{message:effectivenessText(mult),x:hit.x,y:hit.y});
+        if (hit) {shot.hitIds.add(hit.uid);const mult=effectiveness(a.type||'Normal',hit.element),speedBonus=a.speedScaling?Math.max(.75,Math.min(2,p.speed/Math.max(1,hit.speed||60))):1,dealt=this.damage(hit,this.moveDamage(hit,a,(shot.bonusDamage||1)*speedBonus),a.type||'Normal',true);if(a.slow&&!hit.isBoss&&hit.state!=='Dead')hit.slowUntil=this.time+a.slow;this.applyEnemyEffect(hit,a);if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal)); if(mult!==1)this.emit('typeEffect',{message:effectivenessText(mult),x:hit.x,y:hit.y});
           if(a.behavior==='wave'){this.emit('impact',{x:hit.x,y:hit.y,vfx:'pmd/0021',size:82});const x=hit.x+shot.vx/a.speed*22,y=hit.y+shot.vy/a.speed*22;if(!hit.isBoss&&walkable(this.map,x,y,hit.radius||12)){hit.x=x;hit.y=y;hit.path=[];hit.staggerUntil=this.time+.28;}}
           else shot.remaining=0;
         }
       }
-      if(shot.remaining<=0&&a.splashRadius)for(const e of this.enemies){if(e.state==='Dead'||e.defeated||shot.hitIds.has(e.uid)||distance(e,shot)>a.splashRadius+(e.radius||12)||!lineOfSight(this.map,shot,e))continue;const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,Math.round((p.attack+a.damage*.6)*(shot.bonusDamage||1)*combatEffectiveness(mult)),a.type||'Normal');}
+      if(shot.remaining<=0&&a.splashRadius)for(const e of this.enemies){if(e.state==='Dead'||e.defeated||shot.hitIds.has(e.uid)||distance(e,shot)>a.splashRadius+(e.radius||12)||!lineOfSight(this.map,shot,e))continue;this.damage(e,this.moveDamage(e,a,shot.bonusDamage||1,.6),a.type||'Normal',true);}
       if(shot.visual&&shot.remaining<=0&&['fireBlast','hydroCannon'].includes(a.id))this.emit('impact',{x:shot.x,y:shot.y,vfx:shot.visual.impact,size:a.splashRadius?Math.max(shot.visual.impactSize,a.splashRadius*2):shot.visual.impactSize});
       else if(shot.remaining<=0&&shot.hitIds.size&&['water','waterPulse','hydroPump'].includes(a.id))this.emit('impact',{x:shot.x,y:shot.y,vfx:'pmd/0021',size:78});
       else if(shot.visual&&this.time>=shot.trailAt){shot.trail.push({x:shot.x,y:shot.y});if(shot.trail.length>shot.visual.trail)shot.trail.shift();shot.trailAt=this.time+.045;}

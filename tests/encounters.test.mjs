@@ -6,10 +6,10 @@ import {saveWorld,loadWorldSave} from '../public/world-runtime.js';
 import {WILD_POKEMON} from '../public/data.js';
 import {walkable} from '../public/world.js';
 import {pokeballCaptureChance} from '../public/pokeballs.js';
-test('distance and rarity raise stats, XP and coins deterministically',()=>{
+test('distance raises official stats while rarity raises rewards deterministically',()=>{
  const sim=new Simulation(),s=WILD_POKEMON[0],near=encounterStats(s,sim.map,{x:460,y:545},6),far=encounterStats(s,sim.map,{x:11000,y:6000},6);
  assert.ok(far.level>near.level);for(const key of ['hp','attack','defense','xp','money'])assert.ok(far[key]>near[key],key);
- const rolls=Array.from({length:1000},(_,uid)=>encounterStats(s,sim.map,{x:460,y:545},uid));const rare=rolls.find(e=>e.rarity==='rare'),common=rolls.find(e=>e.rarity==='common'&&e.level===rare.level);assert.ok(rare.hp>common.hp);assert.ok(rare.xp>common.xp);
+ const rolls=Array.from({length:1000},(_,uid)=>encounterStats(s,sim.map,{x:460,y:545},uid));const rare=rolls.find(e=>e.rarity==='rare'),common=rolls.find(e=>e.rarity==='common'&&e.level===rare.level);assert.ok(rare.xp>common.xp);assert.equal(rare.level,common.level);assert.ok(rare.ivs.hp>=0&&rare.ivs.hp<=31);
  assert.deepEqual(encounterStats(s,sim.map,{x:460,y:545},6),near);
 });
 test('bosses are higher level than their six guards, outside spawn, on accessible terrain',()=>{

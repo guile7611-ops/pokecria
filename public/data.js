@@ -2,6 +2,7 @@ import {MOVE_CATALOG} from './move-catalog.js';
 import {LEVEL_LEARNSETS} from './level-learnsets.js';
 import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
+import {LEGENDS_ZA_MOVE_METADATA} from './legends-za-data.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
 export const STARTERS = {
@@ -66,7 +67,7 @@ export const EVOLUTIONS = [
   { creatureId: 'marshtomp', targetCreatureId: 'swampert', requiredLevel: 36, method: 'level' },
 ];
 export const ABILITIES = {
-  basic: { id: 'basic', name: 'Ataque básico', behavior: 'direct', damage: 0, range: 62, cooldown: .65, color: '#f4e8ad' },
+  basic: { id: 'basic', name: 'Ataque básico', behavior: 'direct', damage: 0, power:40, category:'Physical', range: 62, cooldown: .65, color: '#f4e8ad' },
   leaf: { id: 'leaf', name: 'Folha cortante', behavior: 'projectile', damage: 12, range: 300, speed: 370, cooldown: 2.4, pellets:1, level: 1, slot: 0, color: '#bcf57b', description: 'Dispara uma folha cortante rápida.' },
   bloom: { id: 'bloom', name: 'Florescer', behavior: 'heal', healing: 32, range: 0, cooldown: 9, level: 2, slot: 1, color: '#84efd6', description: 'Restaura 32 pontos de vida.' },
   ember: { id: 'ember', name: 'Brasa', behavior: 'projectile', damage: 12, range: 300, speed: 370, cooldown: 2.4, pellets:2, spread:.12, pelletScale:.65, level: 1, slot: 0, color: '#ffac5f', description: 'Lança duas brasas que se separam no ar.' },
@@ -242,6 +243,10 @@ const canonicalMoveIds={
 };
 for(const id of Object.keys(ABILITIES))canonicalMoveIds[id.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)]??=id;
 for(const move of MOVE_CATALOG)canonicalMoveIds[move.officialName.toLowerCase().replaceAll(' ','-')]=move.id;
+for(const [slug,metadata] of Object.entries(LEGENDS_ZA_MOVE_METADATA)){
+ const ability=ABILITIES[canonicalMoveIds[slug]];if(!ability)continue;
+ Object.assign(ability,{power:metadata.power,accuracy:metadata.accuracy,category:metadata.category,officialMove:slug,officialSource:'legends-za'});
+}
 export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEVEL_LEARNSETS).map(([id,rows])=>[
   id,rows.map(row=>({...row,ability:canonicalMoveIds[row.move]}))
 ]));

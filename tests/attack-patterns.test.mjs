@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {officialDamage} from '../public/official-mechanics.js';
 import {Simulation} from '../public/simulation.js';
 import {ABILITIES} from '../public/data.js';
 import {existsSync} from 'node:fs';
@@ -193,7 +194,7 @@ test('type immunity blocks damage, hit events, and rewards',()=>{
 test('type advantage and defense produce whole-number combat damage',()=>{
  const {sim,p,enemies:[e]}=setup('charmander',[60]);
  e.element='Grama';e.defense=5;
- const expected=Math.max(1,Math.round((p.attack+ABILITIES.flameCharge.damage)*1.5-e.defense));
+ const expected=officialDamage({level:p.level,power:ABILITIES.flameCharge.power,attack:p.attack,defense:e.defense,stab:1.5,effectiveness:2,random:.925});
  assert.equal(sim.cast(ABILITIES.flameCharge,e),true);
  assert.equal(1000-e.hp,expected);
  assert.equal(Number.isInteger(e.hp),true);

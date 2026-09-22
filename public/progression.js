@@ -1,8 +1,9 @@
 import { CREATURES, EVOLUTIONS, XP_CURVE } from './data.js';
+import {calculatedStats,ensureOfficialTraining,mapMovementSpeed} from './official-mechanics.js';
 
 export function nextEvolution(creatureId, player=null) {
  const choices=EVOLUTIONS.filter(e=>e.creatureId===creatureId&&e.method==='level');
- if(player){const conditional=choices.find(e=>e.natures?.includes(player.nature));if(conditional)return conditional;}
+ if(player){const natureAliases={calm:'Calma',serious:'Serena',timid:'Tímida'};const nature=natureAliases[player.nature]||player.nature;const conditional=choices.find(e=>e.natures?.includes(nature));if(conditional)return conditional;}
  return choices.find(e=>!e.natures)??choices[0]??null;
 }
 export function evolutionLine(creatureId) {
@@ -17,12 +18,8 @@ export function evolutionLine(creatureId) {
   return line;
 }
 export function applyStats(player) {
-  const definition = CREATURES[player.id];
-  const a=player.attributes||{};
-  player.maxHp = definition.hp + (player.level - 1) * definition.hpPerLevel + (a.vitality||0)*8;
-  player.attack = definition.attack + (player.level - 1) * definition.attackPerLevel + (a.power||0)*2;
-  player.defense = definition.defense + (a.guard||0);
-  player.speed = definition.speed + (a.agility||0)*3;
+  ensureOfficialTraining(player);const stats=calculatedStats(player.id,player.level,player.ivs,player.evs,player.nature);
+  if(!stats)return;Object.assign(player,{maxHp:stats.hp,attack:stats.attack,defense:stats.defense,spAttack:stats.spAttack,spDefense:stats.spDefense,speed:stats.speed,movementSpeed:mapMovementSpeed(stats.speed)});
 }
 export function applyEvolutions(player, time) {
   const events = [];
