@@ -7,6 +7,7 @@ import {starterAttackVisual} from './starter-attack-vfx.js';
 const safe=player=>!player||player.scene!=='world'||Math.hypot(player.x-REGION.spawn.x,player.y-REGION.spawn.y)<=340;
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
+const PRESENCE_INTERVAL_MS=12000;
 
 export class RealtimeOnline {
   constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastInboundAt=0;this.lastReconnectAt=0;this.reconnecting=null;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
@@ -66,7 +67,7 @@ export class RealtimeOnline {
   }
   async track(force=false){
     if(!this.channel||!this.state)return;
-    if(!force&&Date.now()-this.lastTrack<1000)return;
+    if(!force&&Date.now()-this.lastTrack<PRESENCE_INTERVAL_MS)return;
     this.lastTrack=Date.now();
     const result=await this.channel.track({...this.state,guildId:this.guildId});
     if(result!=='ok'){this.handlers.error?.();throw Error('Não foi possível anunciar sua presença online.');}

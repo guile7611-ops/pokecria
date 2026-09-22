@@ -67,3 +67,15 @@ test('an abandoned peer disappears from the visible roster',()=>{
  online.roster();
  assert.equal(online.players.some(player=>player.id===id),false);
 });
+
+test('presence heartbeats stay below the per-client rate limit',async()=>{
+ const online=new RealtimeOnline();let calls=0;
+ online.state={id:online.id,seq:1};
+ online.channel={track:async()=>{calls++;return 'ok';}};
+ await online.track(true);
+ await online.track();
+ assert.equal(calls,1,'ordinary movement must use broadcast instead of tracking presence');
+ online.lastTrack-=12001;
+ await online.track();
+ assert.equal(calls,2);
+});

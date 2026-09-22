@@ -22,7 +22,8 @@ try{
   await second.evaluate(id=>{
     const online=window.online,original=online.receive.bind(online);
     window.originalReceive=original;
-    online.receive=message=>{if(message.type==='player-state'&&message.from===id)return;original(message);};
+    window.positions=[];
+    online.receive=message=>{if(message.type==='player-state'&&message.from===id)window.positions.push(message.state.x);original(message);};
   },idA);
   for(const x of [752,800,848,896,944,992,1040,1088]){
     await first.evaluate(x=>window.online.update({x,y:560,moving:true}),x);
@@ -35,6 +36,7 @@ try{
   try{await second.waitForFunction(id=>window.online.players.find(p=>p.id===id)?.x===1088,idA,{timeout:15000});}catch(error){console.log(JSON.stringify({first:await first.evaluate(()=>({state:window.online.state,presence:window.online.channel.presenceState(),status:window.online.channel.state})),second:await second.evaluate(id=>({peer:window.online.players.find(p=>p.id===id),presence:window.online.channel.presenceState(),status:window.online.channel.state}),idA)}));throw error;}
   const seen=await second.evaluate(id=>window.online.players.find(p=>p.id===id)?.x,idA);
   assert.equal(seen,1088);
+  assert.ok(await second.evaluate(()=>new Set(window.positions.filter(x=>x>=752&&x<=1088)).size>=4),'bridge movement must arrive continuously');
   await second.evaluate(()=>{
     const online=window.online,roster=online.roster.bind(online),open=online.openChannel.bind(online);
     online.receive=message=>{if(!window.blockInbound)window.originalReceive(message);};
@@ -47,5 +49,5 @@ try{
   await second.waitForFunction(id=>window.reopened>0&&window.online.players.find(p=>p.id===id)?.x===1200,idA,{timeout:20000});
   await Promise.all([first.evaluate(()=>clearInterval(window.heartbeat)),second.evaluate(()=>clearInterval(window.heartbeat))]);
   await Promise.all([first.evaluate(()=>window.online.leave()),second.evaluate(()=>window.online.leave())]);
-  console.log('OK: travessia recebida pela presença e canal recuperado após perder mensagens.');
+  console.log('OK: travessia recebida continuamente e canal recuperado após perda simulada de mensagens.');
 }finally{await browser.close();}

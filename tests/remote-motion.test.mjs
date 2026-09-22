@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {setRemoteTarget,advanceRemote} from '../public/remote-motion.js';
 import {Renderer} from '../public/renderer.js';
 
-test('remote movement advances between network updates and snaps only on respawn',()=>{
+test('remote movement advances between updates, catches up without teleporting, and snaps on respawn',()=>{
  const remote={x:100,y:100,targetX:100,targetY:100,velocityX:0,velocityY:0,networkAt:1000,scene:'world',hp:100};
  setRemoteTarget(remote,{x:116,y:100,scene:'world',hp:100,moving:true},1160);
  const positions=[];
@@ -11,7 +11,11 @@ test('remote movement advances between network updates and snaps only on respawn
  assert.ok(positions.every((x,index)=>index===0||x>positions[index-1]));
  assert.ok(remote.x>116,'prediction should carry motion beyond the latest packet');
  setRemoteTarget(remote,{x:950,y:100,scene:'world',hp:100,moving:false},1320);
- assert.equal(remote.x,950);
+ assert.ok(remote.x<950,'a delayed packet must not teleport the avatar');
+ const before=remote.x;advanceRemote(remote,.016,1336);
+ assert.ok(remote.x>before&&remote.x-before<10,'the catch-up must stay within a frame-sized step');
+ for(let time=1352;time<4000;time+=16)advanceRemote(remote,.016,time);
+ assert.ok(Math.abs(remote.x-950)<1);
  remote.hp=0;
  setRemoteTarget(remote,{x:240,y:560,scene:'world',hp:100,moving:false},1480);
  assert.deepEqual([remote.x,remote.y],[240,560]);
