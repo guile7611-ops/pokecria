@@ -10,6 +10,8 @@ import {pokeballById,pokeballCaptureChance} from './pokeballs.js';
 import { applyStats, applyEvolutions, nextEvolution } from './progression.js';
 import { clearSegment, createMap, distance, findPath, findPathNearObstacle, followPath, lineOfSight, walkable } from './world.js';
 
+export const PLAYER_MOVEMENT_MULTIPLIER = 1.12;
+
 export class Simulation {
   constructor(starter = 'bulbasaur', options = {}) {
     if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
@@ -271,7 +273,7 @@ export class Simulation {
     const p=this.player,input=this.inputVector;
     if(!input||!Number.isFinite(input.x)||!Number.isFinite(input.y)||(!input.x&&!input.y))return false;
     const magnitude=Math.hypot(input.x,input.y),dx=input.x/magnitude,dy=input.y/magnitude;
-    const speed=p.speed*(p.running?1.5:1)*(p.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1);
+    const speed=p.speed*PLAYER_MOVEMENT_MULTIPLIER*(p.running?1.5:1)*(p.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1);
     const step=speed*dt,from={x:p.x,y:p.y},destination={x:p.x+dx*step,y:p.y+dy*step};
     p.path=[];p.target=null;p.pendingCast=null;p.repathAt=0;p.facing={x:dx,y:dy};p.moving=false;
     if(clearSegment(this.map,from,destination,p.radius,p.navigation||{})){p.x=destination.x;p.y=destination.y;p.moving=true;return true;}
@@ -308,7 +310,7 @@ export class Simulation {
           }else if(!pending&&distance(p, target) <= ABILITIES.basic.range - 3 && lineOfSight(this.map, p, target)) { p.path = []; this.cast(ABILITIES.basic, target); }
           else if (this.time >= (p.repathAt || 0)) { p.path = findPath(this.map, p, target,p.radius,{maxPathNodes:3000}); p.repathAt = this.time + .35; }
         }else p.pendingCast=null;
-        followPath(p, dt, this.map);
+        followPath(p, dt, this.map, PLAYER_MOVEMENT_MULTIPLIER);
       }else this.moveWithInput(dt);
       const rolling=p.buffs?.find(b=>b.id==='flameWheel');
       if(rolling){const a=ABILITIES.flameWheel;for(const enemy of this.enemies){if(enemy.state==='Dead'||enemy.defeated||distance(p,enemy)>a.radius+(enemy.hurtbox?.radius||enemy.radius||12))continue;if((rolling.hitAt[enemy.uid]??-Infinity)>this.time)continue;rolling.hitAt[enemy.uid]=this.time+a.hitInterval;const mult=effectiveness(a.type,enemy.element);this.damage(enemy,(p.attack+a.damage)*combatEffectiveness(mult),a.type);this.emit('slash',{x:enemy.x,y:enemy.y,vfx:a.vfx,effectiveness:effectivenessText(mult)});}}

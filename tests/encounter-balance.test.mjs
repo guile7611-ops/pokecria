@@ -1,9 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Simulation} from '../public/simulation.js';
+import {Simulation,PLAYER_MOVEMENT_MULTIPLIER} from '../public/simulation.js';
 import {STARTERS,WILD_POKEMON,CREATURES} from '../public/data.js';
 import {effectiveness,combatEffectiveness} from '../public/type-system.js';
 import {REGION} from '../public/data.js';
+
+test('an active Pokémon keeps a modest movement advantage after being captured and reloaded',()=>{
+ const sim=new Simulation(),wildSpeed=sim.player.speed;
+ const specimen={...sim.activeSnapshot(),captureId:'capture-speed',speed:wildSpeed};
+ sim.pc.push(specimen);
+ assert.equal(sim.selectCaptured(specimen.captureId),true);
+ const start={x:sim.player.x,y:sim.player.y};
+ sim.inputVector={x:1,y:0};
+ assert.equal(sim.moveWithInput(.1),true);
+ assert.ok(Math.abs(sim.player.x-start.x-wildSpeed*.1*PLAYER_MOVEMENT_MULTIPLIER)<.01);
+ const reloaded=new Simulation('bulbasaur',{activePokemon:sim.activeSnapshot(),pc:sim.pc});
+ const from={x:reloaded.player.x,y:reloaded.player.y};
+ reloaded.player.path=[{x:from.x+50,y:from.y}];
+ reloaded.streamCreatures=()=>{};
+ reloaded.step(.05);
+ assert.ok(Math.abs(reloaded.player.x-from.x-wildSpeed*.05*PLAYER_MOVEMENT_MULTIPLIER)<.01);
+ assert.equal(reloaded.player.speed,wildSpeed);
+});
 
 test('all nine starters appear as wild encounters in suitable authored biomes',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:234});

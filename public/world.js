@@ -127,8 +127,8 @@ export function lineOfSight(map, a, b) {
   for (let i = 1; i <= n; i++) if (!walkable(map, a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n, 0)) return false;
   return true;
 }
-export function followPath(entity, dt, map) {
-  let budget = entity.speed * (entity.running?1.5:1) * (entity.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1) * dt;
+export function followPath(entity, dt, map, movementMultiplier=1) {
+  let budget = entity.speed * movementMultiplier * (entity.running?1.5:1) * (entity.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1) * dt;
   entity.moving = false;
   while (entity.path.length && budget > 0) {
     const next = entity.path[0], d = distance(entity, next);
