@@ -188,3 +188,165 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
 #shop-products{display:grid;gap:8px;max-height:55vh;overflow:auto;margin-top:12px}
 #run-pc .pc-list{max-height:48vh}
 @media(max-width:650px){#pc-open{left:110px;bottom:18px}.shop-product{grid-template-columns:1fr auto}.shop-product button{grid-column:1/-1}}
+
+/* Pokémon dossier: a richer handheld panel with clear hierarchy and readable type. */
+#info.info{
+ --dossier-navy:#172d3c;--dossier-blue:#24526c;--dossier-gold:#d4ae65;--dossier-paper:#f7efd9;--dossier-ink:#26333a;
+ width:min(790px,calc(100vw - 28px));max-width:none;max-height:min(920px,calc(100dvh - 28px));
+ margin:auto;padding:7px;overflow:hidden;color:var(--dossier-ink);
+ border:3px solid #b48b4c;border-radius:12px;
+ background:linear-gradient(135deg,#665037,#ba9257 4%,#eed99d 8%,#6d553c 12%,#243b49 14%,#162d3b 88%,#a47c46 95%,#e5c17b);
+ box-shadow:0 0 0 3px #13232c,0 0 0 5px #dfbd77,0 24px 70px #071017db;
+}
+#info::backdrop{background:#08131cd9;backdrop-filter:blur(5px)}
+#info .info-frame{height:100%;max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden;border:2px solid #d5b373;border-radius:6px;background:var(--dossier-paper);box-shadow:inset 0 0 0 3px #34556b,inset 0 0 0 5px #e8d7ac}
+#info .info-header{flex:none;display:flex;align-items:center;justify-content:space-between;min-height:88px;padding:15px 25px 14px 23px;border:0;border-bottom:4px solid #bc9659;background:radial-gradient(circle at 24% 0%,#426781 0,transparent 42%),linear-gradient(125deg,#213f55,#142c3d 72%);box-shadow:inset 0 -2px #f2d99d;color:#fff6db}
+#info .info-heading{min-width:0}
+#info .info-kicker{display:block;margin:0 0 7px 6px;color:#d9c490;font:800 10px/1.2 "Courier New",monospace;letter-spacing:2px}
+#info .info-kicker i{font-style:normal;color:#f2d879;padding:0 5px}
+#info .info-header h2{display:flex;align-items:center;gap:10px;margin:0;color:#fff6db;text-shadow:1px 2px #061925;font:900 clamp(18px,3vw,26px)/1.1 "Courier New",monospace;letter-spacing:.3px}
+#info .heading-sprite{width:38px;height:38px;flex:none;padding:2px;background:#f6e5bd;border:2px solid #bc9659;box-shadow:2px 2px #0d2030;image-rendering:pixelated}
+#info #info-close{width:36px;height:36px;flex:none;display:grid;place-items:center;padding:0;color:#fff5d6;background:#31556a;border:2px solid #d9bd7e;box-shadow:inset 0 0 0 2px #183b51,2px 2px #0c2230;font-size:15px}
+#info #info-close:hover{background:#aa4e47;color:#fff;border-color:#fff0bd}
+#info #info-body{overflow:auto;scrollbar-color:#b39360 #e9ddbd;scrollbar-width:thin;overscroll-behavior:contain;padding:22px 27px 28px;background:radial-gradient(circle at 94% 3%,#fff9e8 0,transparent 28%),repeating-linear-gradient(0deg,#c9b6840d 0 2px,transparent 2px 8px),var(--dossier-paper)}
+#info .info-identity{display:grid;grid-template-columns:154px minmax(0,1fr);gap:17px;align-items:stretch;margin:0;padding:12px;border:2px solid #365b70;border-radius:5px;background:linear-gradient(125deg,#d3e4e5,#f8f2df 38%,#fff8e9);box-shadow:inset 0 0 0 3px #fffaf0,0 4px 0 #c5a970}
+#info .info-portrait{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:168px;padding:8px 5px 5px;background:radial-gradient(circle at 50% 36%,#bfd8d7,#5d8790 75%);border:3px solid #214a60;box-shadow:inset 0 0 0 3px #b9d7d8,3px 3px 0 #b38b55}
+#info .info-portrait img{width:122px;height:122px;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none;image-rendering:pixelated;filter:drop-shadow(2px 5px 1px #183d5270)}
+#info .info-portrait span{margin-top:auto;padding:3px 5px;width:100%;text-align:center;color:#fff0c9;background:#24475b;font:800 8px/1.2 "Courier New",monospace;letter-spacing:.5px}
+#info .info-profile{min-width:0;display:grid;align-content:start;gap:8px}
+#info .info-profile-meta{display:flex;flex-wrap:wrap;gap:5px}
+#info .info-profile-meta span{padding:4px 8px;background:#254c62;border:1px solid #bc9659;color:#fff2ca;font:800 9px "Courier New",monospace;letter-spacing:.5px}
+#info .info-trait{padding:0 0 7px;border-bottom:1px solid #b5af9b}
+#info .info-trait:last-child{border-bottom:0;padding-bottom:0}
+#info .info-trait small{display:block;color:#677a7e;font:900 9px "Courier New",monospace;letter-spacing:1.5px}
+#info .info-trait b{display:block;margin:2px 0;color:#87472e;font:900 16px/1.1 "Courier New",monospace}
+#info .info-description{max-width:none;margin:3px 0 0;color:#35444a;font:12px/1.42 "Courier New",monospace}
+#info .info-vitals{display:grid;grid-template-columns:180px 1fr;align-items:center;gap:14px;margin:13px 0 21px;padding:8px 12px;border:2px solid #a68659;background:#f9f3df;box-shadow:inset 0 0 0 2px #fff}
+#info .info-vitals>div:first-child{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+#info .info-vitals span{color:#546369;font:900 10px "Courier New",monospace;letter-spacing:.7px}
+#info .info-vitals strong{color:#24583f;font:900 14px "Courier New",monospace;white-space:nowrap}
+#info .info-vitals strong small{font-size:10px;color:#657475}
+#info .info-vitals-track{height:13px;padding:2px;background:#203943;border:1px solid #a28b60;box-shadow:inset 1px 1px #102631}
+#info .info-vitals-track i{display:block;height:100%;background:repeating-linear-gradient(90deg,#2f9d67 0 16px,#6bd793 16px 19px);box-shadow:inset 0 1px #9bf7b2}
+#info .info-section-heading{display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+#info .info-section-title{flex:none;display:flex;align-items:center;gap:8px;margin:0;padding:6px 13px;background:linear-gradient(#366784,#23475e);border:2px solid #15384b;border-radius:2px;box-shadow:inset 0 0 0 1px #7196a0,2px 2px #b8a574;color:#fff4d3;font:900 11px "Courier New",monospace;letter-spacing:1px}
+#info .info-section-title img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated}
+#info .info-section-rule{height:9px;flex:1;min-width:15px;border-block:2px solid #a8895b;background:repeating-linear-gradient(90deg,#c6a66b 0 8px,#efd8a0 8px 11px)}
+#info .info-points{display:flex;align-items:center;gap:10px;margin:9px 0 8px;color:#5b4d3d;font:900 11px "Courier New",monospace;letter-spacing:.5px}
+#info .info-points strong{min-width:27px;padding:3px 6px;text-align:center;background:#23495e;color:#ffedb8;border:1px solid #c5a46d;box-shadow:2px 2px #9c8159;font-size:13px}
+#info .attributes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#info .attribute{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:58px;padding:8px 9px 8px 13px;background:linear-gradient(105deg,#fff9eb,#e7d9b8);border:2px solid #a6916b;border-left:5px solid #356078;border-radius:2px;box-shadow:inset 0 0 0 2px #fff9ec,2px 2px #d1bd92;color:#2e3940}
+#info .attribute span{min-width:0;display:grid;gap:2px}
+#info .attribute b{font:900 12px "Courier New",monospace}
+#info .attribute small{font:900 16px "Courier New",monospace;color:#235875}
+#info .attribute button{flex:none;min-width:39px;min-height:32px;padding:3px;color:#fff1c8;background:#77583a;border:2px solid #332d29;box-shadow:inset 0 0 0 2px #caa978,2px 2px #5e5040;font-size:12px}
+#info .attribute button:hover:not(:disabled){background:#285f76;color:#fff}
+#info .attribute button:disabled{opacity:.48;cursor:not-allowed;filter:grayscale(.45)}
+#info .info-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 16px;margin:13px 0 0;padding:11px 14px;background:#eee4c8;border:2px solid #ae966d;border-radius:2px;box-shadow:inset 0 0 0 2px #fff8e4;color:#33434c}
+#info .info-stats span{display:flex;gap:4px;justify-content:space-between;border-bottom:1px dotted #b8ab8d;padding:3px 0;font:10px "Courier New",monospace}
+#info .info-stats b{color:#215b79;font-size:11px}
+#info .move-manager{margin-top:22px}
+#info .move-help{display:block;margin:0 0 10px;color:#4b5a62;font:11px/1.5 "Courier New",monospace}
+#info .move-list{display:grid;grid-template-columns:1fr;gap:8px}
+#info .move-card{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:88px;padding:9px;background:#fff9e9;border:2px solid #88999a;border-left:5px solid #426e87;border-radius:3px;box-shadow:inset 0 0 0 2px #fff,2px 2px #c9b68e}
+#info .move-card.equipped{background:linear-gradient(105deg,#e4f1e7,#fff9e9 40%);border-color:#5c9c76;border-left-color:#32865c}
+#info .move-art{display:block;width:64px;height:64px;border:2px solid #2f576b;background-color:#c9dfe0;background-size:512px 64px;image-rendering:pixelated;box-shadow:inset 0 0 0 2px #e9f7ec;animation:move-preview .67s steps(8) infinite}
+#info .move-copy{min-width:0;display:grid;gap:3px}
+#info .move-heading{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center}
+#info .move-heading b{color:#273945;font:900 14px "Courier New",monospace}
+#info .move-heading em{padding:2px 5px;background:#2f7955;color:#fff8df;font:900 8px "Courier New",monospace;font-style:normal;white-space:nowrap}
+#info .move-copy>span{color:#446779;font:900 10px "Courier New",monospace}
+#info .move-copy>span i{font-style:normal;color:#b69054;font-size:7px;padding:0 3px}
+#info .move-power{margin:0;color:#9e5131;font:900 11px "Courier New",monospace}
+#info .move-copy>small{color:#485357;font:10px/1.35 "Courier New",monospace}
+#info .move-slots{display:grid;grid-template-columns:repeat(2,29px);gap:4px}
+#info .move-slots button{width:29px;height:27px;min-width:0;padding:0;color:#fff3d6;background:#31546b;border:2px solid #1d3749;box-shadow:inset 0 0 0 1px #8fb0ba;font-size:10px}
+#info .move-slots button:hover:not(:disabled){background:#b36d37;border-color:#513c31;color:#fff}
+#info .move-slots button:disabled{background:#3e855e;border-color:#246044;color:#fff4d9;opacity:1;cursor:default}
+#info .move-catalog,#info .guild-section,#info .type-matchups{margin-top:18px;padding:13px 15px;background:#eee4c8;border:2px solid #a6926c;border-radius:3px;box-shadow:inset 0 0 0 2px #fff8e7;color:#2d3d44}
+#info .type-matchups{font:11px/1.65 "Courier New",monospace}
+#info .type-matchups .info-section-title{width:max-content;margin-bottom:8px}
+#info .type-matchups b{color:#8e4b2f}
+#info .move-catalog summary,#info .guild-section h3{color:#234963;font:900 12px "Courier New",monospace;letter-spacing:.5px}
+#info .move-catalog-grid article{background:#fff9e9;border-color:#a8aa9b}
+#info .guild-section h3{margin:0 0 8px}
+#info .guild-section p,#info .guild-section small{color:#465a62;line-height:1.5}
+#info .guild-player{border-top-color:#b9aa89}
+#info .guild-player button,#info .guild-invite button{background:#31546b;color:#fff2d7;border-color:#193b50}
+@media(max-width:620px){
+ #info.info{width:calc(100vw - 14px);max-height:calc(100dvh - 14px);padding:5px}
+ #info .info-frame{max-height:calc(100dvh - 28px)}
+ #info .info-header{min-height:75px;padding:10px 12px}
+ #info .info-kicker{font-size:7px;letter-spacing:1px;margin-left:0}
+ #info .info-header h2{font-size:17px}
+ #info #info-body{padding:13px 12px 18px}
+ #info .info-identity{grid-template-columns:105px minmax(0,1fr);gap:9px;padding:8px}
+ #info .info-portrait{min-height:126px}
+ #info .info-portrait img{width:88px;height:88px}
+ #info .info-portrait span{font-size:6px}
+ #info .info-trait b{font-size:12px}
+ #info .info-description{font-size:9px}
+ #info .info-profile-meta span{font-size:7px;padding:3px}
+ #info .info-vitals{grid-template-columns:1fr;gap:6px}
+ #info .attributes{grid-template-columns:1fr 1fr;gap:5px}
+ #info .attribute{min-height:53px;padding:6px;gap:2px}
+ #info .attribute b{font-size:10px}
+ #info .attribute small{font-size:13px}
+ #info .attribute button{min-width:30px;min-height:29px}
+ #info .info-stats{grid-template-columns:1fr 1fr;gap:4px 9px}
+ #info .move-card{grid-template-columns:44px minmax(0,1fr);gap:7px;padding:7px}
+ #info .move-art{width:42px;height:42px;background-size:336px 42px}
+ #info .move-slots{grid-column:2;display:flex;gap:4px}
+ #info .move-slots button{width:28px;height:26px}
+ #info .move-heading b{font-size:11px}
+ #info .move-copy>small{font-size:9px}
+}
+
+/* Bag, PC and shop share the dossier palette without changing their flows. */
+#bag.bag,#run-pc.pc-dialog,#shop.shop-dialog{width:min(760px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 30px);overflow:auto;padding:22px 25px;background:radial-gradient(circle at 90% 0%,#fff9e9,transparent 35%),#f7efd9;border:5px double #ba965d;border-radius:9px;box-shadow:0 0 0 3px #173344,0 0 0 5px #d7b471,0 20px 60px #071017d9;color:#263840;scrollbar-color:#b39360 #e9ddbd}
+#bag::backdrop,#run-pc::backdrop,#shop::backdrop{background:#08131cd9;backdrop-filter:blur(5px)}
+#bag header,#run-pc header,#shop header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-22px -25px 18px;padding:14px 20px;min-height:72px;background:linear-gradient(115deg,#2c5670,#173145);border:0;border-bottom:4px solid #c19b5f;color:#fff3d5}
+#bag h2,#run-pc h2,#shop h2{margin:0;display:flex;align-items:center;gap:10px;color:#fff3d5;text-shadow:1px 2px #0b2232;font:900 22px "Courier New",monospace}
+#bag header button,#run-pc header button,#shop header button{flex:none;color:#fff1d0;background:#31546b;border:2px solid #d1ae6d;box-shadow:inset 0 0 0 2px #17394e,2px 2px #0e2434;padding:7px 10px;font-size:10px}
+#bag header button:hover,#run-pc header button:hover,#shop header button:hover{background:#9d5146;color:#fff}
+#bag .heading-sprite{width:40px;height:40px;padding:2px;background:#f6e5bd;border:2px solid #bc9659;image-rendering:pixelated}
+#bag #bag-money{display:inline-block;margin:0 0 15px;padding:10px 14px;background:#fff8e6;border:2px solid #af9266;border-left:5px solid #2b6b89;color:#244e67;box-shadow:inset 0 0 0 2px #fff;font:900 16px "Courier New",monospace}
+#bag #bag-items{display:grid;gap:7px}
+#bag .bag-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:9px 13px;background:#fff9e9;border:2px solid #a3a99f;border-left:5px solid #40748d;border-radius:2px;box-shadow:inset 0 0 0 2px #fff;color:#263b47;font:900 12px "Courier New",monospace}
+#bag .bag-item strong{color:#895334;font-size:14px}
+#bag #capture-settings{margin-top:18px;padding:15px;background:#e7e7d5;border:2px solid #75919b;border-radius:2px;box-shadow:inset 0 0 0 2px #fbf6e5;color:#263840}
+#bag #capture-settings h3{margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #93aab0;color:#254d65;font:900 15px "Courier New",monospace}
+#bag #capture-settings label{display:flex;align-items:center;gap:11px;margin:10px 0;color:#334b56;font:900 11px "Courier New",monospace}
+#bag #capture-settings select,#run-pc .pc-filters select{min-width:0;flex:1;padding:8px 9px;background:#fffaf0;border:2px solid #5a7786;border-radius:2px;color:#243c49;font:900 11px "Courier New",monospace}
+#bag #capture-settings .capture-toggle{align-items:flex-start;line-height:1.5}
+#bag #capture-settings input{accent-color:#2b718a}
+#bag #capture-settings small{display:block;color:#50616a;line-height:1.5}
+#run-pc>p{color:#435964;font:12px/1.5 "Courier New",monospace}
+#run-pc .pc-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0 17px;padding:11px;background:#e7e7d5;border:2px solid #7d969c}
+#run-pc .pc-list{display:grid;gap:8px;max-height:50vh;overflow:auto;scrollbar-color:#b39360 #e9ddbd}
+#run-pc .pc-card{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px;background:#fff9e9;border:2px solid #849c9b;border-left:5px solid #416c86;border-radius:2px;box-shadow:inset 0 0 0 2px #fff}
+#run-pc .pc-card img{width:58px;height:58px;object-fit:contain;background:#bfd8d7;border:2px solid #365d70;image-rendering:pixelated}
+#run-pc .pc-card strong{color:#273f4f;font:900 13px "Courier New",monospace}
+#run-pc .pc-card span,#run-pc .pc-card small{color:#536269;font:10px/1.4 "Courier New",monospace}
+#run-pc .pc-card button,#shop .shop-product button{padding:8px 12px;background:#2d6784;border:2px solid #173b52;border-radius:2px;box-shadow:inset 0 0 0 2px #70a2ae,2px 2px #9d8763;color:#fff4d5;font:900 10px "Courier New",monospace}
+#run-pc .pc-card button:hover:not(:disabled),#shop .shop-product button:hover{background:#ad7045;color:#fff}
+#run-pc .pc-card button:disabled{background:#3f875e;border-color:#246044;opacity:1}
+#shop .shopkeeper{margin:0 0 15px;padding:13px 15px;background:#e7e7d5;border:2px solid #849c9b;border-left:5px solid #b58e51;border-radius:2px;color:#3e5360;font:11px/1.5 "Courier New",monospace}
+#shop #shop-products{max-height:57vh;overflow:auto;scrollbar-color:#b39360 #e9ddbd}
+#shop .shop-product{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:13px;background:#fff9e9;border:2px solid #849c9b;border-left:5px solid #416c86;border-radius:2px;box-shadow:inset 0 0 0 2px #fff}
+#shop .shop-product strong{color:#263f4f;font:900 13px "Courier New",monospace}
+#shop .shop-product small{color:#546771;font:10px "Courier New",monospace}
+#shop .shop-product>b{color:#92532c;font:900 12px "Courier New",monospace;white-space:nowrap}
+@media(max-width:620px){
+ #bag.bag,#run-pc.pc-dialog,#shop.shop-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:14px}
+ #bag header,#run-pc header,#shop header{margin:-14px -14px 14px;padding:10px 12px;min-height:62px}
+ #bag h2,#run-pc h2,#shop h2{font-size:17px}
+ #bag #capture-settings label{display:grid;grid-template-columns:52px minmax(0,1fr)}
+ #bag #capture-settings .capture-toggle{display:flex}
+ #run-pc .pc-filters{grid-template-columns:1fr 1fr;padding:7px}
+ #run-pc .pc-card{grid-template-columns:50px minmax(0,1fr);gap:7px}
+ #run-pc .pc-card img{width:46px;height:46px}
+ #run-pc .pc-card button{grid-column:1/-1}
+ #shop .shop-product{grid-template-columns:1fr auto;gap:7px}
+ #shop .shop-product button{grid-column:1/-1}
+}
