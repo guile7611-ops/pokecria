@@ -27,6 +27,29 @@ test('Ice Fang can cast toward an online player without a wild target',()=>{
  assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx==='pmd/0155'));
 });
 
+test('Take Down and Rock Smash approach a selected wild target and strike once in range',()=>{
+ for(const id of ['takeDown','rockSmash']){
+  const {sim,p,enemies:[e]}=setup('mudkip',[170]);
+  sim.updateEnemy=()=>{};p.slots[0]=id;
+  const originalHp=e.hp;
+  assert.equal(sim.command({type:'cast',slot:0,x:e.x,y:e.y,targetId:e.uid}),'queued',`${id} should begin pursuit`);
+  assert.equal(e.hp,originalHp,`${id} should not hit from afar`);
+  for(let i=0;i<120&&e.hp===originalHp;i++)sim.step(.05);
+  assert.ok(e.hp<originalHp,`${id} should connect after approaching`);
+  assert.equal(p.pendingCast,null);
+  assert.equal(sim.events.filter(event=>event.type==='queuedCast'&&event.ability===id).length,1);
+ }
+});
+
+test('a new movement command cancels a queued melee skill',()=>{
+ const {sim,p,enemies:[e]}=setup('mudkip',[170]);
+ sim.updateEnemy=()=>{};p.slots[0]='rockSmash';
+ assert.equal(sim.command({type:'cast',slot:0,x:e.x,y:e.y,targetId:e.uid}),'queued');
+ sim.command({type:'move',x:p.x,y:p.y+70});
+ assert.equal(p.pendingCast,null);
+ assert.equal(p.target,null);
+});
+
 test('Flamethrower is a sustained cone with repeat hits and no projectile',()=>{
  const {sim,enemies:[e]}=setup('charmander',[90]);
  assert.ok(sim.cast(ABILITIES.flamethrower,{x:e.x,y:e.y}));assert.equal(sim.projectiles.length,0);

@@ -89,18 +89,24 @@ export class Simulation {
       this.pendingInteraction=null;
       if (!Number.isFinite(command.x) || !Number.isFinite(command.y)) return false;
       // Every new move replaces the entire previous intent, including pursuit.
-      p.target = null; p.repathAt = 0; p.moving = false; p.attackUntil = 0;
+      p.target = null; p.pendingCast = null; p.repathAt = 0; p.moving = false; p.attackUntil = 0;
       p.path = findPathNearObstacle(this.map, p, command); return p.path.length > 0;
     }
     if (command.type === 'target') {
       const target = this.enemies.find(e => e.uid === command.id && e.state !== 'Dead');
       if (!target) return false;
+      if(p.pendingCast?.targetId!==target.uid)p.pendingCast=null;
       p.target = target.uid; p.path = []; p.repathAt = 0; return true;
     }
     if (command.type === 'cast' && Number.isInteger(command.slot) && command.slot >= 0 && command.slot < 4 && (command.slot!==2||p.level>=10) && (command.slot!==3||p.level>=25)) {
       const ability = ABILITIES[p.slots[command.slot]];
       if (!ability || !Number.isFinite(command.x) || !Number.isFinite(command.y)) return false;
-      return this.cast(ability, command, command.remoteTarget);
+      if(this.cast(ability, command, command.remoteTarget)){p.pendingCast=null;return true;}
+      if(ability.behavior!=='direct'||command.remoteTarget||(p.cooldowns[ability.id]||0)>0)return false;
+      const target=this.enemies.find(e=>e.uid===(command.targetId??p.target)&&e.state!=='Dead'&&!e.defeated);
+      if(!target)return false;
+      p.pendingCast={ability:ability.id,targetId:target.uid};p.target=target.uid;p.path=[];p.repathAt=0;
+      return 'queued';
     }
     return false;
   }
@@ -131,7 +137,8 @@ export class Simulation {
       else this.spawnShots(a,direction,visual,attackMultiplier);
     } else if (a.behavior === 'direct') {
       const candidates=this.enemies.filter(e=>e.state!=='Dead'&&!e.defeated&&distance(p,e)<=a.range&&lineOfSight(this.map,p,e));
-      const e=candidates.find(e=>e.uid===p.target)||candidates.sort((left,right)=>distance(left,aim)-distance(right,aim))[0];
+      const selectedId=aim.targetId??p.target;
+      const e=selectedId!=null?candidates.find(e=>e.uid===selectedId):candidates.sort((left,right)=>distance(left,aim)-distance(right,aim))[0];
       const target=remoteTarget||e;
       if(!target||distance(p,target)>a.range||!lineOfSight(this.map,p,target))return false;
       if(a.lunge){const length=Math.min(a.lunge,Math.max(0,distance(p,target)-p.radius-(target.radius||12)-2)),d=Math.max(1,distance(p,target)),dx=(target.x-p.x)/d,dy=(target.y-p.y)/d;for(let step=4;step<=length;step+=4){const x=p.x+dx*4,y=p.y+dy*4;if(!walkable(this.map,x,y,p.radius))break;p.x=x;p.y=y;}p.path=[];p.target=null;}
@@ -262,7 +269,7 @@ export class Simulation {
     const magnitude=Math.hypot(input.x,input.y),dx=input.x/magnitude,dy=input.y/magnitude;
     const speed=p.speed*(p.running?1.5:1)*(p.buffs||[]).reduce((value,b)=>value*(b.speedMultiplier||1),1);
     const step=speed*dt,from={x:p.x,y:p.y},destination={x:p.x+dx*step,y:p.y+dy*step};
-    p.path=[];p.target=null;p.repathAt=0;p.facing={x:dx,y:dy};p.moving=false;
+    p.path=[];p.target=null;p.pendingCast=null;p.repathAt=0;p.facing={x:dx,y:dy};p.moving=false;
     if(clearSegment(this.map,from,destination,p.radius,p.navigation||{})){p.x=destination.x;p.y=destination.y;p.moving=true;return true;}
     // Sliding along an obstacle keeps diagonal input responsive at corners.
     const horizontal={x:p.x+dx*step,y:p.y};
@@ -277,7 +284,7 @@ export class Simulation {
     const p = this.player;
     if(p.yawnAt&&this.time>=p.yawnAt){p.sleepUntil=this.time+2.5;p.yawnAt=0;}
     for(const key of ['poison','burn','leech']){const condition=p[key];if(!condition)continue;if(this.time>=condition.until){p[key]=null;continue;}if(this.time<condition.nextTick)continue;condition.nextTick=this.time+1;if(key==='poison')condition.stacks=Math.min(4,(condition.stacks||0)+1);const amount=Math.max(1,Math.ceil(p.maxHp*(key==='poison'?.018*condition.stacks:.018)));p.hp=Math.max(0,p.hp-amount);this.emit('hurt',{x:p.x,y:p.y,amount});}
-    if(p.hp===0&&!p.dead){p.dead=true;p.respawnIn=3;p.path=[];p.target=null;this.emit('death');}
+    if(p.hp===0&&!p.dead){p.dead=true;p.respawnIn=3;p.path=[];p.target=null;p.pendingCast=null;this.emit('death');}
     const pendingEvolution=nextEvolution(p.id);
     if(pendingEvolution&&p.level>=pendingEvolution.requiredLevel){for(const evolution of applyEvolutions(p,this.time))this.emit('evolve',evolution);this.definition=CREATURES[p.id];this.learn();}
     p.buffs=(p.buffs||[]).map(b=>({...b,remaining:b.remaining-dt})).filter(b=>b.remaining>0);
@@ -291,9 +298,12 @@ export class Simulation {
       if(!this.inputVector){
         const target = this.enemies.find(e => e.uid === p.target && e.state !== 'Dead');
         if (target) {
-          if (distance(p, target) <= ABILITIES.basic.range - 3 && lineOfSight(this.map, p, target)) { p.path = []; this.cast(ABILITIES.basic, target); }
+          const pending=p.pendingCast,ability=pending?.targetId===target.uid&&ABILITIES[pending.ability];
+          if(ability&&distance(p,target)<=ability.range&&lineOfSight(this.map,p,target)){
+            if(this.cast(ability,target)){p.pendingCast=null;this.emit('queuedCast',{ability:ability.id,x:target.x,y:target.y});p.path=[];}
+          }else if(!pending&&distance(p, target) <= ABILITIES.basic.range - 3 && lineOfSight(this.map, p, target)) { p.path = []; this.cast(ABILITIES.basic, target); }
           else if (this.time >= (p.repathAt || 0)) { p.path = findPath(this.map, p, target,p.radius,{maxPathNodes:3000}); p.repathAt = this.time + .35; }
-        }
+        }else p.pendingCast=null;
         followPath(p, dt, this.map);
       }else this.moveWithInput(dt);
       const rolling=p.buffs?.find(b=>b.id==='flameWheel');

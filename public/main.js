@@ -256,8 +256,8 @@ function cast(slot) {
   const aimedEnemy=a.behavior==='direct'?sim.enemies.find(e=>e.state!=='Dead'&&Math.hypot(e.x-aim.x,e.y-16-aim.y)<27):null;
   if(aimedEnemy)sim.command({type:'target',id:aimedEnemy.uid});
   const rival=a.behavior==='direct'&&online.token?rivalAt(aim):null;
-  const used=sim.command({ type: 'cast', slot, ...aim, remoteTarget:rival?{x:rival.x,y:rival.y,radius:12}:null });
-  if(used&&online.token)online.request('skill',{ability:a.id,x:aim.x,y:aim.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
+  const used=sim.command({ type: 'cast', slot, ...aim, targetId:aimedEnemy?.uid, remoteTarget:rival?{x:rival.x,y:rival.y,radius:12}:null });
+  if(used===true&&online.token)online.request('skill',{ability:a.id,x:aim.x,y:aim.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
   if (!used && a.behavior === 'heal' && sim.player.hp === sim.player.maxHp) note('Sua vida já está completa.');
 }
 $('start').onclick = () => { if(!account||!signedIn)return;if(!started)resetSession();started=true;paused=false;$('welcome').hidden=true;$('hud').hidden=false;online.join({nick:renderer.playerNick,pokemon:sim.player.id,spawnEpoch:sim.spawnEpoch}).catch(error=>note(`Online indisponível: ${error.message}`)); };
@@ -295,7 +295,7 @@ window.addEventListener('keydown', e => {
   if(key==='B'&&started&&!e.repeat){toggleBag();return;}
   if(key==='H'&&started&&!e.repeat){toggleInfo();return;}
   if(key==='P'&&started&&!e.repeat){toggleRunPC();return;}
-  if(key==='S'&&started&&!paused){e.preventDefault();held=false;pointerDirty=false;arrows.clear();sim.inputVector=null;sim.player.path=[];sim.player.target=null;sim.player.moving=false;return;}
+  if(key==='S'&&started&&!paused){e.preventDefault();held=false;pointerDirty=false;arrows.clear();sim.inputVector=null;sim.player.path=[];sim.player.target=null;sim.player.pendingCast=null;sim.player.moving=false;return;}
   if($('bag').open)return;
   if (['ARROWUP', 'ARROWDOWN', 'ARROWLEFT', 'ARROWRIGHT', ' '].includes(key)) e.preventDefault();
   if (key.startsWith('ARROW') && !e.repeat && started && !paused) { arrows.add(key); held = false; }
@@ -354,6 +354,7 @@ function frame(now) {
       sim.step(1 / 60);if(sim.inputVector&&sim.player.moving)moved=true;accumulator -= 1 / 60;
     }
     for (const e of sim.events.splice(0)) {
+      if(online.token&&e.type==='queuedCast')online.request('skill',{ability:e.ability,x:e.x,y:e.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
       if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}
       if(online.token&&e.type==='kill'&&Number.isInteger(e.uid))online.request('wild-kill',{uid:e.uid,xp:e.xp}).catch(()=>{});
       if (['damage', 'hurt', 'kill', 'heal', 'slash','area','buff','castVisual','impact'].includes(e.type)) renderer.effects.push(e);
