@@ -36,6 +36,7 @@ function restoreWorld(nextWorld){
   worldSave={...nextWorld,seed:REGION.seed};
   localStorage.setItem('aurora-world-v2',JSON.stringify(worldSave));
   if(worldSave.inventory)localStorage.setItem('aurora-inventory',JSON.stringify(worldSave.inventory));
+  else localStorage.removeItem('aurora-inventory');
   selectedStarter=worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
   sim=new Simulation(selectedStarter,worldSave);renderer.sim=sim;renderer.worldView.dispose();renderer.worldView=new WorldView(sim.map);renderer.camera={...REGION.spawn};renderer.effects=[];renderer.networkEffects=[];renderer.remoteEntities.clear();
 }
@@ -85,6 +86,7 @@ const maps = new MapController(renderer, seed => {
 renderer.mapController=maps;
 setInterval(()=>{if(account)saveWorld(localStorage,sim);},10000);
 window.addEventListener('pagehide',()=>{if(account){saveWorld(localStorage,sim);if(cloud.enabled)cloud.saveGame(loadWorldSave(localStorage),account,true).catch(()=>{});}online.leave();});
+window.addEventListener('verdant-cloud-error',()=>note('Progresso salvo no navegador. Sincronização pendente.'));
 let started = false, paused = false, sound = false, audio, toastUntil = 0, captureAlertTimer, moved = false, accumulator = 0;
 let pointer = { x: innerWidth / 2, y: innerHeight / 2 }, held = false, lastMove = 0, pointerDirty = false;
 const arrows = new Set();
