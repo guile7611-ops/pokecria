@@ -42,7 +42,7 @@ test('level thresholds continue beyond the former level cap', () => {
   assert.equal(sim.player.slots[1], 'bloom'); assert.equal(sim.player.slots[2], null); assert.equal(sim.player.slots[3], null);
   while(sim.player.level<52)sim.gainXP(XP_CURVE[sim.player.level]);
   assert.equal(sim.player.level,52);assert.equal(sim.player.xp,0);assert.equal(sim.player.slots[2],'vineBurst');assert.equal(sim.player.slots[3],'solarBeam');
-  sim.gainXP(10);assert.equal(sim.player.xp,10);assert.equal(sim.player.id,'venusaur');assert.equal(sim.player.maxHp,777);
+  sim.gainXP(10);assert.equal(sim.player.xp,10);assert.equal(sim.player.id,'venusaur');assert.equal(sim.player.maxHp,165+51*9);
 });
 test('healing cannot exceed maximum HP and respects cooldown', () => {
   const sim = new Simulation(); sim.gainXP(45); const p = sim.player;

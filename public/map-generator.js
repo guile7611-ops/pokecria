@@ -74,7 +74,8 @@ export function generateWorld({seed=WorldSeed,spawnSeed=seed,cols=W.cols,rows=W.
    if((startDistance<38||bossDistance<31)&&noise(i,7,spawnSeed)<.72)continue;
    if(PoiDefinitions.some(p=>Math.hypot(p.x/tile-x,p.y/tile-y)<10)||spawns.some(s=>s.zoneId===zone.id&&Math.hypot(s.x/tile-x,s.y/tile-y)<3.5))continue;
    const total=zone.species.reduce((sum,entry)=>sum+(entry.weight||1),0),roll=noise(i,count+11,spawnSeed+zone.id.charCodeAt(0))*total;let cursor=0,entry=zone.species.at(-1);
-   for(const candidate of zone.species){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
+   if(count<zone.guaranteed.length)entry=zone.species.find(candidate=>candidate.id===zone.guaranteed[count]);
+   else for(const candidate of zone.species){cursor+=candidate.weight||1;if(roll<=cursor){entry=candidate;break;}}
    const species=typeof entry==='string'?entry:entry.id,baseLevel=zone.level[0]+Math.floor(noise(i,13,spawnSeed)*(zone.level[1]-zone.level[0]+1)),level=Math.max(baseLevel,entry.minLevel||1);
    const spawn={uid:2000+spawns.length,x:(x+.5)*tile,y:(y+.5)*tile,zoneId:zone.id,species,level,minLevel:entry.minLevel||1,reward:zone.reward}; spawns.push(spawn);chunks.get(`${Math.floor(x/W.chunkSize)},${Math.floor(y/W.chunkSize)}`).spawns.push(spawn);count++;
   }

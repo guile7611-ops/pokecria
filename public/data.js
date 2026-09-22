@@ -1,7 +1,7 @@
 import {MOVE_CATALOG} from './move-catalog.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
-const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 105, radius: 11, hpPerLevel: 12, attackPerLevel: 3 };
+const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
 export const STARTERS = {
   bulbasaur: { ...BASE_PLAYER, id: 'bulbasaur', name: 'Bulbasaur', element: 'Planta / Veneno', projectile: 'leaf', recovery: 'bloom', third: 'vineBurst', ultimate: 'solarBeam' },
   charmander: { ...BASE_PLAYER, id: 'charmander', name: 'Charmander', element: 'Fogo', projectile: 'ember', recovery: 'recover', third: 'flamethrower', ultimate: 'inferno' },
@@ -207,7 +207,9 @@ WILD_POKEMON.push(
  wild('magcargo','Magcargo','Fire / Rock','rare',104,30,20,32,'Casco de Lava'),wild('mightyena','Mightyena','Dark','uncommon',82,25,9,85,'Presa Alfa'),
  wild('lombre','Lombre','Water / Grass','uncommon',75,18,10,55,'Folha Dançarina'),wild('ludicolo','Ludicolo','Water / Grass','rare',103,29,14,76,'Sombrero Tropical'),wild('breloom','Breloom','Grass / Fighting','rare',88,32,9,78,'Esporo de Combate')
 );
+for(const starter of Object.values(STARTERS))WILD_POKEMON.push(wild(starter.id,starter.name,starter.element, 'rare',48,11,3,72,'Essência Elemental'));
 for(const species of WILD_POKEMON){
+ if(STARTERS[species.id])continue;
  const primary=species.element.split(' / ')[0], moves=primary==='Grass'?['leaf','bloom','vineBurst','solarBeam']:primary==='Fire'?['ember','recover','flamethrower','inferno']:primary==='Water'?['water','recover','aquaWave','hydroCannon']:['neutralPulse','recover','impact','starBurst'];
  CREATURES[species.id]??={...BASE_PLAYER,...species,hp:Math.max(80,species.hp+35),attack:Math.max(11,species.attack),defense:species.defense,baseCreature:species.id,stage:0,projectile:moves[0],recovery:moves[1],third:moves[2],ultimate:moves[3]};
  LEARNSETS[species.id]=moves.map((ability,slot)=>({level:[1,2,10,25][slot],ability,slot}));
@@ -242,8 +244,10 @@ EVOLUTIONS.unshift(
 );
 for(const [id,base,stage] of [['bellossom','oddish',2],['politoed','poliwag',2]])Object.assign(CREATURES[id],{baseCreature:base,stage});
 for(const species of WILD_POKEMON){species.rarity=speciesRarity(species.id);species.rarityName=SPAWN_RARITIES[species.rarity].name;}
+const rangedSpecies=new Set(['oddish','gloom','vileplume','bellossom','psyduck','golduck','poliwag','poliwhirl','horsea','seadra','kingdra','abra','kadabra','alakazam','magnemite','magneton','magnezone','gastly','haunter','gengar','voltorb','electrode','mareep','flaaffy','ampharos','slugma','magcargo','numel','camerupt','ralts','kirlia','gardevoir','wailmer','wailord','bulbasaur','chikorita','treecko','charmander','cyndaquil','torchic','squirtle','totodile','mudkip']);
+for(const species of WILD_POKEMON)if(rangedSpecies.has(species.id)){species.ranged=true;species.range=185;const primary=species.element.split(' / ')[0];species.projectileVfx=primary==='Fire'||primary==='Fogo'?'fire':primary==='Water'||primary==='Água'?'water':primary==='Grass'||primary==='Grama'||primary==='Planta'?'leaf':'energy';}
 export const ENEMY = WILD_POKEMON[0];
-export const BOSS = { id: 'venusaur', name: 'Guardião da Clareira', hp: 420, attack: 16, defense: 6, speed: 54, radius: 24, xp: 180, range: 48, aggro: 330, leash: 460, cooldown: 1.2, respawn: 45, isBoss: true, phaseThresholds: [.66, .33] };
+export const BOSS = { id: 'venusaur', name: 'Guardião da Clareira', hp: 420, attack: 16, defense: 6, speed: 54, radius: 24, xp: 180, range: 245, aggro: 420, leash: 580, cooldown: 1.2, respawn: 45, isBoss: true, phaseThresholds: [.66, .33] };
 export { PoiDefinitions as POIS, RegionDefinitions as MACRO_REGIONS, SpawnZoneDefinitions as SPAWN_ZONES } from './world-definition.js';
 export const REGION = { name: 'Arquipélago de Aurora', subtitle: 'UM MUNDO A EXPLORAR', tile: 32, cols: 480, rows: 340, seed: 123456, spawn: { x: 240, y: 560 }, spawnZones: [{ x: 460, y: 545 }, { x: 1040, y: 700 }, { x: 1800, y: 1180 }] };
 export const KEYS = ['Q', 'W', 'E', 'R'];

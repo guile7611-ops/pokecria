@@ -5,4 +5,6 @@ const pt={Normal:'Normal',Fogo:'Fire','Água':'Water',Agua:'Water',Elétrico:'El
 export function normalizeTypes(value){return String(value||'Normal').split('/').map(s=>pt[s.trim()]||s.trim()).filter(Boolean)}
 // rows are written as defender -> incoming attack multiplier, matching the manual table.
 export function effectiveness(attack,defender){return normalizeTypes(defender).reduce((m,type)=>m*(rows[type]?.[attack]??1),1)}
+// Keep the official matchup for information, but compress damage extremes in real-time combat.
+export function combatEffectiveness(value){if(value===0)return 0;if(value>1)return 1+Math.log2(value)*.5;if(value<1)return 1-Math.log2(1/value)*.25;return 1;}
 export function effectivenessText(value){return value>=2?'É super eficaz!':value===0?'Não afeta este tipo.':value<1?'Não é muito eficaz.':''}

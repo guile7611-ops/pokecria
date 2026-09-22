@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { Simulation } from '../public/simulation.js';
 import {DEFAULT_BOSS_ATTACKS,prepareBossAttack,bossAttackHits} from '../public/boss-attacks.js';
 
-test('forest boss cycles through its own three animated attacks',()=>{
+test('forest boss cycles through its own four animated attacks',()=>{
  const sim=new Simulation(),b=sim.boss,p=sim.player;sim.enemies=[b];p.x=b.x-40;p.y=b.y;p.hp=p.maxHp=100000;
- tick(sim,8);const casts=sim.events.filter(e=>e.type==='bossTelegraph');
- assert.deepEqual(casts.slice(0,3).map(e=>e.id),['root-ring','thorn-fan','solar-lance']);
- assert.ok(casts.slice(0,3).every(e=>e.name));
- assert.ok(sim.events.filter(e=>e.type==='bossImpact').length>=3);
+ tick(sim,12);const casts=sim.events.filter(e=>e.type==='bossTelegraph');
+ assert.deepEqual(casts.slice(0,4).map(e=>e.id),['root-ring','thorn-fan','solar-lance','spore-bloom']);
+ assert.ok(casts.slice(0,4).every(e=>e.name));
+ assert.ok(sim.events.filter(e=>e.type==='bossImpact').length>=4);
 });
 test('telegraphs lock the target and each shape has a safe escape direction',()=>{
  const b={x:0,y:0,attack:20},p={x:40,y:0};
@@ -25,11 +25,11 @@ const tick = (sim, seconds) => { for (let i = 0; i < seconds * 60; i++) sim.step
 
 test('regional boss has phases and telegraphs an area attack before damage', () => {
   const sim = new Simulation(), boss = sim.boss, p = sim.player;
-  p.x = boss.x - 40; p.y = boss.y; sim.command({ type: 'target', id: boss.uid });
+  p.x = boss.x - 40; p.y = boss.y; p.hp=p.maxHp=10000; sim.command({ type: 'target', id: boss.uid });
   tick(sim, .1);
   assert.ok(boss.telegraph); assert.equal(boss.phase, 1);
-  const hpBefore = p.hp; tick(sim, .95); assert.ok(p.hp < hpBefore); assert.ok(sim.events.some(e => e.type === 'bossImpact'));
-  boss.hp = boss.maxHp * .65; tick(sim, .1); assert.equal(boss.phase, 2);
+  const hpBefore = p.hp; tick(sim, 1.4); assert.ok(p.hp < hpBefore); assert.ok(sim.events.some(e => e.type === 'bossImpact'));
+  boss.hp = boss.maxHp * .65; tick(sim, .7); assert.equal(boss.phase, 2);
   boss.hp = boss.maxHp * .3; tick(sim, .1); assert.equal(boss.phase, 3); assert.ok(boss.telegraph?.radius >= 100 || boss.cooldown > 0);
 });
 
@@ -44,7 +44,7 @@ test('boss defeat grants reward once and respawns after its long timer', () => {
 test('boss telegraph can be avoided by moving after it is announced', () => {
   const sim = new Simulation(), boss = sim.boss, p = sim.player;
   p.x = boss.x - 40; p.y = boss.y; sim.command({ type: 'target', id: boss.uid }); tick(sim, .1); assert.ok(boss.telegraph);
-  sim.enemies=[boss]; const original = p.hp; sim.command({ type: 'move', x: boss.x + 180, y: boss.y + 150 }); tick(sim, 1.1);
+ sim.enemies=[boss]; const original = p.hp; sim.command({ type: 'move', x: boss.x - 180, y: boss.y }); tick(sim, 1.5);
   assert.equal(p.hp, original); assert.ok(sim.events.some(e => e.type === 'bossImpact'));
 });
 

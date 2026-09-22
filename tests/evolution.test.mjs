@@ -13,7 +13,7 @@ for (const line of lines) {
     const sim = new Simulation(line.base), p = sim.player;
     sim.gainXP(xpToLevel(p, 16) - 1); assert.equal(p.level, 15); assert.equal(p.id, line.base); assert.equal(p.evolutionHistory.length, 0);
     sim.gainXP(1); assert.equal(p.id, line.middle); assert.equal(p.level, 16); assert.equal(p.xp, 0); assert.equal(p.evolutionHistory.length, 1);
-    assert.equal(sim.definition.id, p.id); assert.ok(p.maxHp > CREATURES[line.base].hp + 15 * 12);
+    assert.equal(sim.definition.id, p.id); assert.ok(p.maxHp > CREATURES[line.base].hp + 15 * CREATURES[line.base].hpPerLevel);
     sim.gainXP(xpToLevel(p, line.finalLevel) - 1); assert.equal(p.id, line.middle);
     sim.gainXP(1); assert.equal(p.id, line.final); assert.equal(p.level, line.finalLevel); assert.equal(nextEvolution(p.id), null);
     assert.deepEqual(p.evolutionHistory.map(e => e.level), [16, line.finalLevel]);

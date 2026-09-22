@@ -32,6 +32,7 @@ export class Renderer {
    if(shot.visual)for(const [index,position] of shot.trail.entries()){const trail=this.effect(kind,position.x,position.y,`trail-${shot.uid}-${index}`,this.sim.time-index*.07,size*(.48+index*.1));trail.opacity=.17+index*.11;trail.transform=`rotate(${angle}deg)`;actors.push(trail);}
    const vfx=this.effect(kind,shot.x,shot.y,'shot-'+shot.uid,this.sim.time,size);if(shot.visual)vfx.transform=`rotate(${angle}deg)`;actors.push(vfx);
   }
+  for(const [index,shot] of this.sim.enemyProjectiles.entries())actors.push(this.effect(shot.vfx,shot.x,shot.y,`enemy-shot-${index}`,this.sim.time,34));
   for(const attack of this.sim.activeAttacks){const a=ABILITIES[attack.id],age=this.sim.time-(attack.fireAt-(a.charge||0)),angle=Math.atan2(attack.direction.y,attack.direction.x)*180/Math.PI;
    if(attack.behavior==='beam'&&this.sim.time<attack.fireAt){actors.push(this.effect(attack.visual?.cast||a.vfx,p.x,p.y,`charge-${attack.uid}`,this.sim.time,attack.visual?.castSize||90));continue;}
    if(attack.behavior==='channel'){for(let i=1;i<=6;i++){const length=i*a.range/7,wobble=Math.sin(this.sim.time*19+i*2)*i*4,x=p.x+attack.direction.x*length-attack.direction.y*wobble,y=p.y+attack.direction.y*length+attack.direction.x*wobble,v=this.effect(attack.visual?.travel||a.vfx,x,y,`channel-${attack.uid}-${i}`,this.sim.time+i*.06,30+i*10);v.transform=`rotate(${angle}deg)`;actors.push(v);}}
