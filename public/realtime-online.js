@@ -10,7 +10,7 @@ const clean=value=>String(value||'').trim().slice(0,24);
 const PRESENCE_INTERVAL_MS=12000;
 
 export class RealtimeOnline {
-  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastInboundAt=0;this.lastReconnectAt=0;this.reconnecting=null;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
+  constructor(handlers={}){this.handlers=handlers;this.id=crypto.randomUUID();this.token=null;this.players=[];this.guildId=null;this.pendingInvite=null;this.channel=null;this.client=null;this.state=null;this.stateSeq=0;this.lastTrack=0;this.lastBroadcast=0;this.lastCreatureBroadcast=0;this.lastInboundAt=0;this.lastReconnectAt=0;this.reconnecting=null;this.lastAttack=0;this.lastSkills=new Map();this.ownHits=new Set();this.bosses=new Map();this.wilds=new Map();this.remoteStates=new Map();}
   roster(){
     if(!this.channel)return;
     const version=player=>Number.isSafeInteger(player?.seq)?player.seq:-1;
@@ -78,6 +78,17 @@ export class RealtimeOnline {
     const result=await this.channel.send({type:'broadcast',event:'game',payload:{type,from:this.id,targetId,...data}});
     if(result!=='ok')throw Error('Não foi possível enviar a ação online.');
   }
+  controlsCreature(creature){
+    if(!this.token||!this.state)return true;
+    const scene=this.state.scene||'world',candidates=[this.state,...this.players.filter(player=>player.id!==this.id&&player.scene===scene&&player.hp>0)];
+    candidates.sort((a,b)=>{const da=Math.hypot((a.x||0)-creature.x,(a.y||0)-creature.y),db=Math.hypot((b.x||0)-creature.x,(b.y||0)-creature.y);return da-db||String(a.id).localeCompare(String(b.id));});
+    return candidates[0]?.id===this.id;
+  }
+  syncCreatures(states,force=false){
+    if(!this.token||!this.channel||!states.length)return;
+    const now=Date.now();if(!force&&now-this.lastCreatureBroadcast<250)return;this.lastCreatureBroadcast=now;
+    this.send('world-creatures',{states,at:now}).catch(()=>this.handlers.error?.());
+  }
   receive(message){
     if(!message||message.from===this.id||message.targetId&&message.targetId!==this.id)return;
     const sender=this.players.find(player=>player.id===message.from);
@@ -87,6 +98,7 @@ export class RealtimeOnline {
       if(sender)Object.assign(sender,state);else this.players.push(state);
       this.handlers.roster?.({players:this.players,safeRadius:340});return;
     }
+    if(message.type==='world-creatures'){for(const state of message.states||[]){this.wilds.set(state.uid,state);if(state.isBoss)this.bosses.set(state.uid,state);}this.handlers['world-creatures']?.(message);return;}
     if(message.type==='boss-sync-request'){for(const state of this.bosses.values())this.send('boss-state',state,message.from).catch(()=>{});return;}
     if(message.type==='wild-sync-request'){for(const state of this.wilds.values())if(state.respawnAt>Date.now()||state.hp>0)this.send('wild-state',state,message.from).catch(()=>{});return;}
     if(message.type==='wild-state'){this.wilds.set(message.uid,message);this.handlers['wild-state']?.(message);return;}

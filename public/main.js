@@ -90,6 +90,7 @@ const online = new OnlineClient({
   'wild-hit':({uid,hp,respawn})=>{if(Number.isFinite(hp))sim.applySharedWildState({uid,hp,respawnAt:hp<=0?Date.now()+(respawn||13)*1000:0});},
   'wild-kill':({uid,respawn})=>sim.applySharedWildState({uid,hp:0,respawnAt:Date.now()+(respawn||13)*1000}),
   'wild-state':state=>sim.applySharedWildState(state),
+  'world-creatures':({states})=>{for(const state of states||[])sim.applySharedWildState(state);},
   'boss-state':({uid,hp,maxHp,respawnAt})=>{const e=sim.enemies.find(v=>v.uid===uid&&v.isBoss);if(!e)return;e.maxHp=maxHp||e.maxHp;e.hp=Math.max(0,Math.min(e.maxHp,hp));if(e.hp<=0){e.state='Dead';e.defeated=true;e.timer=Math.max(0,(respawnAt-Date.now())/1000);e.deathStart=sim.time;e.path=[];e.telegraph=null;}else if(e.state==='Dead'||e.defeated){e.state='Idle';e.defeated=false;e.timer=2;e.path=[];}},
   error:()=>{},
 });
@@ -381,8 +382,10 @@ function frame(now) {
         const x = Number(arrows.has('ARROWRIGHT')) - Number(arrows.has('ARROWLEFT')), y = Number(arrows.has('ARROWDOWN')) - Number(arrows.has('ARROWUP'));
         sim.inputVector=x||y?{x,y}:null;
       }
+      sim.controlsEnemy=online.token?enemy=>online.controlsCreature(enemy):null;
       sim.step(1 / 60);if(sim.inputVector&&sim.player.moving)moved=true;accumulator -= 1 / 60;
     }
+    if(online.token)online.syncCreatures(sim.enemies.filter(enemy=>online.controlsCreature(enemy)).map(enemy=>sim.sharedCreatureSnapshot(enemy)));
     for (const e of sim.events.splice(0)) {
       if(online.token&&e.type==='queuedCast')online.request('skill',{ability:e.ability,x:e.x,y:e.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
       if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}

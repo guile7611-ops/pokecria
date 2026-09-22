@@ -18,5 +18,7 @@ export class OnlineClient {
     this.stream.onerror=()=>this.handlers.error?.();
   }
   update(state){if(!this.token||this.sending)return;this.sending=true;this.request('state',state).catch(()=>{}).finally(()=>{this.sending=false;});}
+  controlsCreature(){return true;}
+  syncCreatures(){}
   async leave(){if(!this.token)return;const token=this.token;this.stream?.close();this.stream=null;this.token=null;try{await fetch('/api/online/leave',{method:'POST',headers:{'Content-Type':'application/json','x-verdant-session':token},body:'{}',keepalive:true});}catch{}}
 }

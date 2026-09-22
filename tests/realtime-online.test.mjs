@@ -79,3 +79,11 @@ test('presence heartbeats stay below the per-client rate limit',async()=>{
  await online.track();
  assert.equal(calls,2);
 });
+
+test('the nearest player owns each shared wild Pokémon and broadcasts one world snapshot',async()=>{
+ const sent=[],online=new RealtimeOnline({'world-creatures':message=>sent.push(message)});online.token=online.id;online.state={id:online.id,scene:'world',x:100,y:100,hp:100};online.players=[{id:'friend',scene:'world',x:500,y:100,hp:100}];
+ assert.equal(online.controlsCreature({x:120,y:100}),true);assert.equal(online.controlsCreature({x:480,y:100}),false);
+ online.channel={send:async message=>{sent.push(message.payload);return 'ok';}};online.syncCreatures([{uid:2001,x:120,y:100,hp:30,maxHp:30,state:'Chase'}],true);await new Promise(resolve=>setTimeout(resolve,0));
+ assert.equal(sent[0].type,'world-creatures');assert.equal(sent[0].states[0].uid,2001);
+ const received=new RealtimeOnline({'world-creatures':message=>sent.push(message)});received.id='receiver';received.receive({type:'world-creatures',from:'owner',states:[{uid:2001,x:130,y:100,hp:22,maxHp:30,state:'Chase'}]});assert.equal(received.wilds.get(2001).x,130);
+});

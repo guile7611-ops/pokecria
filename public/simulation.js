@@ -358,7 +358,11 @@ export class Simulation {
     if(!this.map.scene&&this.time>=this.streamAt){this.streamCreatures();this.streamAt=this.time+.5;}
     // Keep the streamed population alive outside the camera so creatures patrol
     // their territory before the player reaches them.
-    for (const e of this.enemies) this.updateEnemy(e, dt);
+    for (const e of this.enemies){
+      const controlled=!this.controlsEnemy||this.controlsEnemy(e);
+      if(controlled){delete e.networkTargetX;delete e.networkTargetY;this.updateEnemy(e,dt);continue;}
+      if(Number.isFinite(e.networkTargetX)&&Number.isFinite(e.networkTargetY)){const gap=Math.hypot(e.networkTargetX-e.x,e.networkTargetY-e.y);if(gap>220)Object.assign(e,{x:e.networkTargetX,y:e.networkTargetY});else {const blend=1-Math.exp(-11*dt);e.x+=(e.networkTargetX-e.x)*blend;e.y+=(e.networkTargetY-e.y)*blend;}}
+    }
     this.updateEnemyProjectiles(dt);
   }
   interact(target){
@@ -378,11 +382,13 @@ export class Simulation {
     if(!Number.isInteger(state?.uid)||!Number.isFinite(state.hp))return;
     if(state.hp<=0&&state.respawnAt<=Date.now()){this.sharedWildStates.delete(state.uid);return;}
     this.sharedWildStates.set(state.uid,state);
-    const enemy=this.enemies.find(e=>e.uid===state.uid&&!e.isBoss);
+    const enemy=this.enemies.find(e=>e.uid===state.uid);
     if(!enemy)return;
+    if(Number.isFinite(state.x)&&Number.isFinite(state.y))Object.assign(enemy,{networkTargetX:state.x,networkTargetY:state.y,home:state.home||enemy.home,moving:!!state.moving,facing:state.facing||enemy.facing,level:state.level||enemy.level,maxHp:state.maxHp||enemy.maxHp,phase:state.phase||enemy.phase,cooldown:Number.isFinite(state.cooldown)?state.cooldown:enemy.cooldown,telegraph:state.telegraph??enemy.telegraph,attackVfx:state.attackVfx??enemy.attackVfx,attackUntil:state.attackUntil??enemy.attackUntil,defeated:!!state.defeated});
     if(state.hp<=0){if(enemy.state!=='Dead')enemy.deathStart=this.time;enemy.hp=0;enemy.state='Dead';enemy.timer=Math.max(0,(state.respawnAt-Date.now())/1000);enemy.path=[];}
-    else if(enemy.state!=='Dead')enemy.hp=Math.max(0,Math.min(enemy.hp,state.hp));
+    else {enemy.hp=Math.max(0,Math.min(enemy.maxHp,state.hp));if(state.state)enemy.state=state.state;}
   }
+  sharedCreatureSnapshot(e){return {uid:e.uid,isBoss:!!e.isBoss,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
   streamCreatures() {
     const p=this.player,near=[],now=this.worldNow();
     for(const e of this.enemies){

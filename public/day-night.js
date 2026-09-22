@@ -16,5 +16,6 @@ export function nightVision(daylight,viewportWidth,viewportHeight,indoors=false)
 }
 
 export function spawnAvailable(spawn,now=Date.now()){
- return spawn.time!=='night'||worldDaylight(now).isNight;
+ const night=worldDaylight(now).isNight;
+ return spawn.time==='night'?night:spawn.time==='day'?!night:true;
 }

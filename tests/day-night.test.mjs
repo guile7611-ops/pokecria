@@ -35,3 +35,9 @@ test('night-only encounters remain in their authored region and leave at dawn',(
  sim.streamCreatures();
  assert.equal(sim.enemies.some(enemy=>enemy.uid===target.uid),false);
 });
+
+test('authored daytime encounters leave the streamed world at night',()=>{
+ const sim=new Simulation('bulbasaur',{spawnEpoch:234}),day=sim.map.spawns.filter(spawn=>spawn.time==='day'),night=sim.map.spawns.filter(spawn=>spawn.time==='night');
+ assert.ok(day.length>night.length);assert.ok(day.every(spawn=>spawnAvailable(spawn,0)));assert.ok(day.every(spawn=>!spawnAvailable(spawn,DAY_LENGTH_MS/2)));
+ assert.ok(night.every(spawn=>!spawnAvailable(spawn,0)));assert.ok(night.every(spawn=>spawnAvailable(spawn,DAY_LENGTH_MS/2)));
+});
