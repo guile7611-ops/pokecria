@@ -491,7 +491,14 @@ export class Simulation {
   }
   updateBoss(e, dt, d) {
     const p = this.player;
-    if(p.dead||d>e.leash){e.telegraph=null;e.attackVfx=null;e.attackUntil=0;e.path=[];e.moving=false;e.state='Idle';return;}
+    let homeDistance=distance(e,e.home);const returning=['ReturnToSpawn','Recover'].includes(e.state),mustReturn=p.dead||d>e.leash||homeDistance>(e.movementRadius||360);
+    if(mustReturn||returning){
+      if(!returning){e.path=[];e.timer=0;}
+      e.telegraph=null;e.attackVfx=null;e.attackUntil=0;e.hp=Math.min(e.maxHp,e.hp+e.maxHp*(e.regenerationRate||.1)*dt);
+      if(homeDistance>7){e.state='ReturnToSpawn';if(!e.path.length&&e.timer<=0){e.path=findPath(this.map,e,e.home);e.timer=.4;}followPath(e,dt,this.map);homeDistance=distance(e,e.home);}
+      if(homeDistance<=7){Object.assign(e,{x:e.home.x,y:e.home.y,moving:false,path:[],state:'Recover'});if(e.hp>=e.maxHp){e.hp=e.maxHp;e.state='Idle';}}
+      return;
+    }
     e.phase = e.hp / e.maxHp <= e.phaseThresholds[1] ? 3 : e.hp / e.maxHp <= e.phaseThresholds[0] ? 2 : 1;
     if(!e.telegraph&&e.attackUntil>this.time){e.moving=false;return;}
     if (e.telegraph) {
@@ -505,7 +512,6 @@ export class Simulation {
       return;
     }
     if (p.dead) { e.state = 'Idle'; e.path = []; return; }
-    if (d > e.leash) { e.state = 'Idle'; e.path = []; return; }
     if (d < e.aggro) {
       e.state = d <= e.range ? 'Attack' : 'Chase';
       if (d <= e.range && e.cooldown <= 0) {

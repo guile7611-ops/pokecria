@@ -94,3 +94,12 @@ test('boss telegraph can be avoided by moving after it is announced', () => {
   assert.equal(p.hp, original); assert.ok(sim.events.some(e => e.type === 'bossImpact'));
 });
 
+test('boss returns to its arena and regenerates before fighting again',()=>{
+ const sim=new Simulation(),boss=sim.boss;sim.enemies=[boss];sim.streamCreatures=()=>{};let away;
+ for(let i=0;i<24&&!away;i++){const angle=i/24*Math.PI*2,candidate={x:boss.home.x+Math.cos(angle)*(boss.movementRadius+45),y:boss.home.y+Math.sin(angle)*(boss.movementRadius+45)};if(walkable(sim.map,candidate.x,candidate.y,boss.radius)&&findPath(sim.map,candidate,boss.home,boss.radius).length)away=candidate;}
+ assert.ok(away);boss.hp=boss.maxHp/2;Object.assign(boss,away);Object.assign(sim.player,{x:boss.x,y:boss.y,hp:100000,maxHp:100000});
+ const distanceBefore=Math.hypot(boss.x-boss.home.x,boss.y-boss.home.y),hpBefore=boss.hp;tick(sim,.75);
+ assert.equal(boss.state,'ReturnToSpawn');assert.ok(Math.hypot(boss.x-boss.home.x,boss.y-boss.home.y)<distanceBefore);assert.ok(boss.hp>hpBefore);assert.equal(boss.telegraph,null);
+ Object.assign(boss,boss.home,{path:[],state:'Recover',hp:boss.maxHp-1});sim.player.x=boss.home.x+1000;sim.player.y=boss.home.y;tick(sim,2);assert.equal(boss.hp,boss.maxHp);assert.equal(boss.state,'Idle');
+});
+
