@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ABILITIES,CANONICAL_LEARNSETS,CREATURES,LEARNSETS,XP_CURVE} from '../public/data.js';
+import {ABILITIES,CANONICAL_LEARNSETS,CREATURES,LEARNSETS,LEARNSET_PHASES,LEARNSET_SOURCES,SPECIES_LEVEL_LEARNSETS,XP_CURVE} from '../public/data.js';
 import {LEVEL_LEARNSETS,LEVEL_LEARNSET_VERSIONS} from '../public/level-learnsets.js';
 import {LEVEL_MOVE_METADATA} from '../public/level-move-metadata.js';
 import {LEGENDS_ZA_AVAILABLE,LEGENDS_ZA_LEARNSETS,LEGENDS_ZA_MOVE_METADATA} from '../public/legends-za-data.js';
@@ -16,6 +16,21 @@ test('Legends Z-A is the sole canonical level-up source',()=>{
  assert.ok(CANONICAL_LEARNSETS.blaziken.some(row=>row.move==='brave-bird'&&row.ability==='braveBird'));
  assert.ok(CANONICAL_LEARNSETS.swampert.some(row=>row.move==='sludge-wave'&&row.ability==='sludgeWave'));
  for(const [id,rows] of Object.entries(LEARNSETS))for(const row of rows)assert.ok(ABILITIES[row.ability],`${id}: ${row.ability}`);
+});
+
+test('three audited phases cover every species with its own sourced level learnset',()=>{
+ const roster=Object.keys(CREATURES).sort(),phased=LEARNSET_PHASES.flat();
+ assert.deepEqual(LEARNSET_PHASES.map(batch=>batch.length),[52,52,52]);
+ assert.deepEqual(phased.slice().sort(),roster);assert.equal(new Set(phased).size,roster.length);
+ for(const id of roster){assert.ok(LEARNSET_SOURCES[id],id);assert.ok(SPECIES_LEVEL_LEARNSETS[id].length,id);for(const row of SPECIES_LEVEL_LEARNSETS[id])assert.ok(ABILITIES[row.ability],`${id}: ${row.move}`);}
+});
+
+test('old generic non-starter slots migrate to that species level-up moves',()=>{
+ const generic=['neutralPulse','recover','impact','starBurst'];
+ const sim=new Simulation('bulbasaur',{activePokemon:{id:'pidgey',name:'Pidgey',level:30,xp:0,hp:50,maxHp:50,knownMoves:[...generic],slots:[...generic],attributes:{},evolutionHistory:[]}});
+ assert.equal(sim.player.moveLoadoutVersion,2);assert.ok(sim.player.knownMoves.includes('gust'));
+ assert.equal(sim.player.knownMoves.some(id=>generic.includes(id)),false);
+ assert.equal(sim.player.slots.some(id=>generic.includes(id)),false);
 });
 
 test('Torchic gains Z-A Flame Charge and Combusken later learns Blaze Kick',()=>{

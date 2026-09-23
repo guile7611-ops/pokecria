@@ -1,9 +1,10 @@
 import {NEW_SPECIES_DATA} from './new-species-data.js';
 import {EVOLUTION_RULES} from './evolution-rules.js';
 import {MOVE_CATALOG} from './move-catalog.js';
-import {LEVEL_LEARNSETS} from './level-learnsets.js';
+import {LEVEL_LEARNSETS,LEVEL_LEARNSET_VERSIONS} from './level-learnsets.js';
 import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
 import {ZA_MOVE_ABILITIES} from './za-move-abilities.js';
+import {GENERATED_LEVEL_MOVE_ABILITIES} from './generated-level-move-abilities.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
 import {LEGENDS_ZA_LEARNSETS,LEGENDS_ZA_MOVE_METADATA} from './legends-za-data.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
@@ -129,11 +130,14 @@ Object.assign(ABILITIES, {
 });
 for(const move of LEVEL_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
 for(const move of ZA_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
+for(const move of GENERATED_LEVEL_MOVE_ABILITIES)ABILITIES[move.id]={...move,color:'#d9e8ff'};
 for(const move of MOVE_CATALOG)ABILITIES[move.id]={...move,vfx:`moves/${move.id}`,catalogOnly:true,color:'#d9e8ff'};
 // Each equipped move has its own pre-rendered animation sheet, including
 // legacy starter moves. The catalog uses the same path convention.
 for(const ability of Object.values(ABILITIES))if(ability.id!=='basic')ability.vfx=PMD_MOVE_SPRITES[ability.id]?`pmd/${PMD_MOVE_SPRITES[ability.id]}`:`moves/${ability.id}`;
-export const LEARNSETS = Object.fromEntries(Object.values(CREATURES).map(s => [s.id, [{ level: 1, ability: s.projectile, slot: 0 }, { level: 2, ability: s.recovery, slot: 1 }, { level: 10, ability: s.third, slot: 2 }, { level: 25, ability: s.ultimate, slot: 3 }]]));
+// Learnsets are populated from each species' own level-up table below. Only the
+// nine starters keep their original hand-authored tutorial progression.
+export const LEARNSETS = {};
 const starterMoves={
  bulbasaur:[[1,'leaf',0],[2,'bloom',1],[5,'growth'],[7,'poisonPowder'],[10,'vineBurst',2],[15,'synthesis'],[25,'solarBeam',3]],
  charmander:[[1,'ember',0],[2,'recover',1],[5,'smokescreen'],[8,'fireSpin'],[10,'flamethrower',2],[15,'flameWheel'],[25,'inferno',3]],
@@ -232,7 +236,6 @@ for(const species of WILD_POKEMON){
  if(STARTERS[species.id])continue;
  const primary=species.element.split(' / ')[0], moves=primary==='Grass'?['leaf','bloom','vineBurst','solarBeam']:primary==='Fire'?['ember','recover','flamethrower','inferno']:primary==='Water'?['water','recover','aquaWave','hydroCannon']:['neutralPulse','recover','impact','starBurst'];
  CREATURES[species.id]??={...BASE_PLAYER,...species,hp:Math.max(80,species.hp+35),attack:Math.max(11,species.attack),defense:species.defense,baseCreature:species.id,stage:0,projectile:moves[0],recovery:moves[1],third:moves[2],ultimate:moves[3]};
- LEARNSETS[species.id]=moves.map((ability,slot)=>({level:[1,2,10,25][slot],ability,slot}));
 }
 // Canonical level-up rows supplement legacy sets until every move has combat
 // behavior and art. An unavailable move is never silently equipped.
@@ -245,9 +248,7 @@ const canonicalMoveIds={
   'blaze-kick':'blazeKick',
   'quick-attack':'quickAttack','take-down':'takeDown','rock-throw':'rockThrow',
   'giga-drain':'gigaDrain',
-  'taunt':'scaryFace','zen-headbutt':'headbutt','will-o-wisp':'fireFang','gunk-shot':'sludgeBomb',
-  'close-combat':'doubleKick','endure':'detect','work-up':'bulkUp','extreme-speed':'quickAttack',
-  'nuzzle':'thunderShock','spark':'discharge','volt-tackle':'takeDown',
+  'waterfall':'waterfallMove',
 };
 for(const id of Object.keys(ABILITIES))canonicalMoveIds[id.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)]??=id;
 for(const move of MOVE_CATALOG)canonicalMoveIds[move.officialName.toLowerCase().replaceAll(' ','-')]=move.id;
@@ -258,14 +259,23 @@ for(const [slug,metadata] of Object.entries(LEGENDS_ZA_MOVE_METADATA)){
 export const CANONICAL_LEARNSETS=Object.fromEntries(Object.entries(LEGENDS_ZA_LEARNSETS).map(([id,rows])=>[
   id,rows.map(row=>({...row,ability:canonicalMoveIds[row.move]}))
 ]));
-for(const [id,rows] of Object.entries(CANONICAL_LEARNSETS)){
-  if(!LEARNSETS[id])continue;
+
+const runtimeRowsFor=id=>{
+ const za=CANONICAL_LEARNSETS[id]||[];if(za.length)return za;
+ return (LEVEL_LEARNSETS[id]||[]).map(row=>({...row,ability:canonicalMoveIds[row.move]}));
+};
+export const LEARNSET_SOURCES=Object.fromEntries(Object.keys(CREATURES).map(id=>[id,(CANONICAL_LEARNSETS[id]||[]).length?'legends-za':LEVEL_LEARNSET_VERSIONS[id]]));
+export const SPECIES_LEVEL_LEARNSETS=Object.fromEntries(Object.keys(CREATURES).map(id=>[id,runtimeRowsFor(id)]));
+const learnsetRoster=Object.keys(CREATURES).sort(),learnsetBatchSize=Math.ceil(learnsetRoster.length/3);
+export const LEARNSET_PHASES=[0,1,2].map(index=>learnsetRoster.slice(index*learnsetBatchSize,(index+1)*learnsetBatchSize));
+for(const id of Object.keys(CREATURES)){
+  const rows=SPECIES_LEVEL_LEARNSETS[id];LEARNSETS[id]??=[];
   const existing=new Set(LEARNSETS[id].map(row=>`${row.level}:${row.ability}`));
   for(const row of rows){
     if(!row.ability||!ABILITIES[row.ability])continue;
     ABILITIES[row.ability].catalogOnly=false;
     if(existing.has(`${row.level}:${row.ability}`))continue;
-    LEARNSETS[id].push({level:row.level,ability:row.ability,canonical:true});
+    LEARNSETS[id].push({level:row.level,move:row.move,ability:row.ability,canonical:true});
     existing.add(`${row.level}:${row.ability}`);
   }
   LEARNSETS[id].sort((a,b)=>a.level-b.level);

@@ -39,7 +39,8 @@ test('Ember casts two distinct moving flames without a generic explosion',()=>{
 });
 
 test('legacy Fire moves use curated PMD sheets and Inferno animates its persistent zone',async()=>{
- const fire=Object.values(ABILITIES).filter(move=>move.type==='Fire'&&!['blazeKick','fireFang'].includes(move.id));
+ const legacyIds=['ember','flame','fireBlast','flamethrower','inferno','fireSpin','flameWheel','flameCharge','heatCrash','flareBlitz'];
+ const fire=legacyIds.map(id=>ABILITIES[id]);
  assert.ok(fire.length>=10);
  for(const move of fire){
   assert.match(move.vfx,/^pmd\/\d{4}$/);
