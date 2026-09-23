@@ -15,7 +15,7 @@ test('every move has an eight-frame PNG sheet while official source aliases may 
   assert.equal(move.vfx,PMD_MOVE_SPRITES[move.id]?`pmd/${PMD_MOVE_SPRITES[move.id]}`:`moves/${move.id}`);
   const bytes=await readFile(new URL(`../public/assets/sprites/vfx/moves/${move.id}.png`,import.meta.url));
   const meta=await sharp(bytes).metadata();
-  assert.equal(meta.width,512,move.id);assert.equal(meta.height,64,move.id);
+  const large=['surf','muddyWater'].includes(move.id);assert.equal(meta.width,large?1024:512,move.id);assert.equal(meta.height,large?128:64,move.id);
   const active=await sharp(await readFile(new URL(`../public/assets/sprites/vfx/${move.vfx}.png`,import.meta.url))).metadata();
   assert.equal(active.width,512,move.id);assert.equal(active.height,64,move.id);
   hashes.add(createHash('sha256').update(bytes).digest('hex'));

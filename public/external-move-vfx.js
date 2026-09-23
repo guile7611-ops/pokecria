@@ -816,13 +816,13 @@ export const EXTERNAL_MOVE_VFX={
     "audio": "metalSound.mp3"
   },
   "muddyWater": {
-    "source": "ebdx",
-    "frames": 2,
+    "source": "gen9",
+    "frames": 8,
     "resources": [
-      "eb624_PU_2.png",
-      "eb624_EU_2.png"
+      "PRAS- Muddy Water FG Opp.png",
+      "muddyCurrent.png"
     ],
-    "audio": "muddyWater.ogg"
+    "audio": "gen9-muddy-water.wav"
   },
   "nastyPlot": {
     "source": "ebdx",
@@ -1922,13 +1922,13 @@ export const EXTERNAL_MOVE_VFX={
     "audio": "airSlash.wav"
   },
   "surf": {
-    "source": "ebdx",
-    "frames": 2,
+    "source": "gen9",
+    "frames": 8,
     "resources": [
-      "eb624_PU.png",
-      "eb624_EU.png"
+      "PRAS- Surf FG Opp.png",
+      "surfPool.png"
     ],
-    "audio": "surf.ogg"
+    "audio": "gen9-surf.wav"
   },
   "cut": {
     "source": "gen3",

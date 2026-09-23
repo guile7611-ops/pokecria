@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run build && node server.mjs",
     "build": "node scripts/build.mjs",
+    "vfx:water": "node scripts/build-water-move-vfx.mjs",
     "moves:sync": "node scripts/import-legends-za-learnsets.mjs && node scripts/import-level-learnsets.mjs && node scripts/generate-level-move-abilities.mjs && node scripts/build-move-vfx.mjs && node scripts/validate-learnsets.mjs",
     "test": "node --test tests/*.test.mjs"
   },

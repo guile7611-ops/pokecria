@@ -209,7 +209,7 @@ export class Simulation {
     if(a.selfAttackMultiplier||a.selfSpeedMultiplier){p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==`${a.id}-self`);p.buffs.push({id:`${a.id}-self`,remaining:a.selfDuration||6,attackMultiplier:a.selfAttackMultiplier,speedMultiplier:a.selfSpeedMultiplier});}
     p.cooldowns[a.id] = a.cooldown; p.attackStart = this.time;
     p.attackAnimation = ['direct','area','rolling','whip'].includes(a.behavior) ? 'Attack' : 'Shoot'; p.attackUntil = this.time + (a.charge||.45);
-    if(visual)this.emit('castVisual',{x:p.x,y:p.y,vfx:visual.cast,size:visual.castSize});
+    if(visual)this.emit('castVisual',{x:p.x,y:p.y,vfx:visual.cast,size:visual.castSize,ability:a.id});
     this.emit('cast', { ability: a.id }); return true;
   }
   applyEnemyEffect(e,a,guaranteed=false){
