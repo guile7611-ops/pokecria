@@ -45,25 +45,21 @@ test('item and trade branches stay locked until their mechanics exist',()=>{
  }
 });
 
-test('authored encounter population is broad and rare species keep lower weights',()=>{
+test('dynamic encounter population reaches its cap and rare species keep lower weights',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:123}),other=new Simulation('bulbasaur',{spawnEpoch:124});
- assert.ok(sim.map.spawns.length>=240&&sim.map.spawns.length<400);
- assert.notDeepEqual(sim.map.spawns.map(s=>[s.x,s.y]),other.map.spawns.map(s=>[s.x,s.y]));
- for(const spawn of sim.map.spawns)assert.ok(spawn.level>=(EvolutionMinimumLevel[spawn.species]||1),`${spawn.species} spawned below its evolution level`);
+ for(let i=0;i<20;i++){sim.streamCreatures();other.streamCreatures();}
+ const spawns=sim.enemies.filter(enemy=>enemy.dynamicSpawn),otherSpawns=other.enemies.filter(enemy=>enemy.dynamicSpawn);
+ assert.equal(spawns.length,sim.spawnConfig.targetPopulation);
+ assert.notDeepEqual(spawns.map(s=>[s.x,s.y]),otherSpawns.map(s=>[s.x,s.y]));
+ for(const spawn of spawns)assert.ok(spawn.level>=(EvolutionMinimumLevel[spawn.id]||1),`${spawn.id} spawned below its evolution level`);
  const weights=['common','uncommon','rare','epic','legendary','mythic'].map(id=>SpawnRarityDefinitions[id].weight);
  assert.ok(weights.every((weight,index)=>!index||weight<weights[index-1]));
- assert.ok(sim.map.spawns.every(s=>Math.hypot(s.x/32-7.5,s.y/32-17.5)>=18));
+ assert.ok(spawns.every(s=>Math.hypot(s.x-sim.player.x,s.y-sim.player.y)>=sim.spawnConfig.minPlayerDistance));
 });
 
-test('only common and uncommon tiers receive protected regional slots',()=>{
- for(let epoch=120;epoch<126;epoch++){
-  const sim=new Simulation('bulbasaur',{spawnEpoch:epoch});
-  for(const zone of SpawnZoneDefinitions){
-   const protectedSpawns=sim.map.spawns.filter(spawn=>spawn.zoneId===zone.id&&spawn.protectedTier);
-   assert.ok(protectedSpawns.length<=2);
-   assert.ok(protectedSpawns.every(spawn=>['common','uncommon'].includes(WILD_POKEMON.find(p=>p.id===spawn.species).rarity)));
-  }
- }
+test('rare tiers compete in the same weighted vacancy instead of receiving protected slots',()=>{
+ const forest=SpawnZoneDefinitions.find(zone=>zone.id==='bosque'),common=forest.species.find(entry=>entry.rarity==='common'),rare=forest.species.find(entry=>entry.rarity==='rare');
+ assert.ok(common&&rare);assert.ok(common.weight>rare.weight);
  assert.equal(WILD_POKEMON.find(p=>p.id==='ralts').rarity,'rare');
  assert.equal(WILD_POKEMON.find(p=>p.id==='larvitar').rarity,'rare');
 });

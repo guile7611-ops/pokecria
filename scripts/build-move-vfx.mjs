@@ -3,6 +3,8 @@ import {mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
 import {ABILITIES} from '../public/data.js';
+import {animationProfileFor} from '../public/move-animation-profiles.js';
+import {EXTERNAL_MOVE_VFX} from '../public/external-move-vfx.js';
 
 const root=resolve(fileURLToPath(new URL('../public/assets/sprites/vfx/moves/',import.meta.url)));
 await mkdir(root,{recursive:true});
@@ -128,7 +130,8 @@ function draw(motif,t,p,s){
 let count=0;
 for(const ability of Object.values(ABILITIES)){
  if(ability.id==='basic')continue;
- const motif=ability.motif||motifs[ability.id]||'stars',palette=palettes[ability.type]||palettes.Normal,s=seed(ability.id);
+ if(EXTERNAL_MOVE_VFX[ability.id]){count++;continue;}
+ const motif=motifs[ability.id]||animationProfileFor(ability).motif,palette=palettes[ability.type]||palettes.Normal,s=seed(ability.id);
  const frames=Array.from({length:8},(_,t)=>{const accents=Array.from({length:4},(_,i)=>C(5+Math.floor(rand(s+i*919+t*41)*54),5+Math.floor(rand(s+i*311+t*73)*54),1+(s+i)%2,palette[i%3])).join('');return `<g transform="translate(${t*64} 0)">${draw(motif,t,palette,s)}${accents}</g>`}).join('');
  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="64" viewBox="0 0 512 64">${frames}</svg>`;
  await sharp(Buffer.from(svg)).png().toFile(resolve(root,`${ability.id}.png`));count++;

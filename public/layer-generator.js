@@ -1,7 +1,3 @@
-import {NEW_SPAWN_RULES} from './roster-expansion.js';
-import {habitatAllows} from './world-habitats.js';
-import {EvolutionMinimumLevel,SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
-import {levelRangeAt} from './world-navigation.js';
 const random=(x,y,seed)=>{const n=Math.sin(x*127.1+y*311.7+seed*.013)*43758.5453;return n-Math.floor(n);};
 // Overlapping irregular chambers and curved tunnels. The same topology is used by collision and rendering.
 export function generateLayer(system,seed){
@@ -20,14 +16,6 @@ export function generateLayer(system,seed){
  const region={id:system.id,name:system.name,biome:cave?'cave':'highland',x:cols/2,y:rows/2,rx:cols/2,ry:rows/2,level:[1,100],species:system.species,reward:cave?'Cristal azul':'Cristal da serra',difficulty:'Exploração'};
  return {seed,scene:system.id,layer:system.kind,interiorKind:system.kind,name:system.name,cols,rows,tile,grid,biome,chunks,objects,regions:[region],pois:exits.map(e=>({...e,name:e.label})),structures:[],spawns:[],roads:[],rivers:[],layerExits:exits,system};
 }
-export function populateLayer(map){
- const {system}=map,pool=system.species.filter(id=>habitatAllows(map.regions[0].biome,id));
- for(let i=0;i<5000&&map.spawns.length<65;i++){
-  const x=(Math.floor(random(i,1,map.seed)*map.cols)+.5)*32,y=(Math.floor(random(i,2,map.seed)*map.rows)+.5)*32,position={x,y};
-  const range=levelRangeAt(map,position);if(!range||map.layerExits.some(p=>Math.hypot(x-p.x,y-p.y)<200)||map.spawns.some(s=>Math.hypot(s.x-x,s.y-y)<130))continue;
-  const available=pool.filter(id=>(EvolutionMinimumLevel[id]||1)<=range[1]);if(!available.length)continue;
-  const weight=id=>SpawnRarityDefinitions[speciesRarity(id)].weight*((EvolutionMinimumLevel[id]||1)>1?.35:1),total=available.reduce((sum,id)=>sum+weight(id),0);let roll=random(i,3,map.seed)*total,species=available.at(-1);for(const id of available){roll-=weight(id);if(roll<=0){species=id;break;}}
-  const spawn={uid:system.baseUid+map.spawns.length,x,y,zoneId:system.id,species,minLevel:EvolutionMinimumLevel[species]||1,time:NEW_SPAWN_RULES[species]?.time||'any',reward:map.regions[0].reward};map.spawns.push(spawn);map.chunks.get(`${Math.floor(x/768)},${Math.floor(y/768)}`).spawns.push(spawn);
- }
- return map;
-}
+// Encounters are populated at runtime around each player. Layer generation only
+// owns terrain and exits, so a cave never leaks surface spawn candidates.
+export function populateLayer(map){return map;}

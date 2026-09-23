@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {nightVision,worldDaylight,spawnAvailable,NIGHT_SPECIES,DAY_LENGTH_MS} from '../public/day-night.js';
 import {Simulation} from '../public/simulation.js';
+import {eligibleSpawnCandidates} from '../public/spawn-system.js';
+import {RegionDefinitions} from '../public/world-definition.js';
 
 test('the shared clock alternates day and night across the cycle',()=>{
  assert.equal(worldDaylight(0).isNight,false);
@@ -15,29 +17,19 @@ test('night narrows the visible field and interiors ignore outdoor darkness',()=
 });
 
 test('night-only encounters remain in their authored region and leave at dawn',()=>{
- let now=0;
- const sim=new Simulation('bulbasaur',{spawnEpoch:234,worldNow:()=>now});
- const nightSpawns=sim.map.spawns.filter(spawn=>spawn.time==='night');
- assert.ok(nightSpawns.length>=10);
- for(const spawn of nightSpawns){
-  assert.ok(NIGHT_SPECIES.has(spawn.species));
-  assert.ok(sim.map.regions.find(region=>region.id===spawn.zoneId).species.includes(spawn.species));
-  assert.equal(spawnAvailable(spawn,now),false);
- }
- const target=nightSpawns[0];
- Object.assign(sim.player,{x:target.x,y:target.y});
- sim.streamCreatures();
- assert.equal(sim.enemies.some(enemy=>enemy.uid===target.uid),false);
- now=DAY_LENGTH_MS/2;
- sim.streamCreatures();
- assert.equal(sim.enemies.some(enemy=>enemy.uid===target.uid),true);
- now=DAY_LENGTH_MS;
- sim.streamCreatures();
- assert.equal(sim.enemies.some(enemy=>enemy.uid===target.uid),false);
+ const sim=new Simulation('bulbasaur',{spawnEpoch:234,worldNow:()=>DAY_LENGTH_MS/2}),region=RegionDefinitions.find(entry=>entry.id==='bosque'),point={x:region.x*32,y:region.y*32};
+ const candidates=eligibleSpawnCandidates(sim.map,point,DAY_LENGTH_MS/2);
+ assert.ok(candidates.length);assert.ok(candidates.every(entry=>NIGHT_SPECIES.has(entry.id)&&region.species.includes(entry.id)));
+ for(let i=0;i<20;i++)sim.streamCreatures();
+ assert.ok(sim.enemies.filter(enemy=>enemy.dynamicSpawn).every(enemy=>NIGHT_SPECIES.has(enemy.id)));
+ sim.worldNow=()=>DAY_LENGTH_MS;sim.streamCreatures();
+ assert.equal(sim.enemies.some(enemy=>enemy.dynamicSpawn&&NIGHT_SPECIES.has(enemy.id)),false);
 });
 
-test('authored daytime encounters leave the streamed world at night',()=>{
- const sim=new Simulation('bulbasaur',{spawnEpoch:234}),day=sim.map.spawns.filter(spawn=>spawn.time==='day'),night=sim.map.spawns.filter(spawn=>spawn.time==='night');
- assert.ok(day.length>night.length);assert.ok(day.every(spawn=>spawnAvailable(spawn,0)));assert.ok(day.every(spawn=>!spawnAvailable(spawn,DAY_LENGTH_MS/2)));
- assert.ok(night.every(spawn=>!spawnAvailable(spawn,0)));assert.ok(night.every(spawn=>spawnAvailable(spawn,DAY_LENGTH_MS/2)));
+test('day and night candidate pools are mutually exclusive',()=>{
+ const sim=new Simulation('bulbasaur'),region=RegionDefinitions.find(entry=>entry.id==='bosque'),point={x:region.x*32,y:region.y*32};
+ const day=eligibleSpawnCandidates(sim.map,point,0),night=eligibleSpawnCandidates(sim.map,point,DAY_LENGTH_MS/2);
+ assert.ok(day.length);assert.ok(night.length);assert.ok(day.every(entry=>spawnAvailable(entry,0)&&!spawnAvailable(entry,DAY_LENGTH_MS/2)));
+ assert.ok(night.every(entry=>!spawnAvailable(entry,0)&&spawnAvailable(entry,DAY_LENGTH_MS/2)));
+ assert.equal(day.some(entry=>night.some(other=>other.id===entry.id)),false);
 });

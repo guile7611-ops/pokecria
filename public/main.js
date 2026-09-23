@@ -14,6 +14,7 @@ import {TYPES,effectiveness,normalizeTypes} from './type-system.js';
 import {cloud} from './cloud-client.js';
 import {POKEBALLS,pokeballById} from './pokeballs.js';
 import {NATURES,STAT_KEYS} from './official-mechanics.js';
+import {playMoveAudio,preloadMoveAudio} from './move-audio.js';
 const $ = id => document.getElementById(id);
 await cloud.bootstrap();
 let cloudGame=null;
@@ -34,7 +35,8 @@ const STAT_LABELS={hp:'HP',attack:'Ataque',defense:'Defesa',spAttack:'Ataque Esp
 const ATTRIBUTE_ROWS=[['vitality','Vida','+3 HP máximo'],['power','Dano','+1 Ataque e Ataque Esp.'],['guard','Defesa','+1 Defesa e Defesa Esp.'],['agility','Velocidade','+1 Speed e mais movimento']];
 async function passwordDigest(password,salt){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bytes=await crypto.subtle.deriveBits({name:'PBKDF2',salt:Uint8Array.from(salt),iterations:150000,hash:'SHA-256'},key,256);return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
 let selectedStarter = worldSave.activePokemon?.id&&CREATURES[worldSave.activePokemon.id]?worldSave.activePokemon.id:'bulbasaur';
-const createSimulation=(starter,options={})=>new Simulation(starter,{...options,safeZones:true});
+const spawnSessionSeed=crypto.getRandomValues(new Uint32Array(1))[0];
+const createSimulation=(starter,options={})=>new Simulation(starter,{...options,spawnSessionSeed,safeZones:true});
 let sim = createSimulation(selectedStarter, worldSave);
 if(account&&worldSave.activePokemon&&!sim.pc.some(p=>p.captureId===(worldSave.activePokemon.captureId||`starter-${account.starterId}`))){const snap={...sim.activeSnapshot(),captureId:worldSave.activePokemon.captureId||`starter-${account.starterId}`};sim.player.captureId=snap.captureId;sim.pc.unshift(snap);}
 const renderer = new Renderer($('world'), sim);
@@ -300,7 +302,7 @@ setInterval(()=>{if(started&&online.token){const p=sim.player;online.update({nic
 $('resume').onclick = () => setPause(false);
 $('restart').onclick = () => { resetSession(); $('pause-screen').hidden = true; note('Uma nova jornada começa.'); };
 $('change-starter').onclick=()=>openHub('pokemon');
-$('hub-sound').onclick=()=>{sound=!sound;$('hub-sound').textContent=sound?'Desativar som':'Ativar som';beep('learn');};
+$('hub-sound').onclick=()=>{sound=!sound;$('hub-sound').textContent=sound?'Desativar som':'Ativar som';if(sound){audio??=new AudioContext();audio.resume();preloadMoveAudio(audio);beep('learn');}};
 function updatePointerCursor(){const aim=renderer.worldPoint(pointer.x,pointer.y),enemy=sim.enemies.some(e=>e.state!=='Dead'&&Math.hypot(e.x-aim.x,e.y-16-aim.y)<27);$('world').classList.toggle('attack-cursor',enemy||!!rivalAt(aim));}
 $('world').addEventListener('pointermove', e => { pointer = { x: e.clientX, y: e.clientY }; pointerDirty = true; updatePointerCursor(); });
 function moveAtPointer(select = true) {
@@ -391,6 +393,7 @@ function frame(now) {
     }
     if(online.token)online.syncCreatures(sim.enemies.filter(enemy=>online.controlsCreature(enemy)).map(enemy=>sim.sharedCreatureSnapshot(enemy)));
     for (const e of sim.events.splice(0)) {
+      if(e.type==='cast'&&sound){audio??=new AudioContext();audio.resume();playMoveAudio(audio,ABILITIES[e.ability]);}
       if(online.token&&e.type==='queuedCast')online.request('skill',{ability:e.ability,x:e.x,y:e.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
       if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}
       if(online.token&&e.type==='kill'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-kill',{uid:e.uid,xp:e.xp,respawn:target?.respawn}).catch(()=>{});}

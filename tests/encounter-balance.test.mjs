@@ -4,6 +4,8 @@ import {Simulation,PLAYER_MOVEMENT_MULTIPLIER} from '../public/simulation.js';
 import {STARTERS,WILD_POKEMON,CREATURES} from '../public/data.js';
 import {effectiveness,combatEffectiveness} from '../public/type-system.js';
 import {REGION} from '../public/data.js';
+import {eligibleSpawnCandidates} from '../public/spawn-system.js';
+import {RegionDefinitions} from '../public/world-definition.js';
 
 test('an active Pokémon keeps a modest movement advantage after being captured and reloaded',()=>{
  const sim=new Simulation(),battleSpeed=sim.player.speed,movementSpeed=sim.player.movementSpeed;
@@ -23,22 +25,19 @@ test('an active Pokémon keeps a modest movement advantage after being captured 
  assert.equal(reloaded.player.speed,battleSpeed);
 });
 
-test('rare starters are valid regional encounters without being guaranteed in every world',()=>{
- const appearances=Object.fromEntries(Object.keys(STARTERS).map(id=>[id,0]));
- let worldWithoutStarter=false;
- for(let spawnEpoch=230;spawnEpoch<242;spawnEpoch++){const ids=new Set(new Simulation('bulbasaur',{spawnEpoch}).map.spawns.map(spawn=>spawn.species));if(Object.keys(STARTERS).some(id=>!ids.has(id)))worldWithoutStarter=true;for(const id of ids)if(id in appearances)appearances[id]++;}
- assert.ok(worldWithoutStarter,'rare starters must not be guaranteed in each world');
- assert.ok(Object.values(appearances).some(count=>count>0),'rare starters must remain obtainable');
+test('rare starters remain eligible without receiving guaranteed spawn slots',()=>{
+ const sim=new Simulation('bulbasaur',{worldNow:()=>0}),eligible=new Set();
+ for(const region of RegionDefinitions){const point={x:region.x*32,y:region.y*32};for(const entry of eligibleSpawnCandidates(sim.map,point,0))eligible.add(entry.id);}
+ assert.ok(Object.keys(STARTERS).some(id=>eligible.has(id)),'rare starters must remain obtainable');
+ assert.equal(sim.map.spawns.length,0,'ordinary species do not receive authored slots');
  for(const id of Object.keys(STARTERS))assert.ok(WILD_POKEMON.some(p=>p.id===id));
 });
 test('fresh players enter the same world and receive wild state even before it streams in',()=>{
  const first=new Simulation('bulbasaur',{worldNow:()=>0}),second=new Simulation('bulbasaur',{worldNow:()=>0});
  assert.equal(first.spawnEpoch,0);assert.equal(second.spawnEpoch,0);
- assert.deepEqual(first.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]),second.map.spawns.map(s=>[s.uid,s.species,s.x,s.y]));
- const spawn=first.map.spawns.find(s=>s.uid>=2000),respawnAt=Date.now()+12000;
- second.applySharedWildState({uid:spawn.uid,hp:0,respawnAt});
- second.player.x=spawn.x;second.player.y=spawn.y;second.streamCreatures();
- const enemy=second.enemies.find(e=>e.uid===spawn.uid);
+ const source=first.enemies.find(enemy=>enemy.dynamicSpawn),snapshot=first.sharedCreatureSnapshot(source),respawnAt=Date.now()+12000;
+ second.enemies=second.enemies.filter(enemy=>!enemy.dynamicSpawn);second.applySharedWildState({...snapshot,hp:0,respawnAt});
+ const enemy=second.enemies.find(e=>e.uid===source.uid);
  assert.ok(enemy);assert.equal(enemy.state,'Dead');assert.equal(enemy.hp,0);
 });
 test('starter progression is slower and existing levels rebalance without losing XP',()=>{

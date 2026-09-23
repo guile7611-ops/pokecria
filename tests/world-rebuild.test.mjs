@@ -28,11 +28,12 @@ test('actual routes negotiate village buildings and reach the first exploration 
  for(let i=0;i<800&&entity.path.length;i++)followPath(entity,.05,map);
  assert.ok(Math.hypot(entity.x-goal.x,entity.y-goal.y)<1);
 });
-test('spawns use their geographical region and stream under an active cap',()=>{
- const sim=new Simulation();assert.ok(sim.map.spawns.length>100);
- for(const s of sim.map.spawns){const r=RegionDefinitions.find(r=>r.id===s.zoneId);assert.ok(r.species.includes(s.species));assert.equal(sim.map.regions[sim.map.biome[Math.floor(s.y/32)][Math.floor(s.x/32)]].id,r.id);assert.ok(walkable(sim.map,s.x,s.y,12));}
- for(const s of sim.map.spawns.filter((spawn,i)=>i%10===0&&spawnAvailable(spawn))){Object.assign(sim.player,{x:s.x,y:s.y});sim.streamCreatures();assert.ok(sim.enemies.length<=48);assert.ok(sim.enemies.some(e=>e.uid===s.uid));}
- assert.ok(sim.dormant.size>0);
+test('dynamic spawns use their geographical region and stream under the configured cap',()=>{
+ const sim=new Simulation('bulbasaur',{worldNow:()=>0});assert.equal(sim.map.spawns.length,0);
+ for(let i=0;i<20;i++)sim.streamCreatures();const wild=sim.enemies.filter(enemy=>enemy.dynamicSpawn);
+ assert.equal(wild.length,sim.spawnConfig.targetPopulation);
+ for(const s of wild){const r=RegionDefinitions.find(r=>r.id===s.zoneId);assert.ok(r.species.includes(s.id));assert.equal(sim.map.regions[sim.map.biome[Math.floor(s.y/32)][Math.floor(s.x/32)]].id,r.id);assert.ok(walkable(sim.map,s.x,s.y,12));assert.ok(spawnAvailable(s,0));}
+ const old=wild[0];Object.assign(sim.player,{x:old.x+sim.spawnConfig.despawnRadius+500,y:old.y});sim.streamCreatures();assert.equal(sim.enemies.some(enemy=>enemy.uid===old.uid),false);
 });
 test('discovery states and seed survive save/load without revealing the world',()=>{
  const sim=new Simulation(),d=sim.discovery;assert.equal(d.state(240,560),'CURRENT');assert.equal(d.state(9000,8000),'UNKNOWN');

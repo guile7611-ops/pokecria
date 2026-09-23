@@ -26,16 +26,16 @@ test('Q respects cooldown, damages a target, awards XP exactly once', () => {
   e.x = 300; e.y = 560; e.home = { x: 300, y: 560 }; e.hp = 20;
   const command = { type: 'cast', slot: 0, x: 300, y: 560 };
   assert.equal(sim.command(command), true); assert.equal(sim.command(command), false);
-  run(sim, .3); if(e.state!=='Dead')sim.damage(e,1000); assert.equal(e.state, 'Dead'); assert.equal(sim.player.xp, e.xp); assert.equal(sim.kills, 1);
-  sim.damage(e, 1000); assert.equal(sim.player.xp, e.xp);
+  run(sim, .3); if(e.state!=='Dead')sim.damage(e,1000); const expectedXp=e.xp>=XP_CURVE[1]?e.xp-XP_CURVE[1]:e.xp;assert.equal(e.state, 'Dead'); assert.equal(sim.player.xp,expectedXp); assert.equal(sim.kills, 1);
+  sim.damage(e, 1000); assert.equal(sim.player.xp,expectedXp);
 });
 test('basic attack follows target and completes kill / level / learn loop', () => {
   const sim = new Simulation();
-  for (const e of sim.enemies.slice(0, 2)) {
+  const targets=sim.enemies.filter(enemy=>enemy.dynamicSpawn).slice(0,2),earned=targets.reduce((sum,enemy)=>sum+enemy.xp,0);for (const e of targets) {
     Object.assign(e, { x: sim.player.x + 70, y: sim.player.y, home: { x: sim.player.x + 70, y: sim.player.y },hp:5,maxHp:5 });
     sim.command({ type: 'target', id: e.uid }); run(sim, 6); assert.equal(e.state, 'Dead');
   }
-  assert.equal(sim.player.level, 2); assert.equal(sim.player.xp, sim.enemies[0].xp+sim.enemies[1].xp-45); assert.equal(sim.player.slots.length, 4); assert.equal(sim.player.slots[1], 'bloom');
+  let expectedLevel=1,expectedXp=earned;while(expectedXp>=XP_CURVE[expectedLevel])expectedXp-=XP_CURVE[expectedLevel++];assert.equal(sim.player.level,expectedLevel); assert.equal(sim.player.xp,expectedXp); assert.equal(sim.player.slots.length, 4); assert.equal(sim.player.slots[1], 'bloom');
 });
 test('level thresholds continue beyond the former level cap', () => {
   const sim = new Simulation(); sim.gainXP(44); assert.equal(sim.player.level, 1); sim.gainXP(1); assert.equal(sim.player.level, 2);
@@ -52,8 +52,8 @@ test('healing cannot exceed maximum HP and respects cooldown', () => {
 });
 test('death prevents commands and respawn retains progression', () => {
   const sim = new Simulation(); sim.gainXP(45); sim.player.hp = 1;
-  const e = sim.enemies[0]; Object.assign(e, { x: sim.player.x + 10, y: sim.player.y, state: 'Attack' });
-  run(sim, .1); assert.equal(sim.player.dead, true); assert.equal(sim.command({ type: 'move', x: 300, y: 560 }), false);
+  const e = sim.enemies.find(enemy=>enemy.dynamicSpawn); Object.assign(e, { x: sim.player.x + 10, y: sim.player.y, home:{x:sim.player.x+10,y:sim.player.y},attack:9999,state: 'Attack' });
+  run(sim, .1); assert.equal(sim.player.dead, true); assert.equal(sim.command({ type: 'move', x: 300, y: 560 }), false);sim.enemies=[];sim.streamCreatures=()=>{};
   run(sim, 3.2); assert.equal(sim.player.dead, false); assert.equal(sim.player.level, 2); assert.equal(sim.player.hp, sim.player.maxHp); assert.equal(sim.player.x, REGION.spawn.x);
 });
 test('enemy respawn waits when the player is close to its home', () => {

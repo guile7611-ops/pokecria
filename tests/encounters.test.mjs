@@ -46,7 +46,7 @@ test('ordinary victories pay coins but item drops are occasional',()=>{
  assert.equal(Object.values(sim.inventory.items).reduce((sum,count)=>sum+count,0),drops.reduce((sum,event)=>sum+(targets.find(target=>target.drop===event.item)?.dropCount||1),0));
 });
 test('loot stacks once per defeat and survives save, death and room transitions',()=>{
- const sim=new Simulation(),e=sim.enemies[0];sim.damage(e,99999);const money=sim.inventory.money,count=sim.inventory.items[e.drop];assert.equal(money,e.money);assert.equal(count,e.dropCount);sim.damage(e,99999);assert.equal(sim.inventory.money,money);
+ const sim=new Simulation(),e=sim.enemies.find(enemy=>enemy.dynamicSpawn);e.dropChance=1;e.dropCount=1;sim.damage(e,99999);const money=sim.inventory.money,count=sim.inventory.items[e.drop];assert.equal(money,e.money);assert.equal(count,e.dropCount);sim.damage(e,99999);assert.equal(sim.inventory.money,money);
  const copy=new Simulation('bulbasaur',{inventory:JSON.parse(JSON.stringify(sim.inventory))});assert.deepEqual(copy.inventory,sim.inventory);assert.notEqual(copy.inventory.items,sim.inventory.items);
  const door=sim.map.interactions.find(i=>i.kind==='house');sim.interact(door);sim.exitInterior();assert.equal(sim.inventory.money,money);
  assert.deepEqual(cleanInventory({money:-1,items:{bad:-10}}),{money:0,items:{}});

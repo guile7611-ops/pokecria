@@ -9,11 +9,13 @@ import {enemySkillSet} from './enemy-skills.js';
 import { Discovery, ObjectPool } from './world-runtime.js';
 import { STARTERS, CREATURES, WILD_POKEMON, SPAWN_RARITIES, BOSS, ABILITIES, LEARNSETS, EVOLUTIONS, XP_CURVE, REGION, SPAWN_ZONES } from './data.js';
 import {starterAttackVisual} from './starter-attack-vfx.js';
+import {moveAnimationVisual} from './move-animation-profiles.js';
 import {pokeballById,pokeballCaptureChance} from './pokeballs.js';
 import { applyStats, applyEvolutions, nextEvolution } from './progression.js';
 import { clearSegment, createMap, distance, findPath, findPathNearObstacle, followPath, lineOfSight, walkable } from './world.js';
 import {spawnAvailable} from './day-night.js';
 import {officialDamage} from './official-mechanics.js';
+import {DEFAULT_SPAWN_CONFIG,findDynamicSpawn} from './spawn-system.js';
 
 export const PLAYER_MOVEMENT_MULTIPLIER = 1.12;
 export const MOVE_LOADOUT_VERSION = 2;
@@ -23,6 +25,8 @@ export class Simulation {
     if(options.activePokemon?.id&&Object.hasOwn(CREATURES,options.activePokemon.id))starter=options.activePokemon.id;
     if (!Object.hasOwn(CREATURES, starter)) throw new RangeError('Criatura inicial inválida');
     this.definition = CREATURES[starter];
+    this.spawnConfig={...DEFAULT_SPAWN_CONFIG,...options.spawnConfig,rarityWeights:{...DEFAULT_SPAWN_CONFIG.rarityWeights,...options.spawnConfig?.rarityWeights}};
+    this.dynamicSpawnSerial=Number.isInteger(options.dynamicSpawnSerial)?options.dynamicSpawnSerial:0;this.spawnSessionSeed=Number.isInteger(options.spawnSessionSeed)?options.spawnSessionSeed:0;this.recentSpawnLocations=[];
     this.safeZonesEnabled=options.safeZones===true;
     this.spawnEpoch=Number.isInteger(options.spawnEpoch)?options.spawnEpoch:0; this.worldNow=options.worldNow||Date.now; this.map = createMap(options.seed,this.spawnEpoch); this.discovery = new Discovery(this.map, options.seen || [],options.discoveryCols||60); this.projectilePool = new ObjectPool(96); this.creaturePool = new ObjectPool(48); this.dormant = new Map(); this.sharedWildStates=new Map(); this.streamAt = 0; this.time = 0; this.kills = 0; this.events = []; this.projectiles = []; this.enemyProjectiles=[]; this.activeAttacks=[]; this.zones=[]; this.pendingShots=[]; this.nextId = 1;
     this.quest = { id: 'clear-clareira', goal: 3, progress: 0, complete: false, rewardXp: 60, drops: [] };
@@ -32,7 +36,7 @@ export class Simulation {
     this.player = { ...this.definition, ...REGION.spawn, maxHp: this.definition.hp, level: 1, xp: 0, evolutionHistory: [], slots: [null, null, null, null], knownMoves:[], cooldowns: {}, buffs:[], path: [], facing: { x: 0, y: 1 }, dead: false, target: null, attributePoints: options.attributePoints||0, attributes: options.attributes||{vitality:0,power:0,guard:0,agility:0}, nature: options.nature, ability: options.ability };
     if(options.activePokemon&&options.activePokemon.id===starter)Object.assign(this.player,options.activePokemon,{...REGION.spawn,path:[],target:null,moving:false,dead:false,cooldowns:{}});
     {const ratio=this.player.hp/Math.max(1,this.player.maxHp);applyStats(this.player);this.player.hp=Math.min(this.player.maxHp,Math.max(1,Math.ceil(this.player.maxHp*ratio)));}
-    this.enemies = REGION.spawnZones.slice(0,2).map((pos, i) => { const zone = SPAWN_ZONES[i % SPAWN_ZONES.length],species=[WILD_POKEMON[0],WILD_POKEMON.find(p=>p.id==='pidgey')][i]; return { ...species, ...pos, home: { ...pos }, zoneId: zone.id, levelRange: zone.level, maxHp: species.hp, uid: i + 1, state: 'Idle', timer: i * .7, cooldown: 0, path: [], facing: { x: 0, y: 1 }, moving: false }; });
+    this.enemies = [];
     for(const poi of this.map.pois.filter(p=>p.kind==='boss')){
       const variant=REGIONAL_BOSSES[poi.id];if(!variant)continue;
       const home={x:poi.x,y:poi.y};
@@ -54,6 +58,7 @@ export class Simulation {
     this.bossGuards=this.enemies.filter(e=>e.horde);
     this.player.hurtbox={radius:12,layer:32}; this.player.collisionLayer=2;
     for(const e of this.enemies){e.hurtbox={radius:e.radius,layer:32};e.collisionLayer=4;e.navigation={maxPathNodes:1500};}
+    this.refillWild(2);this.enemies.sort((a,b)=>Number(!!a.isBoss)-Number(!!b.isBoss)||Number(!!a.horde)-Number(!!b.horde));
     this.discovery.reveal(this.player);
     for(const evolution of applyEvolutions(this.player,this.time))this.emit('evolve',evolution);
     this.definition=CREATURES[this.player.id];
@@ -136,7 +141,7 @@ export class Simulation {
   cast(a, aim, remoteTarget = null) {
     const p = this.player;
     if (p.dead || p.sleepUntil>this.time || (p.cooldowns[a.id] || 0) > 0) return false;
-    const visual=starterAttackVisual(p.baseCreature||p.id,a.id);
+    const catalogVisual=moveAnimationVisual(a),visual=catalogVisual?.external?catalogVisual:starterAttackVisual(p.baseCreature||p.id,a.id)||catalogVisual;
     const attackMultiplier=(p.buffs||[]).reduce((value,b)=>value*(b.attackMultiplier||1)*(b.typeBoost?.[a.type]||1),1);
     if(a.behavior==='teleport'){
       const d=distance(p,aim);if(d<4)return false;
@@ -168,9 +173,9 @@ export class Simulation {
       if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,this.moveDamage(e,a,attackMultiplier,1/(a.hits||1)),a.type||'Normal',true,a.nonlethal);if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal));
         if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}this.applyEnemyEffect(e,a);
         for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,effectiveness:effectivenessText(mult)});
-      }else this.emit('slash',{x:target.x,y:target.y,vfx:a.vfx||`moves/${a.id}`,size:78});
+      }else this.emit('slash',{x:target.x,y:target.y,vfx:visual?.impact||a.vfx||`moves/${a.id}`,size:visual?.impactSize||78});
     } else if(a.behavior==='area'){
-      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,this.moveDamage(e,a,attackMultiplier),a.type||'Normal',true);this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits});
+      let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,this.moveDamage(e,a,attackMultiplier),a.type||'Normal',true);this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits,ability:a.id,duration:a.id==='earthquake'?1.12:undefined});
     } else if(a.behavior==='rolling'){
       p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,speedMultiplier:a.speedMultiplier,hitAt:{}});
       this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
@@ -366,13 +371,12 @@ export class Simulation {
         }
       }
       if(shot.remaining<=0&&a.splashRadius)for(const e of this.enemies){if(e.state==='Dead'||e.defeated||shot.hitIds.has(e.uid)||distance(e,shot)>a.splashRadius+(e.radius||12)||!lineOfSight(this.map,shot,e))continue;this.damage(e,this.moveDamage(e,a,shot.bonusDamage||1,.6),a.type||'Normal',true);}
-      if(shot.visual&&shot.remaining<=0&&['fireBlast','hydroCannon'].includes(a.id))this.emit('impact',{x:shot.x,y:shot.y,vfx:shot.visual.impact,size:a.splashRadius?Math.max(shot.visual.impactSize,a.splashRadius*2):shot.visual.impactSize});
-      else if(shot.remaining<=0&&shot.hitIds.size&&['water','waterPulse','hydroPump'].includes(a.id))this.emit('impact',{x:shot.x,y:shot.y,vfx:'pmd/0021',size:78});
+      if(shot.visual&&shot.remaining<=0&&(a.splashRadius||(shot.hitIds.size&&(a.pellets||1)===1)))this.emit('impact',{x:shot.x,y:shot.y,vfx:shot.visual.impact,size:a.splashRadius?Math.max(shot.visual.impactSize,a.splashRadius*2):shot.visual.impactSize});
       else if(shot.visual&&this.time>=shot.trailAt){shot.trail.push({x:shot.x,y:shot.y});if(shot.trail.length>shot.visual.trail)shot.trail.shift();shot.trailAt=this.time+.045;}
     }
     this.projectiles = this.projectiles.filter(s => { if(s.remaining>0)return true;this.projectilePool.release(s);return false; });
     this.discovery.reveal(p);
-    if((!this.map.scene||this.map.layer)&&this.time>=this.streamAt){this.streamCreatures();this.streamAt=this.time+.5;}
+    if((!this.map.scene||this.map.layer)&&this.time>=this.streamAt){this.streamCreatures();this.streamAt=this.time+this.spawnConfig.refillInterval;}
     // Keep the streamed population alive outside the camera so creatures patrol
     // their territory before the player reaches them.
     for (const e of this.enemies){
@@ -402,37 +406,55 @@ export class Simulation {
     if(state.scene&&state.scene!==(this.map.scene||'world')){this.sharedWildStates.set(state.uid,state);return;}
     if(state.hp<=0&&state.respawnAt<=Date.now()){this.sharedWildStates.delete(state.uid);return;}
     this.sharedWildStates.set(state.uid,state);
-    const enemy=this.enemies.find(e=>e.uid===state.uid);
+    let enemy=this.enemies.find(e=>e.uid===state.uid);
+    if(!enemy&&state.dynamicSpawn&&state.id&&Math.hypot((state.x||0)-this.player.x,(state.y||0)-this.player.y)<=this.spawnConfig.radius){
+      const population=this.enemies.filter(e=>!e.isBoss&&!e.horde).length;
+      const occupied=this.enemies.some(e=>e.state!=='Dead'&&Math.hypot(e.x-state.x,e.y-state.y)<this.spawnConfig.entitySpacing);
+      if(population<this.spawnConfig.targetPopulation&&!occupied&&walkable(this.map,state.x,state.y,12)&&!(this.map.scene?false:this.inSafeCity(state)))enemy=this.createWildEntity({...state,species:state.id});
+    }
     if(!enemy)return;
     if(Number.isFinite(state.x)&&Number.isFinite(state.y))Object.assign(enemy,{networkTargetX:state.x,networkTargetY:state.y,home:state.home||enemy.home,moving:!!state.moving,facing:state.facing||enemy.facing,level:state.level||enemy.level,maxHp:state.maxHp||enemy.maxHp,phase:state.phase||enemy.phase,cooldown:Number.isFinite(state.cooldown)?state.cooldown:enemy.cooldown,telegraph:state.telegraph??enemy.telegraph,attackVfx:state.attackVfx??enemy.attackVfx,attackUntil:state.attackUntil??enemy.attackUntil,defeated:!!state.defeated});
     if(state.hp<=0){if(enemy.state!=='Dead')enemy.deathStart=this.time;enemy.hp=0;enemy.state='Dead';enemy.timer=Math.max(0,(state.respawnAt-Date.now())/1000);enemy.path=[];}
     else {enemy.hp=Math.max(0,Math.min(enemy.maxHp,state.hp));if(state.state)enemy.state=state.state;}
   }
-  sharedCreatureSnapshot(e){return {scene:this.map.scene||'world',uid:e.uid,isBoss:!!e.isBoss,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
+  sharedCreatureSnapshot(e){return {scene:this.map.scene||'world',uid:e.uid,id:e.id,name:e.name,element:e.element,isBoss:!!e.isBoss,dynamicSpawn:!!e.dynamicSpawn,zoneId:e.zoneId,minLevel:e.minLevel,reward:e.reward,time:e.time,spawnRarity:e.spawnRarity,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,attack:e.attack,defense:e.defense,spAttack:e.spAttack,spDefense:e.spDefense,speed:e.speed,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
+  createWildEntity(spawn){
+    if(this.enemies.some(enemy=>enemy.uid===spawn.uid))return this.enemies.find(enemy=>enemy.uid===spawn.uid);
+    const species=WILD_POKEMON.find(entry=>entry.id===(spawn.species||spawn.id))||{...WILD_POKEMON[0],...CREATURES[spawn.species||spawn.id],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
+    const stats=encounterStats(species,this.map,spawn,spawn.uid),maxHp=Number(spawn.maxHp)||stats.maxHp;
+    const entity=this.creaturePool.take({...species,...spawn,...stats,id:spawn.species||spawn.id,skills:enemySkillSet(species.element,spawn.level||stats.level),maxHp,hp:Number.isFinite(spawn.hp)?Math.max(0,Math.min(maxHp,spawn.hp)):maxHp,home:spawn.home||{x:spawn.x,y:spawn.y},state:spawn.state||'Idle',timer:.15+(spawn.uid%12)*.11,cooldown:Number(spawn.cooldown)||0,path:[],facing:spawn.facing||{x:0,y:1},moving:false,slowUntil:0,staggerUntil:0,dynamicSpawn:true});
+    entity.hurtbox={radius:entity.radius,layer:32};entity.collisionLayer=4;entity.navigation={maxPathNodes:1500};
+    this.enemies.push(entity);return entity;
+  }
+  refillWild(limit=this.spawnConfig.refillBatch){
+    let created=0;
+    for(let slot=0;slot<limit;slot++){
+      const active=this.enemies.filter(enemy=>!enemy.isBoss&&!enemy.horde).length;if(active>=this.spawnConfig.targetPopulation)break;
+      const serial=++this.dynamicSpawnSerial,spawn=findDynamicSpawn({map:this.map,player:this.player,enemies:this.enemies,recent:this.recentSpawnLocations,spawnEpoch:(this.spawnEpoch^this.spawnSessionSeed)>>>0,serial,now:this.worldNow(),config:this.spawnConfig});
+      if(!spawn)continue;
+      this.createWildEntity(spawn);created++;
+    }
+    return created;
+  }
   streamCreatures() {
-    const p=this.player,near=[],now=this.worldNow();
+    const p=this.player,near=[],now=this.worldNow();this.recentSpawnLocations=this.recentSpawnLocations.filter(entry=>entry.until>now);
     for(const e of this.enemies){
-      if(!e.isBoss&&(!canSpawnSpecies(e.id)||this.inSafeCity(e.home))||e.uid>=2000&&!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
+      if(e.isBoss){near.push(e);continue;}
+      if(!canSpawnSpecies(e.id)||this.inSafeCity(e.home)||!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
       if(e.horde){if(distance(e.home,p)<1800)near.push(e);else e.unloadedAt=this.time;continue;}
-      if(e.uid<2000||distance(e.home,p)<1800){near.push(e);continue;}
-      this.dormant.set(e.uid,{hp:e.hp,state:e.state,timer:e.timer,unloaded:this.time});this.creaturePool.release(e);
+      if(distance(e,p)<=this.spawnConfig.despawnRadius){near.push(e);continue;}
+      this.recentSpawnLocations.push({x:e.home.x,y:e.home.y,until:now+this.spawnConfig.recentLocationCooldown*1000});this.creaturePool.release(e);
     }
     this.enemies=near;
-    const ids=new Set(near.map(e=>e.uid)),cs=24*32;
+    const ids=new Set(near.map(e=>e.uid));
     for(const guard of this.map.scene?[]:this.bossGuards||[]){
       if(ids.has(guard.uid)||distance(guard.home,p)>=1800)continue;
       if(guard.unloadedAt&&guard.state==='Dead')guard.timer=Math.max(0,guard.timer-(this.time-guard.unloadedAt));
       guard.unloadedAt=0;this.enemies.push(guard);ids.add(guard.uid);if(this.sharedWildStates.has(guard.uid))this.applySharedWildState(this.sharedWildStates.get(guard.uid));
     }
-    for(let cy=Math.floor(p.y/cs)-2;cy<=Math.floor(p.y/cs)+2;cy++)for(let cx=Math.floor(p.x/cs)-2;cx<=Math.floor(p.x/cs)+2;cx++)for(const spawn of this.map.chunks.get(`${cx},${cy}`)?.spawns||[]){
-      if(!canSpawnSpecies(spawn.species)||this.inSafeCity(spawn)||this.enemies.length>=48||ids.has(spawn.uid)||distance(spawn,p)>1500||!spawnAvailable(spawn,now))continue;
-      const saved=this.dormant.get(spawn.uid),species=WILD_POKEMON.find(s=>s.id===spawn.species)||{...WILD_POKEMON[0],...CREATURES[spawn.species],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
-      const stats=encounterStats(species,this.map,spawn,spawn.uid),hp=stats.maxHp;
-      const dead=saved?.state==='Dead'&&this.time-saved.unloaded<saved.timer;
-      const entity=this.creaturePool.take({...species,...spawn,...stats,id:spawn.species,skills:enemySkillSet(species.element,stats.level),maxHp:hp,hp:dead?0:saved?.state==='Dead'?hp:saved?.hp||hp,home:{x:spawn.x,y:spawn.y},state:dead?'Dead':'Idle',timer:dead?saved.timer-(this.time-saved.unloaded):.15+(spawn.uid%12)*.11,cooldown:0,path:[],facing:{x:0,y:1},moving:false,slowUntil:0,staggerUntil:0});
-      entity.hurtbox={radius:entity.radius,layer:32};entity.collisionLayer=4;entity.navigation={maxPathNodes:1500};
-      this.enemies.push(entity);ids.add(entity.uid);if(this.sharedWildStates.has(entity.uid))this.applySharedWildState(this.sharedWildStates.get(entity.uid));
-    }
+    for(const state of this.sharedWildStates.values())if(state.dynamicSpawn&&!ids.has(state.uid)&&state.scene===(this.map.scene||'world')&&Math.hypot((state.x||0)-p.x,(state.y||0)-p.y)<=this.spawnConfig.radius)this.applySharedWildState(state);
+    this.refillWild();
+    this.enemies.sort((a,b)=>Number(!!a.isBoss)-Number(!!b.isBoss)||Number(!!a.horde)-Number(!!b.horde));
   }
   randomRespawnPoint(e){
     const region=this.map.regions.find(r=>r.id===e.zoneId);if(!region)return e.home;

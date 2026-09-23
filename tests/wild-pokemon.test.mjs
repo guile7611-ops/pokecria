@@ -6,7 +6,7 @@ import { animationFrame } from '../public/animation.js';
 
 test('wild encounters use Pokémon species and never the old placeholder', () => {
   const sim = new Simulation();
-  assert.deepEqual(sim.enemies.filter(e=>!e.isBoss&&!e.horde).map(enemy => enemy.id), ['caterpie', 'pidgey']);
+  const local=sim.enemies.filter(e=>e.dynamicSpawn);assert.equal(local.length,2);assert.equal(new Set(local.map(enemy=>`${enemy.x},${enemy.y}`)).size,2);
   assert.ok(sim.enemies.filter(enemy => !enemy.isBoss).every(enemy => WILD_POKEMON.some(species => species.id === enemy.id)));
 });
 

@@ -1,0 +1,12 @@
+# Créditos e fontes das animações de golpes
+
+Esta revisão usa recursos externos apenas onde a adaptação para o renderer do jogo é tecnicamente segura. Os sprites de batalha com perspectiva incompatível servem como referência de coreografia; eles não são carregados no navegador.
+
+- **EBDX Move & Common Animation Pack**, por NikDie, baseado no Elite Battle: DX de Luka S.J.: 179 animações foram convertidas dos PNGs e scripts Ruby associados ao próprio golpe; os efeitos sonoros específicos também foram importados quando presentes. No Terremoto, cuja fonte não possui PNG, a coreografia de escurecimento, tremor integral da cena e áudio foi portada com uma camada de rachaduras adequada ao mapa. Crédito solicitado: **Luka S.J. e NikDie**. Fonte: <https://eeveeexpo.com/resources/1230/>
+- **Gen 3 Move Animation Pack**, por TheTinfoilTemplar: 54 folhas nomeadas por golpe e seus áudios foram convertidos diretamente do formato Gen 3. O autor informa que crédito não é obrigatório, mas é apreciado. Fonte: <https://eeveeexpo.com/resources/1669/>
+- **Pokémon Showdown**, animações de batalha por Guangcong Luo e contribuidores, arquivo sob CC0-1.0: referência de coreografia e tempos para golpes sem folha compatível. Fonte: <https://github.com/smogon/pokemon-showdown-client/blob/master/play.pokemonshowdown.com/src/battle-animations-moves.ts>
+- **Pokémon Mystery Dungeon: Explorers of Sky – Attack Effects**: folhas PMD já presentes no projeto foram preservadas e agora recebem fases de conjuração, trajetória e impacto. A associação é visual e não afirma que o número interno do arquivo é o ID oficial do golpe.
+- **Attack Effects de Pokémon FireRed/LeafGreen**, The Spriters Resource: referência visual de contraste, silhueta e leitura em 8/16 bits. Fonte: <https://www.spriters-resource.com/game_boy_advance/pokemonfireredleafgreen/asset/3860/>
+- **Gen 9 Move Animation Project**, por Reborn team, StCooler, DarrylBD99, WolfPP, ardicoozer, riddlemeree, BellBlitzKing, KRLW890, Nut0066, Toxillian, QuahogTheCreator, Lcorp e Shashu-Greninja: consultado para cobertura futura; não há recurso Gen 9 copiado nesta revisão. Fonte: <https://www.pokecommunity.com/threads/the-gen-9-move-animation-project.526189/>
+
+As conversões exatas ficam registradas em `public/external-move-vfx.js`. Os golpes restantes continuam sendo gerados por `scripts/build-move-vfx.mjs`, usando formas próprias e referências de movimento sem copiar folhas incompatíveis quadro a quadro.

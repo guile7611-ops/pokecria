@@ -1,21 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {levelRangeAt} from '../public/world-navigation.js';
+import {freePosition,levelRangeAt} from '../public/world-navigation.js';
 import {Simulation} from '../public/simulation.js';
 import {encounterStats} from '../public/encounters.js';
 import {enemySkillCount,enemySkillSet} from '../public/enemy-skills.js';
 import {WILD_POKEMON} from '../public/data.js';
+import {DEFAULT_SPAWN_CONFIG,findDynamicSpawn} from '../public/spawn-system.js';
+
+const volcanicProposals=sim=>{const player=freePosition(sim.map,{x:387*32,y:205*32}),config={...DEFAULT_SPAWN_CONFIG,radius:1200,minPlayerDistance:64,entitySpacing:0};return Array.from({length:240},(_,index)=>findDynamicSpawn({map:sim.map,player,enemies:[],recent:[],spawnEpoch:sim.spawnEpoch,serial:index+1,now:0,config})).filter(spawn=>spawn?.zoneId==='vulcao');};
 
 test('volcanic wild levels vary within their walking-distance band and respect evolution minima',()=>{
  const sim=new Simulation('bulbasaur',{spawnEpoch:777});
- const spawns=sim.map.spawns.filter(s=>s.zoneId==='vulcao');
+ const spawns=volcanicProposals(sim);assert.ok(spawns.length>10);
  const levels=spawns.map(s=>encounterStats(WILD_POKEMON.find(p=>p.id===s.species),sim.map,s,s.uid).level);
  assert.ok(new Set(levels).size>=3);
  for(let i=0;i<spawns.length;i++){const [low,high]=levelRangeAt(sim.map,spawns[i]);assert.ok(levels[i]>=low&&levels[i]<=Math.max(high,spawns[i].minLevel));}
  for(const spawn of spawns.filter(s=>s.minLevel>1)){const level=encounterStats(WILD_POKEMON.find(p=>p.id===spawn.species),sim.map,spawn,spawn.uid).level;assert.ok(level>=spawn.minLevel);}
 });
 test('respawn rerolls level and stronger wild Pokémon pay more XP and coins',()=>{
- const sim=new Simulation('bulbasaur',{spawnEpoch:777}),spawn=sim.map.spawns.find(s=>s.zoneId==='vulcao'),species=WILD_POKEMON.find(p=>p.id===spawn.species);
+ const sim=new Simulation('bulbasaur',{spawnEpoch:777}),spawn=volcanicProposals(sim)[0],species=WILD_POKEMON.find(p=>p.id===spawn.species);
  const outcomes=Array.from({length:12},(_,respawn)=>encounterStats(species,sim.map,spawn,spawn.uid,{respawn}));
  assert.ok(new Set(outcomes.map(x=>x.level)).size>3);
  const ordered=[...outcomes].sort((a,b)=>a.level-b.level);assert.ok(ordered.at(-1).hp>ordered[0].hp);assert.ok(ordered.at(-1).xp>ordered[0].xp);assert.ok(ordered.at(-1).money>ordered[0].money);
