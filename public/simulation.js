@@ -287,12 +287,12 @@ export class Simulation {
     this.zones=this.zones.filter(zone=>!p.dead&&zone.until>this.time);
   }
   damage(e, amount, _type='Normal', final=false, nonlethal=false) {
-    if(this.inSafeCity(this.player)||this.inSafeCity(e))return 0;
+    if(this.inSafeCity(this.player))return 0;
     if (e.state === 'Dead' || e.defeated) return 0;
     if (!Number.isFinite(amount) || amount <= 0) return 0;
     if(nonlethal&&e.hp<=1)return 0;
     const defenseMultiplier=(e.debuffs||[]).filter(b=>b.until>this.time).reduce((value,b)=>value*(b.defenseMultiplier||1),1);
-    const damage = Math.max(1,Math.min(nonlethal?Math.max(0,e.hp-1):Infinity,Math.round(final?amount:amount-e.defense*defenseMultiplier))); e.hp = Math.max(0, e.hp - damage);
+    const damage = Math.max(1,Math.min(nonlethal?Math.max(0,e.hp-1):Infinity,Math.round(final?amount:amount-e.defense*defenseMultiplier))); e.hp = Math.max(0, e.hp - damage);e.stateVersion=Math.max(Date.now(),(Number(e.stateVersion)||0)+1);
     this.emit('damage', { x: e.x, y: e.y, uid:e.uid, amount: damage }); e.hitUntil = this.time + .16;
     if (e.hp === 0) {
       e.deathStart=this.time;e.state = 'Dead'; e.path = []; this.kills++; this.gainXP(e.xp); this.emit('kill', { x: e.x, y: e.y, uid:e.uid, xp: e.xp });
@@ -405,7 +405,8 @@ export class Simulation {
     if(!Number.isInteger(state?.uid)||!Number.isFinite(state.hp))return;
     if(state.scene&&state.scene!==(this.map.scene||'world')){this.sharedWildStates.set(state.uid,state);return;}
     if(state.hp<=0&&state.respawnAt<=Date.now()){this.sharedWildStates.delete(state.uid);return;}
-    this.sharedWildStates.set(state.uid,state);
+    const previous=this.sharedWildStates.get(state.uid),incomingVersion=Number(state.stateVersion)||0,previousVersion=Number(previous?.stateVersion)||0,stateIsFresh=incomingVersion>=previousVersion;
+    this.sharedWildStates.set(state.uid,stateIsFresh?{...previous,...state}:{...state,...previous,x:state.x,y:state.y,networkTargetX:state.x,networkTargetY:state.y});
     let enemy=this.enemies.find(e=>e.uid===state.uid);
     if(!enemy&&state.dynamicSpawn&&state.id&&Math.hypot((state.x||0)-this.player.x,(state.y||0)-this.player.y)<=this.spawnConfig.radius){
       const population=this.enemies.filter(e=>!e.isBoss&&!e.horde).length;
@@ -413,11 +414,13 @@ export class Simulation {
       if(population<this.spawnConfig.targetPopulation&&!occupied&&walkable(this.map,state.x,state.y,12)&&!(this.map.scene?false:this.inSafeCity(state)))enemy=this.createWildEntity({...state,species:state.id});
     }
     if(!enemy)return;
-    if(Number.isFinite(state.x)&&Number.isFinite(state.y))Object.assign(enemy,{networkTargetX:state.x,networkTargetY:state.y,home:state.home||enemy.home,moving:!!state.moving,facing:state.facing||enemy.facing,level:state.level||enemy.level,maxHp:state.maxHp||enemy.maxHp,phase:state.phase||enemy.phase,cooldown:Number.isFinite(state.cooldown)?state.cooldown:enemy.cooldown,telegraph:state.telegraph??enemy.telegraph,attackVfx:state.attackVfx??enemy.attackVfx,attackUntil:state.attackUntil??enemy.attackUntil,defeated:!!state.defeated});
+    if(Number.isFinite(state.x)&&Number.isFinite(state.y))Object.assign(enemy,{networkTargetX:state.x,networkTargetY:state.y,home:state.home||enemy.home,moving:!!state.moving,facing:state.facing||enemy.facing,level:state.level||enemy.level,maxHp:state.maxHp||enemy.maxHp,phase:state.phase||enemy.phase,cooldown:Number.isFinite(state.cooldown)?state.cooldown:enemy.cooldown,telegraph:state.telegraph??enemy.telegraph,attackVfx:state.attackVfx??enemy.attackVfx,attackUntil:state.attackUntil??enemy.attackUntil});
+    if(incomingVersion<(Number(enemy.stateVersion)||0))return;
+    enemy.stateVersion=incomingVersion;enemy.defeated=!!state.defeated;
     if(state.hp<=0){if(enemy.state!=='Dead')enemy.deathStart=this.time;enemy.hp=0;enemy.state='Dead';enemy.timer=Math.max(0,(state.respawnAt-Date.now())/1000);enemy.path=[];}
     else {enemy.hp=Math.max(0,Math.min(enemy.maxHp,state.hp));if(state.state)enemy.state=state.state;}
   }
-  sharedCreatureSnapshot(e){return {scene:this.map.scene||'world',uid:e.uid,id:e.id,name:e.name,element:e.element,isBoss:!!e.isBoss,dynamicSpawn:!!e.dynamicSpawn,zoneId:e.zoneId,minLevel:e.minLevel,reward:e.reward,time:e.time,spawnRarity:e.spawnRarity,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,attack:e.attack,defense:e.defense,spAttack:e.spAttack,spDefense:e.spDefense,speed:e.speed,level:e.level,state:e.state,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
+  sharedCreatureSnapshot(e){return {scene:this.map.scene||'world',uid:e.uid,id:e.id,name:e.name,element:e.element,isBoss:!!e.isBoss,dynamicSpawn:!!e.dynamicSpawn,zoneId:e.zoneId,minLevel:e.minLevel,reward:e.reward,time:e.time,spawnRarity:e.spawnRarity,x:e.x,y:e.y,home:e.home,hp:e.hp,maxHp:e.maxHp,attack:e.attack,defense:e.defense,spAttack:e.spAttack,spDefense:e.spDefense,speed:e.speed,level:e.level,state:e.state,stateVersion:Number(e.stateVersion)||0,moving:!!e.moving,facing:e.facing,defeated:!!e.defeated,respawnAt:e.state==='Dead'?Date.now()+Math.max(0,e.timer||0)*1000:0,phase:e.phase,cooldown:e.cooldown,telegraph:e.telegraph,attackVfx:e.attackVfx,attackUntil:e.attackUntil};}
   createWildEntity(spawn){
     if(this.enemies.some(enemy=>enemy.uid===spawn.uid))return this.enemies.find(enemy=>enemy.uid===spawn.uid);
     const species=WILD_POKEMON.find(entry=>entry.id===(spawn.species||spawn.id))||{...WILD_POKEMON[0],...CREATURES[spawn.species||spawn.id],drop:spawn.reward,xp:25,aggro:155,chaseRange:400,leash:620,wanderRadius:96,range:40,respawn:18};
@@ -490,7 +493,7 @@ export class Simulation {
     if (e.state === 'Dead') {
       if (e.isBoss && e.defeated && e.timer <= 0) { Object.assign(e, e.home, { hp: e.maxHp, state: 'Idle', phase: 1, defeated: false, timer: 2, path: [], telegraph: null, attackIndex:0, attackVfx:null, attackUntil:0 }); this.emit('bossRespawn'); }
       else if (e.isBoss) return;
-      if (e.timer <= 0 && distance(p, e.home) > 170) {const home=e.horde?e.home:this.randomRespawnPoint(e);const species=WILD_POKEMON.find(s=>s.id===e.id)||e;const stats=encounterStats(species,this.map,{...e,...home},e.uid,{horde:e.horde,respawn:e.respawnSerial||0});Object.assign(e,home,stats,{home:{...home},hp:stats.maxHp,skills:enemySkillSet(e.element,stats.level),state:'Idle',timer:2,path:[]});}
+      if (e.timer <= 0 && distance(p, e.home) > 170) {const home=e.horde?e.home:this.randomRespawnPoint(e);const species=WILD_POKEMON.find(s=>s.id===e.id)||e;const stats=encounterStats(species,this.map,{...e,...home},e.uid,{horde:e.horde,respawn:e.respawnSerial||0});Object.assign(e,home,stats,{home:{...home},hp:stats.maxHp,skills:enemySkillSet(e.element,stats.level),state:'Idle',timer:2,path:[],stateVersion:Math.max(Date.now(),(Number(e.stateVersion)||0)+1)});}
       return;
     }
     this.updateEnemyConditions(e);if(e.state==='Dead')return;

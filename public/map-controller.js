@@ -1,5 +1,6 @@
 import { saveWorld } from './world-runtime.js';
 import {levelRangeAt} from './world-navigation.js';
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 export class MapController {
  constructor(renderer, onSeed){this.renderer=renderer;this.onSeed=onSeed;this.panel=document.querySelector('.minimap');this.canvas=document.getElementById('minimap');this.expanded=false;this.follow=true;this.zoom=.16;this.x=0;this.y=0;this.lastDraw=0;this.atlas=false;
   this.panel.insertAdjacentHTML('beforeend',`<div class="map-tools"><button id="map-out" title="Afastar">−</button><button id="map-in" title="Aproximar">+</button><button id="map-player">Jogador</button><button id="map-region">Região</button><button id="map-world">Mundo</button><button id="map-open">M · Abrir</button></div><div class="atlas-only"><div class="atlas-info"><span class="eyebrow">ATLAS DE AURORA</span><h2>Um mundo para descobrir</h2><p id="map-selection">Selecione uma região ou um lugar descoberto.</p><p id="map-discovery"></p><p class="map-legend">● Você &nbsp; ◆ Santuário &nbsp; ⌂ Povoado<br>Claro: área atual · Escuro: não explorado</p><button id="map-fog">Ver cartografia do mundo</button><label>Seed do mundo<input id="world-seed" type="number" min="0" max="4294967295"></label><button id="world-regenerate">Aplicar seed e regenerar</button><button id="world-save">Salvar descoberta</button><p id="map-save-status" role="status"></p></div><div class="atlas-help">SCROLL · ZOOM &nbsp;&nbsp; ARRASTE · MOVER &nbsp;&nbsp; M · FECHAR</div></div>`);
@@ -31,12 +32,13 @@ export class MapController {
   if(this.expanded&&!sim.map.scene&&this.zoom<.15)for(const r of sim.map.regions)box('map-region-label',r.x*32,r.y*32,0,0,r.name);
   for(const poi of sim.map.pois)if(sim.discovery.state(poi.x,poi.y)!=='UNKNOWN')box('map-dot',poi.x,poi.y,0,0);
   for(const e of sim.enemies)if(e.state!=='Dead'&&sim.discovery.state(e.x,e.y)==='CURRENT'){
-   if(e.isBoss)box('map-boss',e.x,e.y,0,0,`<img src="/assets/pokemon/${e.id}/portrait.png" alt=""><small>Nv. ${e.level}</small>`);
-   else box('map-dot',e.x,e.y,0,0);
+   const id=encodeURIComponent(e.id),name=escapeHtml(e.name||e.id),level=Math.max(1,Number(e.level)||1),portrait=`<img src="/assets/pokemon/${id}/portrait.png" alt="${name}" loading="eager" draggable="false"><b hidden>${escapeHtml(name.slice(0,1).toUpperCase())}</b>`;
+   if(e.isBoss)box('map-boss',e.x,e.y,0,0,`${portrait}<small>${name} · Nv. ${level}</small>`);
+   else box('map-wild',e.x,e.y,0,0,`${portrait}<small>${name} · Nv. ${level}</small>`);
   }
   box('map-dot player',p.x,p.y,0,0);
   const cam=this.renderer;box('map-camera',cam.camera.x-cam.width/cam.zoom/2,cam.camera.y-cam.height/cam.zoom/2,cam.width/cam.zoom,cam.height/cam.zoom);
-  nodes.push(`<span class="map-caption">${Math.round(this.zoom*100)}% · ${this.atlas?'CARTOGRAFIA':'EXPLORAÇÃO'}</span>`);this.overlay.innerHTML=nodes.join('');
+  nodes.push(`<span class="map-caption">${Math.round(this.zoom*100)}% · ${this.atlas?'CARTOGRAFIA':'EXPLORAÇÃO'}</span>`);this.overlay.innerHTML=nodes.join('');for(const image of this.overlay.querySelectorAll('.map-wild img,.map-boss img'))image.addEventListener('error',()=>{image.hidden=true;if(image.nextElementSibling)image.nextElementSibling.hidden=false;},{once:true});
   document.getElementById('map-discovery').textContent=`${sim.discovery.seen.size} setores descobertos · ${sim.map.pois.filter(o=>sim.discovery.state(o.x,o.y)!=='UNKNOWN').length} lugares encontrados`;
  }
 }

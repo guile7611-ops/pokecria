@@ -92,8 +92,8 @@ const online = new OnlineClient({
   'guild-invite':({fromNick})=>{note(`${fromNick} convidou você para uma guilda. Abra H.`);if($('info').open)renderGuild();},
   'guild-joined':({nick})=>{note(`Guilda formada com ${nick}!`);if($('info').open)renderGuild();},
   'guild-xp':({xp,from})=>{sim.gainXP(xp);saveWorld(localStorage,sim);note(`+${xp} XP compartilhado com ${from}.`);},
-  'wild-hit':({uid,hp,respawn})=>{if(Number.isFinite(hp))sim.applySharedWildState({uid,hp,respawnAt:hp<=0?Date.now()+(respawn||13)*1000:0});},
-  'wild-kill':({uid,respawn})=>sim.applySharedWildState({uid,hp:0,respawnAt:Date.now()+(respawn||13)*1000}),
+  'wild-hit':state=>{if(Number.isFinite(state.hp))sim.applySharedWildState({...state,respawnAt:state.hp<=0?Date.now()+(state.respawn||13)*1000:0});},
+  'wild-kill':state=>sim.applySharedWildState({...state,hp:0,respawnAt:Date.now()+(state.respawn||13)*1000}),
   'wild-state':state=>sim.applySharedWildState(state),
   'world-creatures':({states})=>{for(const state of states||[])sim.applySharedWildState(state);},
   'boss-state':({uid,hp,maxHp,respawnAt})=>{const e=sim.enemies.find(v=>v.uid===uid&&v.isBoss);if(!e)return;e.maxHp=maxHp||e.maxHp;e.hp=Math.max(0,Math.min(e.maxHp,hp));if(e.hp<=0){e.state='Dead';e.defeated=true;e.timer=Math.max(0,(respawnAt-Date.now())/1000);e.deathStart=sim.time;e.path=[];e.telegraph=null;}else if(e.state==='Dead'||e.defeated){e.state='Idle';e.defeated=false;e.timer=2;e.path=[];}},
@@ -395,8 +395,8 @@ function frame(now) {
     for (const e of sim.events.splice(0)) {
       if(e.type==='cast'&&sound){audio??=new AudioContext();audio.resume();playMoveAudio(audio,ABILITIES[e.ability]);}
       if(online.token&&e.type==='queuedCast')online.request('skill',{ability:e.ability,x:e.x,y:e.y}).catch(error=>{if(!/recarga/i.test(error.message))note(error.message);});
-      if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,respawn:target?.respawn}).catch(()=>{});}
-      if(online.token&&e.type==='kill'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-kill',{uid:e.uid,xp:e.xp,respawn:target?.respawn}).catch(()=>{});}
+      if(online.token&&e.type==='damage'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-hit',{uid:e.uid,damage:e.amount,isBoss:!!target?.isBoss,hp:target?.hp,maxHp:target?.maxHp,stateVersion:target?.stateVersion,respawn:target?.respawn}).catch(()=>{});}
+      if(online.token&&e.type==='kill'&&Number.isInteger(e.uid)){const target=sim.enemies.find(v=>v.uid===e.uid);online.request('wild-kill',{uid:e.uid,xp:e.xp,hp:0,maxHp:target?.maxHp,stateVersion:target?.stateVersion,respawn:target?.respawn}).catch(()=>{});}
       if (['damage', 'hurt', 'kill', 'heal', 'slash','area','buff','castVisual','impact'].includes(e.type)) renderer.effects.push(e);
       if(e.type==='interaction')note(e.message);
       if(e.type==='openShop'){renderShopWallet();$('shop').showModal();note('Loja aberta.');}

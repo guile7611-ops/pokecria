@@ -16,7 +16,7 @@ async function enter(page){
  await page.waitForFunction(()=>window.spawnRenderer);
 }
 
-test('player-centred wild population reaches its cap and renders cached PMD icons',async({page})=>{
+test('player-centred wild population reaches its cap and renders PMD icons only on the map',async({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await enter(page);
  const result=await page.evaluate(()=>{
@@ -36,6 +36,10 @@ test('player-centred wild population reaches its cap and renders cached PMD icon
  expect(result.count).toBe(30);
  expect(result.unique).toBe(30);
  expect(result.bosses).toBeGreaterThan(0);
- await expect(page.locator('.creature-sprite:not(.boss-sprite) .sprite-icon img').first()).toHaveAttribute('src',/\/assets\/pokemon\/.+\/portrait\.png/);
+ await expect(page.locator('.creature-sprite:not(.boss-sprite) .sprite-icon')).toHaveCount(0);
+ await expect(page.locator('#minimap .map-wild img').first()).toHaveAttribute('src',/\/assets\/pokemon\/.+\/portrait\.png/);
+ await page.keyboard.press('m');
+ await expect(page.locator('.map-expanded .map-wild small').first()).toBeVisible();
+ await expect(page.locator('.map-expanded .map-wild small').first()).toContainText(/Nv\. \d+/);
  expect(errors).toEqual([]);
 });

@@ -104,8 +104,8 @@ export class RealtimeOnline {
     if(message.type==='wild-state'){this.wilds.set(message.uid,message);this.handlers['wild-state']?.(message);return;}
     if(message.type==='boss-state'){this.bosses.set(message.uid,message);this.handlers['boss-state']?.(message);return;}
     if(message.type==='wild-hit'&&message.isBoss){this.bosses.set(message.uid,message);this.handlers['boss-state']?.(message);return;}
-    if(message.type==='wild-hit')this.wilds.set(message.uid,{uid:message.uid,hp:message.hp,maxHp:message.maxHp,respawnAt:message.hp<=0?Date.now()+(message.respawn||13)*1000:0});
-    if(message.type==='wild-kill')this.wilds.set(message.uid,{uid:message.uid,hp:0,respawnAt:Date.now()+(message.respawn||13)*1000});
+    if(message.type==='wild-hit')this.wilds.set(message.uid,{...this.wilds.get(message.uid),...message,respawnAt:message.hp<=0?Date.now()+(message.respawn||13)*1000:0});
+    if(message.type==='wild-kill')this.wilds.set(message.uid,{...this.wilds.get(message.uid),...message,hp:0,respawnAt:Date.now()+(message.respawn||13)*1000});
     if(message.type==='wild-kill'&&sender?.guildId&&sender.guildId===this.guildId&&this.ownHits.delete(message.uid))this.handlers['guild-xp']?.({xp:Math.floor((message.xp||0)/2),from:sender.nick});
     if(message.type==='guild-invite')this.pendingInvite={fromId:message.from,fromNick:message.fromNick};
     if(message.type==='guild-joined'){this.guildId=message.guildId;this.pendingInvite=null;this.state.guildId=this.guildId;this.state.seq=++this.stateSeq;this.track(true).catch(()=>{});}
@@ -117,10 +117,10 @@ export class RealtimeOnline {
     if(path==='wild-hit'){
       this.ownHits.add(data.uid);
       if(data.isBoss){const state={uid:data.uid,hp:data.hp??Math.max(0,(this.bosses.get(data.uid)?.hp??data.maxHp)-data.damage),maxHp:data.maxHp,respawnAt:data.hp===0?Date.now()+(data.respawn||45)*1000:0,isBoss:true};this.bosses.set(data.uid,state);await this.send('boss-state',state);}
-      else {this.wilds.set(data.uid,{uid:data.uid,hp:data.hp,maxHp:data.maxHp,respawnAt:data.hp<=0?Date.now()+(data.respawn||13)*1000:0});await this.send('wild-hit',data);}
+      else {this.wilds.set(data.uid,{...this.wilds.get(data.uid),...data,respawnAt:data.hp<=0?Date.now()+(data.respawn||13)*1000:0});await this.send('wild-hit',data);}
       return {ok:true};
     }
-    if(path==='wild-kill'){this.wilds.set(data.uid,{uid:data.uid,hp:0,respawnAt:Date.now()+(data.respawn||13)*1000});await this.send('wild-kill',data);return {ok:true};}
+    if(path==='wild-kill'){this.wilds.set(data.uid,{...this.wilds.get(data.uid),...data,hp:0,respawnAt:Date.now()+(data.respawn||13)*1000});await this.send('wild-kill',data);return {ok:true};}
     if(path==='guild/invite'){
       const target=this.players.find(player=>player.id===data.targetId);if(!target)throw Error('Jogador indisponível.');
       await this.send('guild-invite',{fromNick:this.state.nick},target.id);return {ok:true};

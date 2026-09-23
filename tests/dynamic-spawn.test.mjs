@@ -9,6 +9,7 @@ import {freePosition} from '../public/world-navigation.js';
 import {LAYER_SYSTEMS} from '../public/world-habitats.js';
 import {DEFAULT_SPAWN_CONFIG,eligibleSpawnCandidates,findDynamicSpawn,spawnRandom,weightedSpawnChoice} from '../public/spawn-system.js';
 import {DAY_LENGTH_MS,NIGHT_SPECIES} from '../public/day-night.js';
+import {CITY_SAFE_ZONES} from '../public/safe-zones.js';
 
 const fill=sim=>{for(let i=0;i<24;i++)sim.streamCreatures();return sim.enemies.filter(enemy=>enemy.dynamicSpawn);};
 
@@ -62,7 +63,23 @@ test('each online player maintains a local population and can import a nearby sh
  assert.ok(imported);assert.equal(imported.id,source.id);assert.deepEqual(imported.home,source.home);
 });
 
-test('every wild species resolves to a cached PMD portrait path with a renderer fallback',async()=>{
+test('every wild species resolves to a cached PMD portrait shown only by the map',async()=>{
  for(const species of WILD_POKEMON)assert.ok(existsSync(new URL(`../public/assets/pokemon/${species.id}/portrait.png`,import.meta.url)),species.id);
- const source=await import('node:fs/promises').then(fs=>fs.readFile(new URL('../public/world-view.js',import.meta.url),'utf8'));assert.match(source,/sprite-icon/);assert.match(source,/classList\.add\('missing'\)/);
+ const fs=await import('node:fs/promises'),map=await fs.readFile(new URL('../public/map-controller.js',import.meta.url),'utf8'),world=await fs.readFile(new URL('../public/world-view.js',import.meta.url),'utf8');
+ assert.match(map,/map-wild/);assert.match(map,/portrait\.png/);assert.match(map,/addEventListener\('error'/);assert.doesNotMatch(world,/sprite-icon/);
+});
+
+test('stale online snapshots cannot restore damage already applied to a wild Pokemon',()=>{
+ const sim=new Simulation('bulbasaur',{spawnEpoch:63,worldNow:()=>0});fill(sim);
+ const enemy=sim.enemies.find(entry=>entry.dynamicSpawn);Object.assign(sim.player,{x:enemy.x+80,y:enemy.y+80});
+ const before=enemy.hp,damage=sim.damage(enemy,Math.max(1,Math.floor(enemy.maxHp*.2)),'Normal',true);assert.ok(damage>0);const damaged=enemy.hp,version=enemy.stateVersion;
+ sim.applySharedWildState({...sim.sharedCreatureSnapshot(enemy),hp:before,stateVersion:version-1});
+ assert.equal(enemy.hp,damaged);
+ sim.applySharedWildState({...sim.sharedCreatureSnapshot(enemy),hp:Math.max(1,damaged-1),stateVersion:version+1});
+ assert.equal(enemy.hp,Math.max(1,damaged-1));
+});
+
+test('a stray wild inside a city remains damageable from outside the safe zone',()=>{
+ const sim=new Simulation('bulbasaur',{spawnEpoch:63,worldNow:()=>0,safeZones:true}),enemy=sim.enemies.find(entry=>!entry.isBoss),city=CITY_SAFE_ZONES[0];Object.assign(sim.player,{x:city.x+city.radius+100,y:city.y});Object.assign(enemy,{x:city.x,y:city.y,hp:100,maxHp:100,state:'Idle',defeated:false});
+ assert.equal(sim.inSafeCity(sim.player),false);assert.equal(sim.inSafeCity(enemy),true);assert.ok(sim.damage(enemy,10,'Normal',true)>0);assert.ok(enemy.hp<100);
 });
