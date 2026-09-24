@@ -250,8 +250,14 @@ button:focus-visible{outline:3px solid #f6d85b;outline-offset:3px}
 #info .info-stats b{color:#215b79;font-size:11px}
 #info .move-manager{margin-top:22px}
 #info .move-help{display:block;margin:0 0 10px;color:#4b5a62;font:11px/1.5 "Courier New",monospace}
+#info .move-search{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;margin:0 0 10px;padding:8px 10px;background:#e8ddbd;border:2px solid #a58a61;box-shadow:inset 0 0 0 2px #fff6dd;color:#31546b;font:900 9px "Courier New",monospace;letter-spacing:.6px}
+#info .move-search input{min-width:0;padding:7px 9px;background:#fffaf0;border:2px solid #557283;color:#273945;font:11px "Courier New",monospace;outline:0}
+#info .move-search input:focus{border-color:#b36d37;box-shadow:0 0 0 2px #e4bc77}
+#info .move-search b{min-width:34px;padding:5px;text-align:center;background:#31546b;color:#fff3d6;border:1px solid #17384b}
+#info .move-empty{margin:10px 0;padding:12px;text-align:center;background:#eee4c8;border:2px solid #a6926c;color:#5b4d3d;font:900 10px "Courier New",monospace}
 #info .move-list{display:grid;grid-template-columns:1fr;gap:8px}
-#info .move-card{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:88px;padding:9px;background:#fff9e9;border:2px solid #88999a;border-left:5px solid #426e87;border-radius:3px;box-shadow:inset 0 0 0 2px #fff,2px 2px #c9b68e}
+#info .move-card{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:88px;padding:9px;background:#fff9e9;border:2px solid #88999a;border-left:5px solid #426e87;border-radius:3px;box-shadow:inset 0 0 0 2px #fff,2px 2px #c9b68e;content-visibility:auto;contain-intrinsic-size:auto 110px}
+#info .move-card[hidden]{display:none}
 #info .move-card.equipped{background:linear-gradient(105deg,#e4f1e7,#fff9e9 40%);border-color:#5c9c76;border-left-color:#32865c}
 #info .move-art{display:block;width:64px;height:64px;border:2px solid #2f576b;background-color:#c9dfe0;background-size:512px 64px;image-rendering:pixelated;box-shadow:inset 0 0 0 2px #e9f7ec;animation:move-preview .67s steps(8) infinite}
 #info .move-copy{min-width:0;display:grid;gap:3px}
