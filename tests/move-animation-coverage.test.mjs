@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {ABILITIES} from '../public/data.js';
-import {animationProfileFor,moveAnimationVisual,MOVE_AUDIO_FILES,SUPPORTED_MOVE_MOTIFS} from '../public/move-animation-profiles.js';
+import {animationProfileFor,moveAnimationVisual,MOVE_AUDIO_FILES,PRIORITY_MOVE_IDS,SUPPORTED_MOVE_MOTIFS} from '../public/move-animation-profiles.js';
 import {EXTERNAL_MOVE_VFX} from '../public/external-move-vfx.js';
 import sharp from 'sharp';
 
@@ -37,7 +37,7 @@ test('different combat behaviors retain different phase composition',()=>{
 
 test('exact external resources replace local effects without empty sheets',async()=>{
  const rows=Object.entries(EXTERNAL_MOVE_VFX);assert.equal(rows.length,233);assert.equal(rows.filter(([,row])=>row.source==='gen3').length,54);assert.equal(rows.filter(([,row])=>row.source==='ebdx').length,177);assert.equal(rows.filter(([,row])=>row.source==='gen9').length,2);assert.equal(rows.filter(([,row])=>row.audio).length,230);assert.equal(EXTERNAL_MOVE_VFX.earthquake.source,'ebdx');
- for(const [id,row] of rows){const path=fileURLToPath(new URL(`../public/assets/sprites/vfx/moves/${id}.png`,import.meta.url)),{data,info}=await sharp(path).ensureAlpha().raw().toBuffer({resolveWithObject:true}),large=['surf','muddyWater'].includes(id);assert.equal(info.width,large?1024:512,id);assert.equal(info.height,large?128:64,id);let visible=0;for(let index=3;index<data.length;index+=4)if(data[index]>8)visible++;assert.ok(visible>info.width*info.height*.002,id);if(row.audio)assert.ok(existsSync(new URL(`../public/assets/audio/moves/external/${row.audio}`,import.meta.url)),row.audio);const visual=moveAnimationVisual(ABILITIES[id]);assert.equal(visual.travel,`moves/${id}`);assert.equal(visual.external,row.source);}
+ for(const [id,row] of rows){const path=fileURLToPath(new URL(`../public/assets/sprites/vfx/moves/${id}.png`,import.meta.url)),{data,info}=await sharp(path).ensureAlpha().raw().toBuffer({resolveWithObject:true}),large=['surf','muddyWater'].includes(id);assert.equal(info.width,large?1024:512,id);assert.equal(info.height,large?128:64,id);let visible=0;for(let index=3;index<data.length;index+=4)if(data[index]>8)visible++;assert.ok(visible>info.width*info.height*.002,id);if(row.audio)assert.ok(existsSync(new URL(`../public/assets/audio/moves/external/${row.audio}`,import.meta.url)),row.audio);const visual=moveAnimationVisual(ABILITIES[id]);if(PRIORITY_MOVE_IDS.has(id)){assert.equal(visual.travel,`priority/${id}-travel`);assert.equal(visual.bespoke,true);}else{assert.equal(visual.travel,`moves/${id}`);assert.equal(visual.external,row.source);}}
 });
 
 test('Surf and Muddy Water use distinct layered Gen 9 choreography',async()=>{

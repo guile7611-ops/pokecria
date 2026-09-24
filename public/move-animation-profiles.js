@@ -1,4 +1,5 @@
 import {EXTERNAL_MOVE_VFX} from './external-move-vfx.js';
+export const PRIORITY_MOVE_IDS=new Set(['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse']);
 // Shared animation vocabulary for the runtime, the VFX builder and the audit.
 // The profile is deliberately derived from gameplay data instead of species so
 // newly imported moves automatically receive a fitting visual language.
@@ -56,6 +57,7 @@ export function animationProfileFor(ability){
 export function moveAnimationVisual(ability){
  if(!ability||ability.id==='basic')return null;
  const profile=animationProfileFor(ability),local=`moves/${ability.id}`,external=EXTERNAL_MOVE_VFX[ability.id],pmd=ability.vfx?.startsWith('pmd/');
+ if(PRIORITY_MOVE_IDS.has(ability.id)){const root=`priority/${ability.id}`;return {cast:`${root}-cast`,travel:`${root}-travel`,impact:`${root}-impact`,castSize:ability.id==='hydroCannon'?118:ability.id==='fireBlast'?96:82,travelSize:ability.id==='hydroCannon'?112:ability.id==='aquaWave'?104:ability.id==='fireBlast'?88:ability.id==='waterPulse'?70:58,impactSize:ability.id==='hydroCannon'?210:ability.id==='fireBlast'?178:ability.id==='solarSeed'?138:112,trail:ability.id==='hydroCannon'?6:ability.id==='aquaWave'?5:4,rotate:['leaf','hydroCannon','aquaWave','flame'].includes(ability.id),motif:profile.motif,sound:profile.sound,bespoke:true};}
  if(external)return {cast:local,travel:local,impact:local,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,motif:profile.motif,sound:profile.sound,external:external.source};
  const impact=pmd&&!['projectile','wave','beam','channel'].includes(ability.behavior)?ability.vfx:local;
  return {cast:local,travel:ability.vfx||local,impact,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,motif:profile.motif,sound:profile.sound};

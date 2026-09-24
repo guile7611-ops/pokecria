@@ -141,7 +141,7 @@ export class Simulation {
   cast(a, aim, remoteTarget = null) {
     const p = this.player;
     if (p.dead || p.sleepUntil>this.time || (p.cooldowns[a.id] || 0) > 0) return false;
-    const catalogVisual=moveAnimationVisual(a),visual=catalogVisual?.external?catalogVisual:starterAttackVisual(p.baseCreature||p.id,a.id)||catalogVisual;
+    const catalogVisual=moveAnimationVisual(a),visual=catalogVisual?.external||catalogVisual?.bespoke?catalogVisual:starterAttackVisual(p.baseCreature||p.id,a.id)||catalogVisual;
     const attackMultiplier=(p.buffs||[]).reduce((value,b)=>value*(b.attackMultiplier||1)*(b.typeBoost?.[a.type]||1),1);
     if(a.behavior==='teleport'){
       const d=distance(p,aim);if(d<4)return false;
@@ -366,12 +366,12 @@ export class Simulation {
         if (!walkable(this.map, shot.x, shot.y, 0)) { shot.remaining = 0; break; }
         const hit = this.enemies.find(e => e.state !== 'Dead'&&!e.defeated&&!shot.hitIds.has(e.uid)&&distance(e, shot) < (e.hurtbox?.radius||e.radius||12) + shot.hitbox.radius);
         if (hit) {shot.hitIds.add(hit.uid);const mult=effectiveness(a.type||'Normal',hit.element),speedBonus=a.speedScaling?Math.max(.75,Math.min(2,p.speed/Math.max(1,hit.speed||60))):1,dealt=this.damage(hit,this.moveDamage(hit,a,(shot.bonusDamage||1)*speedBonus),a.type||'Normal',true);if(a.slow&&!hit.isBoss&&hit.state!=='Dead')hit.slowUntil=this.time+a.slow;this.applyEnemyEffect(hit,a);if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal)); if(mult!==1)this.emit('typeEffect',{message:effectivenessText(mult),x:hit.x,y:hit.y});
-          if(a.behavior==='wave'){this.emit('impact',{x:hit.x,y:hit.y,vfx:'pmd/0021',size:82});const x=hit.x+shot.vx/a.speed*22,y=hit.y+shot.vy/a.speed*22;if(!hit.isBoss&&walkable(this.map,x,y,hit.radius||12)){hit.x=x;hit.y=y;hit.path=[];hit.staggerUntil=this.time+.28;}}
+          if(a.behavior==='wave'){this.emit('impact',{x:hit.x,y:hit.y,vfx:shot.visual?.impact||'pmd/0021',size:shot.visual?.impactSize||82,ability:a.id});const x=hit.x+shot.vx/a.speed*22,y=hit.y+shot.vy/a.speed*22;if(!hit.isBoss&&walkable(this.map,x,y,hit.radius||12)){hit.x=x;hit.y=y;hit.path=[];hit.staggerUntil=this.time+.28;}}
           else shot.remaining=0;
         }
       }
       if(shot.remaining<=0&&a.splashRadius)for(const e of this.enemies){if(e.state==='Dead'||e.defeated||shot.hitIds.has(e.uid)||distance(e,shot)>a.splashRadius+(e.radius||12)||!lineOfSight(this.map,shot,e))continue;this.damage(e,this.moveDamage(e,a,shot.bonusDamage||1,.6),a.type||'Normal',true);}
-      if(shot.visual&&shot.remaining<=0&&(a.splashRadius||(shot.hitIds.size&&(a.pellets||1)===1)))this.emit('impact',{x:shot.x,y:shot.y,vfx:shot.visual.impact,size:a.splashRadius?Math.max(shot.visual.impactSize,a.splashRadius*2):shot.visual.impactSize});
+      if(shot.visual&&shot.remaining<=0&&(a.splashRadius||(shot.hitIds.size&&(a.pellets||1)===1)))this.emit('impact',{x:shot.x,y:shot.y,vfx:shot.visual.impact,size:a.splashRadius?Math.max(shot.visual.impactSize,a.splashRadius*2):shot.visual.impactSize,ability:a.id});
       else if(shot.visual&&this.time>=shot.trailAt){shot.trail.push({x:shot.x,y:shot.y});if(shot.trail.length>shot.visual.trail)shot.trail.shift();shot.trailAt=this.time+.045;}
     }
     this.projectiles = this.projectiles.filter(s => { if(s.remaining>0)return true;this.projectilePool.release(s);return false; });

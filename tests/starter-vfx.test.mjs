@@ -27,15 +27,15 @@ test('all nine starter lines retain their distinct sheets and selected PMD effec
  assert.equal(starterAttackVisual('mudkip','whirlpool').impact,'pmd/0058');
 });
 
-test('Ember uses its exact Gen 3 resource as two moving flames without a generic explosion',()=>{
+test('Ember uses its bespoke two-flame choreography without a generic explosion',()=>{
  const sim=new Simulation('charmander'),foe=sim.enemies[0];
  Object.assign(foe,{x:sim.player.x+60,y:sim.player.y,home:{x:sim.player.x+60,y:sim.player.y},hp:500,maxHp:500,state:'Idle',defeated:false});
  assert.ok(sim.command({type:'cast',slot:0,x:foe.x,y:foe.y}));
- assert.equal(sim.projectiles.length,2);assert.equal(sim.projectiles[0].visual.travel,'moves/ember');
+ assert.equal(sim.projectiles.length,2);assert.equal(sim.projectiles[0].visual.travel,'priority/ember-travel');
  assert.notEqual(sim.projectiles[0].vy,sim.projectiles[1].vy);
- assert.ok(sim.events.some(event=>event.type==='castVisual'&&event.vfx==='moves/ember'));
+ assert.ok(sim.events.some(event=>event.type==='castVisual'&&event.vfx==='priority/ember-cast'));
  for(let i=0;i<15;i++)sim.step(.05);
- assert.equal(sim.events.some(event=>event.type==='impact'&&event.vfx==='moves/ember'),false);
+ assert.equal(sim.events.some(event=>event.type==='impact'&&event.vfx==='priority/ember-impact'),false);
 });
 
 test('legacy Fire moves use curated PMD sheets and Inferno animates its persistent zone',async()=>{

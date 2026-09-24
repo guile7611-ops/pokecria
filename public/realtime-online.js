@@ -4,6 +4,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from './supabase-config.js';
 import {ABILITIES,CREATURES,REGION} from './data.js';
 import {effectiveness,combatEffectiveness} from './type-system.js';
 import {starterAttackVisual} from './starter-attack-vfx.js';
+import {moveAnimationVisual} from './move-animation-profiles.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clean=value=>String(value||'').trim().slice(0,24);
@@ -169,7 +170,7 @@ export class RealtimeOnline {
       victims.push({id:target.id,damage});await this.send('pvp-hit',{nick:self.nick,damage,ability:ability.id},target.id);
       this.handlers['pvp-result']?.({targetId:target.id,nick:target.nick,damage,ability:ability.id});
     }
-    const visual=starterAttackVisual(CREATURES[self.pokemon]?.baseCreature||self.pokemon,ability.id);
+    const catalogVisual=moveAnimationVisual(ability),visual=catalogVisual?.external||catalogVisual?.bespoke?catalogVisual:starterAttackVisual(CREATURES[self.pokemon]?.baseCreature||self.pokemon,ability.id)||catalogVisual;
     await this.send('combat',{ability:ability.id,behavior:ability.behavior,vfx:visual?.travel||ability.vfx||`moves/${ability.id}`,castVfx:visual?.cast,impactVfx:visual?.impact,castSize:visual?.castSize,travelSize:visual?.travelSize,impactSize:visual?.impactSize,duration:ability.duration||0,charge:ability.charge||0,x:self.x,y:self.y,aimX:impact.x,aimY:impact.y,radius:ability.radius||0,targets:victims.map(v=>v.id)});
     return {ok:true,victims};
   }

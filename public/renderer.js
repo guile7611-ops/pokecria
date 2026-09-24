@@ -5,6 +5,7 @@ import {collidersIn,terrainPassable} from './collisions.js';
 import {ABILITIES} from './data.js';
 import {advanceRemote} from './remote-motion.js';
 import {nightVision,worldDaylight} from './day-night.js';
+import {PRIORITY_MOVE_IDS} from './move-animation-profiles.js';
 export class Renderer {
  constructor(element,simulation){this.canvas=element;this.sim=simulation;this.camera={x:490,y:555};this.zoom=1.45;this.effects=[];this.networkEffects=[];this.animationClocks=new WeakMap();this.worldView=new WorldView(simulation.map);this.debug=false;this.playerNick='Treinador';this.remoteEntities=new Map();this.overlays=document.createElement('div');this.overlays.className='world-overlays';this.quakeFlash=document.createElement('div');this.quakeFlash.className='earthquake-flash';this.lighting=document.createElement('div');this.lighting.className='world-lighting';this.clock=document.createElement('div');this.clock.className='world-clock';element.append(this.quakeFlash,this.lighting,this.overlays,this.clock);this.interactionButton=document.createElement('button');this.interactionButton.className='interaction-prompt';this.interactionButton.type='button';this.interactionButton.hidden=true;element.append(this.interactionButton);this.interactionButton.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();this.sim.command({type:'interact',id:this.interactionButton.dataset.worldInteraction});});this.resize();window.addEventListener('resize',()=>this.resize());}
  resize(){this.width=innerWidth;this.height=innerHeight;}
@@ -17,6 +18,51 @@ export class Renderer {
  worldPoint(x,y){return {x:(x-this.width/2)/this.zoom+this.camera.x,y:(y-this.height/2)/this.zoom+this.camera.y};}
  actor(e,player=false){const time=this.sim.time;if(e.remote&&e.hp<=0||player&&e.dead&&time-(e.deathStart??time)>.8)return null;if(e.state==='Dead'&&time-(e.deathStart||0)>.8)return null;const dead=e.state==='Dead'?{...e,dead:true}:e;const state=animationState(dead,time);let clock=this.animationClocks.get(e);if(!clock||clock.state!==state){clock={state,start:time};this.animationClocks.set(e,clock);}const frame=animationFrame(dead,time,clock.start);if(!frame.animation)return null;const a=frame.animation,s=frame.scale*(e.isBoss?1.45:1);const rolling=player&&e.buffs?.some(b=>b.id==='flameWheel')||e.remote&&e.rolling,selected=!player&&!e.remote&&this.sim.player.target===e.uid;return {key:player?'player':e.uid,x:e.x,y:e.y,src:a.src,width:a.frameWidth*s,height:a.frameHeight*s,sheetWidth:a.frameWidth*a.columns*s,sheetHeight:a.frameHeight*a.rows*s,sx:frame.column*a.frameWidth*s,sy:frame.row*a.frameHeight*s,pivotX:frame.pivot.x*s,pivotY:frame.pivot.y*s,animation:state,label:this.zoom>.6?(player?`${this.playerNick} · Nv. ${e.level}`:e.remote?`${e.name} · Nv. ${e.level}`:`${e.name} · Nv. ${e.level||1}`):'',hp:e.hp,maxHp:e.maxHp,transform:e.isBoss?this.bossPose(e,time):'',className:(player?'player-sprite':e.remote?'player-sprite remote-player':e.isBoss?'creature-sprite boss-sprite':'creature-sprite')+(rolling?' flame-wheel-active':'')+(selected?' combat-target':'')};}
  effect(kind,x,y,key,age=0,size=64){return {key:'vfx-'+key,x,y:y-14,src:`/assets/sprites/vfx/${kind}.png`,width:size,height:size,sheetWidth:size*8,sheetHeight:size,sx:Math.min(7,Math.floor(age*12)%8)*size,sy:0,pivotX:size/2,pivotY:size/2,layer:8};}
+ priorityProjectileVfx(shot,ability,angle,key='shot'){
+  if(!PRIORITY_MOVE_IDS.has(ability?.id))return null;
+  const actors=[],kind=shot.visual?.travel||`priority/${ability.id}-travel`,age=this.sim.time,rad=angle*Math.PI/180,nx=-Math.sin(rad),ny=Math.cos(rad),trail=shot.trail||[];
+  const add=(x,y,size,suffix,opacity=1,rotation=angle)=>{const v=this.effect(kind,x,y,`${key}-${suffix}`,age,size);v.opacity=opacity;v.transform=`rotate(${rotation}deg)`;actors.push(v);};
+  if(ability.id==='aquaWave'){
+   add(shot.x+nx*34,shot.y+ny*34,78,'upper',.66);add(shot.x,shot.y,116,'crest',1);add(shot.x-nx*34,shot.y-ny*34,78,'lower',.66);
+   for(let i=Math.min(2,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x,p.y,96-i*15,`foam-${i}`,.34-i*.08);}
+  }else if(ability.id==='hydroCannon'){
+   for(let i=Math.min(6,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x,p.y,104-i*7,`column-${i}`,.78-i*.08);}
+   add(shot.x,shot.y,126,'head',1);add(shot.x,shot.y,84,'core',.88,angle+180);
+  }else if(ability.id==='waterPulse'){
+   add(shot.x,shot.y,76,'core',1,0);add(shot.x,shot.y,96,'ring-a',.48,0);add(shot.x,shot.y,118,'ring-b',.24,0);
+  }else if(ability.id==='solarSeed'){
+   add(shot.x,shot.y,70,'seed',1,0);for(let i=0;i<4;i++){const orbit=age*5+i*Math.PI/2;add(shot.x+Math.cos(orbit)*27,shot.y+Math.sin(orbit)*18,25,`leaf-${i}`,.72,orbit*180/Math.PI);}
+  }else if(ability.id==='fireBlast'){
+   add(shot.x,shot.y,104,'glyph',1,angle);add(shot.x,shot.y,77,'heart',.82,angle+36);for(let i=Math.min(3,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x,p.y,58-i*8,`cinder-${i}`,.4-i*.08,angle+i*22);}
+  }else if(ability.id==='flame'){
+   for(let i=Math.min(4,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*Math.sin(age*18+i)*10,p.y+ny*Math.sin(age*18+i)*10,64-i*8,`plume-${i}`,.62-i*.09,angle);}
+   add(shot.x,shot.y,82,'head',1,angle);
+  }else if(ability.id==='ember'){
+   add(shot.x,shot.y,52,'ember',1,angle);for(let i=Math.min(4,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*(i%2?8:-8),p.y+ny*(i%2?8:-8),26-i*3,`spark-${i}`,.7-i*.1,angle+i*19);}
+  }else{
+   add(shot.x,shot.y,68,'blade',1,angle);add(shot.x+nx*18,shot.y+ny*18,35,'blade-left',.58,angle-24);add(shot.x-nx*18,shot.y-ny*18,35,'blade-right',.58,angle+24);
+   for(let i=Math.min(2,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x,p.y,42-i*7,`cut-${i}`,.33-i*.09,angle+i*36);}
+  }
+  return actors;
+ }
+ priorityCastVfx(e,key,age){
+  const actors=[],base=this.effect(e.vfx,e.x,e.y,`${key}-core`,age,e.size||82);actors.push(base);
+  if(['hydroCannon','fireBlast','solarSeed'].includes(e.ability)){const halo=this.effect(e.vfx,e.x,e.y,`${key}-halo`,age,(e.size||82)*1.35);halo.opacity=.38;halo.transform=`rotate(${-age*90}deg)`;actors.unshift(halo);}
+  return actors;
+ }
+ priorityImpactVfx(e,key,age){
+  const actors=[],size=e.size||112,center=this.effect(e.vfx,e.x,e.y,`${key}-center`,age,size);actors.push(center);
+  const orbit=(count,radius,scale,opacity=0.65)=>{for(let i=0;i<count;i++){const a=i*Math.PI*2/count+age*2.4,v=this.effect(e.vfx,e.x+Math.cos(a)*radius,e.y+Math.sin(a)*radius*.62,`${key}-orbit-${i}`,age+i*.04,size*scale);v.opacity=opacity;v.transform=`rotate(${i*360/count+age*80}deg)`;actors.push(v);}};
+  if(e.ability==='hydroCannon')orbit(7,72,.42,.7);
+  else if(e.ability==='fireBlast')orbit(5,58,.52,.72);
+  else if(e.ability==='solarSeed')orbit(5,48,.4,.75);
+  else if(e.ability==='leaf')orbit(4,38,.36,.62);
+  else if(e.ability==='flame')orbit(4,35,.48,.62);
+  else if(e.ability==='ember')orbit(5,30,.28,.72);
+  else if(e.ability==='aquaWave')orbit(3,44,.62,.58);
+  else if(e.ability==='waterPulse'){for(let i=1;i<=3;i++){const ring=this.effect(e.vfx,e.x,e.y,`${key}-ring-${i}`,age+i*.06,size*(.72+i*.28));ring.opacity=.5-i*.1;actors.unshift(ring);}}
+  return actors;
+ }
  surfVfx(x,y,key,age,size=280){const actors=[],progress=Math.min(1,Math.max(0,age/.65)),pool=this.effect('moves/surfPool',x,y+10,`${key}-pool`,age,size);pool.opacity=.72;actors.push(pool);for(let i=1;i>=0;i--){const crest=this.effect('moves/surf',x-34+progress*(42+i*12),y-18+i*28,`${key}-crest-${i}`,age+i*.045,size*(i?.56:.76));crest.opacity=i?.48:.96;actors.push(crest);}return actors;}
  muddyWaterVfx(x,y,key,age,angle,size=154,trail=[]){const actors=[],radians=angle*Math.PI/180,dx=Math.cos(radians),dy=Math.sin(radians);for(let i=Math.min(3,trail.length)-1;i>=0;i--){const point=trail[trail.length-1-i],current=this.effect('moves/muddyCurrent',point.x,point.y+8,`${key}-current-${i}`,age-i*.055,size*(.82-i*.12));current.transform=`rotate(${angle}deg)`;current.opacity=.52-i*.1;actors.push(current);}if(!trail.length){for(let i=2;i>=0;i--){const current=this.effect('moves/muddyCurrent',x-dx*(20+i*22),y-dy*(20+i*22)+8,`${key}-current-${i}`,age-i*.055,size*(.74-i*.1));current.transform=`rotate(${angle}deg)`;current.opacity=.46-i*.09;actors.push(current);}}const crest=this.effect('moves/muddyWater',x,y,`${key}-crest`,age,size);crest.transform=`rotate(${angle}deg)`;actors.push(crest);return actors;}
  bossEffects(){const effects=[];for(const e of this.sim.enemies){const a=e.attackVfx,age=a?this.sim.time-a.start:1;if(!a||age>.65||e.state==='Dead')continue;
@@ -34,6 +80,7 @@ export class Renderer {
   for(const [id,e] of this.remoteEntities)if(e.scene===scene&&e.hp>0&&e.rolling){actors.push(this.effect('moves/flameWheel',e.x,e.y,`flameWheel-${id}`,this.sim.time,72));actors.push(this.effect('pmd/0030',e.x,e.y,`flameWheel-pmd-${id}`,this.sim.time,94));}
   actors.push(...this.bossEffects());
   for(const shot of this.sim.projectiles){const ability=ABILITIES[shot.ability],type=ability?.type,kind=shot.visual?.travel||ability?.vfx||(type==='Water'?'water':type==='Fire'?'fire':type==='Grass'?'leaf':type==='Ground'?'earth':type==='Flying'?'wind':'energy'),size=ability?.behavior==='wave'?116:shot.visual?.travelSize||32,angle=Math.atan2(shot.vy,shot.vx)*180/Math.PI;
+   const priority=this.priorityProjectileVfx(shot,ability,angle,`shot-${shot.uid}`);if(priority){actors.push(...priority);continue;}
    if(shot.ability==='muddyWater'){actors.push(...this.muddyWaterVfx(shot.x,shot.y,`shot-${shot.uid}`,this.sim.time,angle,154,shot.trail));continue;}
    if(shot.visual)for(const [index,position] of shot.trail.entries()){const trail=this.effect(kind,position.x,position.y,`trail-${shot.uid}-${index}`,this.sim.time-index*.07,size*(.48+index*.1));trail.opacity=.17+index*.11;trail.transform=`rotate(${angle}deg)`;actors.push(trail);}
    const vfx=this.effect(kind,shot.x,shot.y,'shot-'+shot.uid,this.sim.time,size);if(shot.visual)vfx.transform=`rotate(${angle}deg)`;actors.push(vfx);
@@ -49,8 +96,9 @@ export class Renderer {
    if(zone.id==='inferno')for(let i=0;i<3;i++){const angle=this.sim.time*2.3+i*Math.PI*2/3,v=this.effect(zone.visual?.travel||a.vfx,zone.x+Math.cos(angle)*a.radius*.6,zone.y+Math.sin(angle)*a.radius*.35,`zone-flame-${zone.uid}-${i}`,this.sim.time+i*.2,70);actors.push(v);}
    if(zone.id==='whirlpool')for(let i=0;i<3;i++){const angle=this.sim.time*2+i*Math.PI*2/3,v=this.effect('pmd/0055',zone.x+Math.cos(angle)*a.radius*.45,zone.y+Math.sin(angle)*a.radius*.45,`zone-water-${zone.uid}-${i}`,this.sim.time+i*.2,57);actors.push(v);}
   }
-  for(const [i,e]of this.effects.entries()){const age=this.sim.time-e.time,duration=e.duration||.65;if(age>duration)continue;const kind=e.vfx||(e.type==='heal'?'heal':e.type==='slash'?'slash':e.type==='kill'?'explosion':'impact');if(e.ability==='surf'){actors.push(...this.surfVfx(e.x,e.y,`surf-${i}-${e.time}`,age,e.type==='area'?Math.max(260,e.size||0):104));continue;}if(e.ability==='muddyWater'&&e.type==='castVisual'){const current=this.effect('moves/muddyCurrent',e.x,e.y,`muddy-cast-${i}-${e.time}`,age,105);current.opacity=.62;actors.push(current);continue;}if(e.ability==='earthquake'){const center=this.effect(kind,e.x,e.y,`earthquake-${i}-${e.time}`,age,Math.max(210,e.size||0));center.className='earthquake-vfx';actors.push(center);for(let j=0;j<5;j++){const angle=j*Math.PI*2/5+.35,ring=this.effect(kind,e.x+Math.cos(angle)*62,e.y+Math.sin(angle)*38,`earthquake-ring-${i}-${j}-${e.time}`,age+j*.035,92);ring.transform=`rotate(${j*72+18}deg)`;ring.opacity=.74;actors.push(ring);}continue;}actors.push(this.effect(kind,e.x,e.y,`${i}-${e.time}`,age,e.size||64));}
+  for(const [i,e]of this.effects.entries()){const age=this.sim.time-e.time,duration=e.duration||.65;if(age>duration)continue;const kind=e.vfx||(e.type==='heal'?'heal':e.type==='slash'?'slash':e.type==='kill'?'explosion':'impact');if(PRIORITY_MOVE_IDS.has(e.ability)){actors.push(...(e.type==='castVisual'?this.priorityCastVfx(e,`priority-cast-${i}-${e.time}`,age):this.priorityImpactVfx(e,`priority-impact-${i}-${e.time}`,age)));continue;}if(e.ability==='surf'){actors.push(...this.surfVfx(e.x,e.y,`surf-${i}-${e.time}`,age,e.type==='area'?Math.max(260,e.size||0):104));continue;}if(e.ability==='muddyWater'&&e.type==='castVisual'){const current=this.effect('moves/muddyCurrent',e.x,e.y,`muddy-cast-${i}-${e.time}`,age,105);current.opacity=.62;actors.push(current);continue;}if(e.ability==='earthquake'){const center=this.effect(kind,e.x,e.y,`earthquake-${i}-${e.time}`,age,Math.max(210,e.size||0));center.className='earthquake-vfx';actors.push(center);for(let j=0;j<5;j++){const angle=j*Math.PI*2/5+.35,ring=this.effect(kind,e.x+Math.cos(angle)*62,e.y+Math.sin(angle)*38,`earthquake-ring-${i}-${j}-${e.time}`,age+j*.035,92);ring.transform=`rotate(${j*72+18}deg)`;ring.opacity=.74;actors.push(ring);}continue;}actors.push(this.effect(kind,e.x,e.y,`${i}-${e.time}`,age,e.size||64));}
   for(const [i,e]of this.networkEffects.entries()){const age=this.sim.time-e.time;if(age<0||age>e.duration)continue;const t=Math.min(1,age/e.duration),moving=['projectile','wave'].includes(e.behavior),x=moving?e.x+(e.aimX-e.x)*t:e.aimX,y=moving?e.y+(e.aimY-e.y)*t:e.aimY,angle=Math.atan2(e.aimY-e.y,e.aimX-e.x)*180/Math.PI;
+   if(PRIORITY_MOVE_IDS.has(e.ability)&&e.behavior==='stationary'){const event={...e,x,y,vfx:e.vfx,size:e.size};actors.push(...(e.phase==='cast'?this.priorityCastVfx(event,`online-priority-cast-${e.from}-${i}`,age):this.priorityImpactVfx(event,`online-priority-impact-${e.from}-${i}`,age)));continue;}
    if(['channel','beam','whip','zone'].includes(e.behavior)){
     if(e.behavior==='zone'){actors.push(this.effect(e.impactVfx||e.vfx,e.aimX,e.aimY,`online-zone-${e.from}-${i}`,age,Math.max(160,e.impactSize||0)));continue;}
     if(e.behavior==='beam'&&age<e.charge){actors.push(this.effect(e.castVfx||e.vfx,e.x,e.y,`online-charge-${e.from}-${i}`,age,e.castSize));continue;}
@@ -59,14 +107,16 @@ export class Renderer {
    }
    if(e.ability==='surf'){actors.push(...this.surfVfx(x,y,`online-surf-${e.from}-${i}`,age,e.behavior==='area'?Math.max(260,e.size||0):104));continue;}
    if(e.ability==='muddyWater'&&e.behavior==='wave'){const trail=Array.from({length:3},(_,j)=>({x:e.x+(e.aimX-e.x)*Math.max(0,t-(j+1)*.08),y:e.y+(e.aimY-e.y)*Math.max(0,t-(j+1)*.08)}));actors.push(...this.muddyWaterVfx(x,y,`online-muddy-${e.from}-${i}`,age,angle,154,trail));continue;}
+   if(PRIORITY_MOVE_IDS.has(e.ability)&&moving){const trail=Array.from({length:e.trail||4},(_,j)=>{const back=Math.max(0,t-(j+1)*.08);return {x:e.x+(e.aimX-e.x)*back,y:e.y+(e.aimY-e.y)*back};}),speed=Math.max(1,e.duration),shot={x,y,vx:(e.aimX-e.x)/speed,vy:(e.aimY-e.y)/speed,trail,visual:{travel:e.vfx}};actors.push(...this.priorityProjectileVfx(shot,ABILITIES[e.ability],angle,`online-priority-${e.from}-${i}`));continue;}
    if(e.trail)for(let j=1;j<=e.trail;j++){const back=Math.max(0,t-j*.08),trail=this.effect(e.vfx,e.x+(e.aimX-e.x)*back,e.y+(e.aimY-e.y)*back,`online-trail-${e.from}-${e.time}-${i}-${j}`,age-j*.07,(e.size||64)*(1-j*.15));trail.opacity=.35-j*.08;trail.transform=`rotate(${angle}deg)`;actors.push(trail);}
    if(e.ability==='earthquake'){const quake=this.effect(e.vfx,e.aimX,e.aimY,`online-earthquake-${e.from}-${i}`,age,Math.max(210,e.size||0));quake.className='earthquake-vfx';actors.push(quake);continue;}const sprite=this.effect(e.vfx,x,y,`online-${e.from}-${e.time}-${i}`,age,e.size||64);if(['projectile','wave'].includes(e.behavior)&&e.trail)sprite.transform=`rotate(${angle}deg)`;actors.push(sprite);
   }
   this.networkEffects=this.networkEffects.filter(e=>this.sim.time-e.time<=e.duration);
   if(p.evolutionUntil>this.sim.time)actors.push(this.effect('evolution',p.x,p.y,'evolve',this.sim.time-p.evolutionStart,100));
   this.effects=this.effects.filter(e=>this.sim.time-e.time<(e.duration||1.2));
-  const localQuake=this.effects.find(e=>e.ability==='earthquake'&&this.sim.time-e.time>=0&&this.sim.time-e.time<(e.duration||1.12)),onlineQuake=this.networkEffects.find(e=>e.ability==='earthquake'&&this.sim.time-e.time>=0&&this.sim.time-e.time<1.12),quake=localQuake||onlineQuake,quakeAge=quake?this.sim.time-quake.time:0,quakeFade=quake?Math.max(0,1-quakeAge/1.12):0,quakeX=quake?Math.sin(quakeAge*92)*14*quakeFade:0,quakeY=quake?Math.cos(quakeAge*71)*4*quakeFade:0;
-  this.quakeFlash.style.opacity=quake?String(.08+.2*Math.sin(Math.min(1,quakeAge/.25)*Math.PI)):'0';
+  const localQuake=this.effects.find(e=>e.ability==='earthquake'&&this.sim.time-e.time>=0&&this.sim.time-e.time<(e.duration||1.12)),onlineQuake=this.networkEffects.find(e=>e.ability==='earthquake'&&this.sim.time-e.time>=0&&this.sim.time-e.time<1.12),quake=localQuake||onlineQuake;
+  const localHeavy=this.effects.find(e=>['hydroCannon','fireBlast'].includes(e.ability)&&e.type==='impact'&&this.sim.time-e.time>=0&&this.sim.time-e.time<.62),onlineHeavy=this.networkEffects.find(e=>['hydroCannon','fireBlast'].includes(e.ability)&&e.phase==='impact'&&this.sim.time-e.time>=0&&this.sim.time-e.time<.62),heavy=localHeavy||onlineHeavy,shake=quake||heavy,shakeAge=shake?this.sim.time-shake.time:0,shakeDuration=quake?1.12:.62,shakeFade=shake?Math.max(0,1-shakeAge/shakeDuration):0,shakePower=quake?14:heavy?.ability==='hydroCannon'?9:7,quakeX=shake?Math.sin(shakeAge*(quake?92:74))*shakePower*shakeFade:0,quakeY=shake?Math.cos(shakeAge*(quake?71:59))*shakePower*.3*shakeFade:0;
+  this.quakeFlash.style.opacity=quake?String(.08+.2*Math.sin(Math.min(1,shakeAge/.25)*Math.PI)):heavy?String(.04+.09*Math.sin(Math.min(1,shakeAge/.18)*Math.PI)):'0';
   this.worldView.render(this.canvas,{...this.camera,x:this.camera.x-quakeX/this.zoom,y:this.camera.y-quakeY/this.zoom,zoom:this.zoom,width:this.width,height:this.height},{actors});
   const cycle=worldDaylight(),vision=nightVision(this.sim.map.layer==='cave'?{darkness:.55}:cycle,this.width,this.height,!!this.sim.map.scene&&!this.sim.map.layer),playerScreen={x:(p.x-this.camera.x)*this.zoom+this.width/2,y:(p.y-this.camera.y)*this.zoom+this.height/2};
   this.lighting.style.setProperty('--vision-x',`${playerScreen.x}px`);this.lighting.style.setProperty('--vision-y',`${playerScreen.y}px`);this.lighting.style.setProperty('--vision-inner',`${vision.innerRadius}px`);this.lighting.style.setProperty('--vision-outer',`${vision.outerRadius}px`);

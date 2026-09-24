@@ -89,8 +89,8 @@ export const LEARNSET = [{ level: 1, ability: 'leaf', slot: 0 }, { level: 2, abi
 Object.assign(ABILITIES, {
   razorLeaf: { ...ABILITIES.leaf, id: 'razorLeaf', name: 'Folha navalha', damage: 20, pellets:5, spread:.16, pelletScale:.46, description: 'Espalha cinco folhas afiadas em leque.' },
   solarSeed: { ...ABILITIES.leaf, id: 'solarSeed', name: 'Semente solar', damage: 34, range: 340, pellets:1, color: '#e0f38a', description: 'Lança uma semente vegetal energizada.' },
-  flame: { ...ABILITIES.ember, id: 'flame', name: 'Chama intensa', damage: 22, description: 'Projétil de fogo reforçado de Charmeleon.' },
-  fireBlast: { ...ABILITIES.ember, id: 'fireBlast', name: 'Explosão de fogo', damage: 38, range: 340, description: 'Projétil de fogo poderoso de Charizard.' },
+  flame: { ...ABILITIES.ember, id: 'flame', name: 'Chama intensa', damage: 22, pellets:1,spread:0,pelletScale:1,speed:330, description: 'Uma serpente de fogo atravessa o caminho até o alvo.' },
+  fireBlast: { ...ABILITIES.ember, id: 'fireBlast', name: 'Explosão de fogo', damage: 38, range: 340,speed:305,pellets:1,spread:0,pelletScale:1,charge:.25,splashRadius:68,cooldown:6, description: 'Dispara o grande símbolo de fogo e incinera uma área no impacto.' },
   waterPulse: { ...ABILITIES.water, id: 'waterPulse', name: 'Pulso d’água', damage: 20, description: 'Projétil aquático reforçado de Wartortle.' },
   hydroPump: { ...ABILITIES.water, id: 'hydroPump', name: 'Hidro bomba', damage: 35, range: 350, description: 'Disparo aquático poderoso de Blastoise.' },
   growth:{id:'growth',name:'Crescimento',behavior:'buff',type:'Normal',cooldown:12,duration:8,attackMultiplier:1.3,color:'#79c95a',vfx:'buff',description:'Aumenta o poder dos ataques em 30% por 8 segundos.'},
