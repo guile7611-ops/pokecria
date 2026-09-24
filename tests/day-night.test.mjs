@@ -33,3 +33,17 @@ test('day and night candidate pools are mutually exclusive',()=>{
  assert.ok(night.every(entry=>!spawnAvailable(entry,0)&&spawnAvailable(entry,DAY_LENGTH_MS/2)));
  assert.equal(day.some(entry=>night.some(other=>other.id===entry.id)),false);
 });
+
+test('time change removes incompatible shared wilds instead of restoring an immortal snapshot',()=>{
+ let now=0;const sim=new Simulation('bulbasaur',{spawnEpoch:234,worldNow:()=>now});
+ for(let i=0;i<20;i++)sim.streamCreatures();
+ const daytime=sim.enemies.find(enemy=>enemy.dynamicSpawn&&enemy.time==='day');assert.ok(daytime);
+ const staleDay=sim.sharedCreatureSnapshot(daytime);sim.applySharedWildState(staleDay);assert.ok(sim.sharedWildStates.has(daytime.uid));
+ now=DAY_LENGTH_MS/2;sim.streamCreatures();
+ assert.equal(sim.enemies.some(enemy=>enemy.uid===daytime.uid),false);assert.equal(sim.sharedWildStates.has(daytime.uid),false);
+ sim.applySharedWildState(staleDay);assert.equal(sim.enemies.some(enemy=>enemy.uid===daytime.uid),false);assert.equal(sim.sharedWildStates.has(daytime.uid),false);
+ const nighttime=sim.enemies.find(enemy=>enemy.dynamicSpawn&&enemy.time==='night');assert.ok(nighttime);
+ const staleNight=sim.sharedCreatureSnapshot(nighttime),nightUid=nighttime.uid;sim.applySharedWildState(staleNight);now=DAY_LENGTH_MS;sim.streamCreatures();
+ assert.equal(sim.enemies.some(enemy=>enemy.uid===nightUid),false);assert.equal(sim.sharedWildStates.has(nightUid),false);
+ sim.applySharedWildState(staleNight);assert.equal(sim.enemies.some(enemy=>enemy.uid===nightUid),false);
+});

@@ -13,7 +13,7 @@ import {moveAnimationVisual} from './move-animation-profiles.js';
 import {pokeballById,pokeballCaptureChance} from './pokeballs.js';
 import { applyStats, applyEvolutions, nextEvolution } from './progression.js';
 import { clearSegment, createMap, distance, findPath, findPathNearObstacle, followPath, lineOfSight, walkable } from './world.js';
-import {spawnAvailable} from './day-night.js';
+import {spawnAvailable,speciesSpawnTime} from './day-night.js';
 import {officialDamage} from './official-mechanics.js';
 import {DEFAULT_SPAWN_CONFIG,findDynamicSpawn} from './spawn-system.js';
 
@@ -404,6 +404,7 @@ export class Simulation {
   applySharedWildState(state){
     if(!Number.isInteger(state?.uid)||!Number.isFinite(state.hp))return;
     if(state.scene&&state.scene!==(this.map.scene||'world')){this.sharedWildStates.set(state.uid,state);return;}
+    if(state.dynamicSpawn&&!spawnAvailable({time:state.time||speciesSpawnTime(state.id)},this.worldNow())){this.sharedWildStates.delete(state.uid);const index=this.enemies.findIndex(enemy=>enemy.uid===state.uid&&!enemy.isBoss);if(index>=0){const [enemy]=this.enemies.splice(index,1);this.creaturePool.release(enemy);if(this.player.target===state.uid){this.player.target=null;this.player.pendingCast=null;}}return;}
     if(state.hp<=0&&state.respawnAt<=Date.now()){this.sharedWildStates.delete(state.uid);return;}
     const previous=this.sharedWildStates.get(state.uid),incomingVersion=Number(state.stateVersion)||0,previousVersion=Number(previous?.stateVersion)||0,stateIsFresh=incomingVersion>=previousVersion;
     this.sharedWildStates.set(state.uid,stateIsFresh?{...previous,...state}:{...state,...previous,x:state.x,y:state.y,networkTargetX:state.x,networkTargetY:state.y});
@@ -443,7 +444,7 @@ export class Simulation {
     const p=this.player,near=[],now=this.worldNow();this.recentSpawnLocations=this.recentSpawnLocations.filter(entry=>entry.until>now);
     for(const e of this.enemies){
       if(e.isBoss){near.push(e);continue;}
-      if(!canSpawnSpecies(e.id)||this.inSafeCity(e.home)||!spawnAvailable(e,now)){this.dormant.delete(e.uid);this.creaturePool.release(e);continue;}
+      if(!canSpawnSpecies(e.id)||this.inSafeCity(e.home)||!spawnAvailable(e,now)){this.dormant.delete(e.uid);if(e.dynamicSpawn)this.sharedWildStates.delete(e.uid);if(p.target===e.uid){p.target=null;p.pendingCast=null;}this.creaturePool.release(e);continue;}
       if(e.horde){if(distance(e.home,p)<1800)near.push(e);else e.unloadedAt=this.time;continue;}
       if(distance(e,p)<=this.spawnConfig.despawnRadius){near.push(e);continue;}
       this.recentSpawnLocations.push({x:e.home.x,y:e.home.y,until:now+this.spawnConfig.recentLocationCooldown*1000});this.creaturePool.release(e);
@@ -455,7 +456,7 @@ export class Simulation {
       if(guard.unloadedAt&&guard.state==='Dead')guard.timer=Math.max(0,guard.timer-(this.time-guard.unloadedAt));
       guard.unloadedAt=0;this.enemies.push(guard);ids.add(guard.uid);if(this.sharedWildStates.has(guard.uid))this.applySharedWildState(this.sharedWildStates.get(guard.uid));
     }
-    for(const state of this.sharedWildStates.values())if(state.dynamicSpawn&&!ids.has(state.uid)&&state.scene===(this.map.scene||'world')&&Math.hypot((state.x||0)-p.x,(state.y||0)-p.y)<=this.spawnConfig.radius)this.applySharedWildState(state);
+    for(const state of [...this.sharedWildStates.values()])if(state.dynamicSpawn&&!ids.has(state.uid)&&state.scene===(this.map.scene||'world')&&Math.hypot((state.x||0)-p.x,(state.y||0)-p.y)<=this.spawnConfig.radius)this.applySharedWildState(state);
     this.refillWild();
     this.enemies.sort((a,b)=>Number(!!a.isBoss)-Number(!!b.isBoss)||Number(!!a.horde)-Number(!!b.horde));
   }

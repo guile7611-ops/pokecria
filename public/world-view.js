@@ -7,6 +7,7 @@ export class WorldView {
  node(state,key,cls){let node=state.nodes.get(key);if(!node){node=document.createElement('div');node.className=cls;state.nodes.set(key,node);state.plane.append(node);}node._seenFrame=state.frame;return node;}
  render(host,view,{objects=true,actors=[]}={}){const state=this.state(host),{x,y,zoom,width,height}=view,left=x-width/zoom/2,top=y-height/zoom/2,right=x+width/zoom/2,bottom=y+height/zoom/2,lod=worldLod(zoom),preload=lod===0?384:768;
   state.frame++;
+  if(state.lod!==lod){for(const [key,node] of state.nodes)if(key.startsWith('chunk:')){node.remove();state.nodes.delete(key);}state.lod=lod;}
   state.plane.style.transform=`translate3d(${width/2-x*zoom}px,${height/2-y*zoom}px,0) scale(${zoom})`;
   for(let cy=Math.max(0,Math.floor((top-preload)/768));cy<=Math.min(Math.ceil(this.map.rows/24)-1,Math.floor((bottom+preload)/768));cy++)for(let cx=Math.max(0,Math.floor((left-preload)/768));cx<=Math.min(Math.ceil(this.map.cols/24)-1,Math.floor((right+preload)/768));cx++){
    const layer=lod===0?'ground':'overview',key=`chunk:${cx},${cy}:${lod}`,node=this.node(state,key,'tile-sector');node.style.left=cx*768+'px';node.style.top=cy*768+'px';
