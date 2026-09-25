@@ -45,7 +45,7 @@ test('Torchic gains Z-A Flame Charge and Combusken later learns Blaze Kick',()=>
  const before=foe.hp;
  assert.ok(sim.command({type:'cast',slot:2,x:foe.x,y:foe.y}));
  assert.ok(foe.hp<before);
- assert.equal(sim.events.filter(e=>e.type==='slash'&&e.vfx===ABILITIES.blazeKick.vfx).length,1);
+ assert.equal(sim.events.filter(e=>e.type==='slash'&&e.vfx==='priority/blazeKick-impact').length,1);
 });
 
 test('Mud Shot joins the learned moves after evolving to Marshtomp and slows on impact',()=>{

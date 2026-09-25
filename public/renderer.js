@@ -39,6 +39,12 @@ export class Renderer {
    add(shot.x,shot.y,82,'head',1,angle);
   }else if(ability.id==='ember'){
    add(shot.x,shot.y,52,'ember',1,angle);for(let i=Math.min(4,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*(i%2?8:-8),p.y+ny*(i%2?8:-8),26-i*3,`spark-${i}`,.7-i*.1,angle+i*19);}
+  }else if(ability.id==='mudShot'){
+   add(shot.x,shot.y,76,'mud-core',1,angle);for(let i=Math.min(4,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*(i%2?7:-7),p.y+ny*(i%2?7:-7),34-i*4,`mud-drop-${i}`,.66-i*.1,angle+i*21);}
+  }else if(ability.id==='rockThrow'){
+   add(shot.x,shot.y,82,'boulder',1,angle+age*260);for(let i=Math.min(3,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*(i%2?9:-9),p.y+ny*(i%2?9:-9),30-i*4,`rock-chip-${i}`,.58-i*.1,angle-age*190);}
+  }else if(ability.id==='poisonSting'){
+   add(shot.x,shot.y,70,'needle',1,angle);for(let i=Math.min(4,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x+nx*(i%2?6:-6),p.y+ny*(i%2?6:-6),24-i*3,`toxin-${i}`,.62-i*.09,angle);}
   }else{
    add(shot.x,shot.y,68,'blade',1,angle);add(shot.x+nx*18,shot.y+ny*18,35,'blade-left',.58,angle-24);add(shot.x-nx*18,shot.y-ny*18,35,'blade-right',.58,angle+24);
    for(let i=Math.min(2,trail.length)-1;i>=0;i--){const p=trail[trail.length-1-i];add(p.x,p.y,42-i*7,`cut-${i}`,.33-i*.09,angle+i*36);}
@@ -47,7 +53,7 @@ export class Renderer {
  }
  priorityCastVfx(e,key,age){
   const actors=[],base=this.effect(e.vfx,e.x,e.y,`${key}-core`,age,e.size||82);actors.push(base);
-  if(['hydroCannon','fireBlast','solarSeed','fireSpin','iceFang','vineBurst'].includes(e.ability)){const halo=this.effect(e.vfx,e.x,e.y,`${key}-halo`,age,(e.size||82)*1.35);halo.opacity=.38;halo.transform=`rotate(${-age*90}deg)`;actors.unshift(halo);}
+  if(['hydroCannon','fireBlast','solarSeed','fireSpin','iceFang','vineBurst','blazeKick','sleepPowder','stunSpore'].includes(e.ability)){const halo=this.effect(e.vfx,e.x,e.y,`${key}-halo`,age,(e.size||82)*1.35);halo.opacity=.38;halo.transform=`rotate(${-age*90}deg)`;actors.unshift(halo);}
   return actors;
  }
  priorityImpactVfx(e,key,age){
@@ -68,6 +74,12 @@ export class Renderer {
   else if(e.ability==='iceFang')orbit(6,42,.32,.82);
   else if(e.ability==='sandAttack')orbit(7,Math.min(78,size*.34),.3,.55);
   else if(e.ability==='mudSlap')orbit(6,Math.min(58,size*.32),.34,.66);
+  else if(e.ability==='mudShot')orbit(7,Math.min(48,size*.32),.3,.7);
+  else if(e.ability==='blazeKick')orbit(5,Math.min(44,size*.32),.38,.76);
+  else if(e.ability==='rockThrow')orbit(6,Math.min(54,size*.34),.34,.78);
+  else if(e.ability==='poisonSting')orbit(6,Math.min(42,size*.34),.3,.72);
+  else if(e.ability==='sleepPowder')orbit(7,Math.min(64,size*.34),.34,.48);
+  else if(e.ability==='stunSpore')orbit(8,Math.min(66,size*.34),.3,.72);
   return actors;
  }
  surfVfx(x,y,key,age,size=280){const actors=[],progress=Math.min(1,Math.max(0,age/.65)),pool=this.effect('moves/surfPool',x,y+10,`${key}-pool`,age,size);pool.opacity=.72;actors.push(pool);for(let i=1;i>=0;i--){const crest=this.effect('moves/surf',x-34+progress*(42+i*12),y-18+i*28,`${key}-crest-${i}`,age+i*.045,size*(i?.56:.76));crest.opacity=i?.48:.96;actors.push(crest);}return actors;}

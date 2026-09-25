@@ -7,7 +7,7 @@ import {ABILITIES} from '../public/data.js';
 import {moveAnimationVisual,PRIORITY_MOVE_IDS} from '../public/move-animation-profiles.js';
 import {Simulation} from '../public/simulation.js';
 
-const ids=['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse','vineBurst','smokescreen','fireSpin','bite','iceFang','sandAttack','mudSlap'];
+const ids=['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse','vineBurst','smokescreen','fireSpin','bite','iceFang','sandAttack','mudSlap','mudShot','blazeKick','rockThrow','poisonSting','sleepPowder','stunSpore'];
 
 test('golpes prioritários usam fases grandes, próprias e distintas',async()=>{
  assert.deepEqual([...PRIORITY_MOVE_IDS],ids);
@@ -32,6 +32,12 @@ test('golpes prioritários usam fases grandes, próprias e distintas',async()=>{
  assert.equal(ABILITIES.smokescreen.behavior,'buff');
  assert.ok(ABILITIES.smokescreen.range>=350);
  assert.ok(ABILITIES.smokescreen.radius>=160);
+ assert.equal(ABILITIES.blazeKick.behavior,'direct');
+ assert.equal(ABILITIES.mudShot.behavior,'projectile');
+ assert.equal(ABILITIES.rockThrow.behavior,'projectile');
+ assert.equal(ABILITIES.poisonSting.behavior,'projectile');
+ assert.equal(ABILITIES.sleepPowder.behavior,'debuff');
+ assert.equal(ABILITIES.stunSpore.behavior,'debuff');
 });
 
 test('impactos locais informam o golpe para usar a coreografia correta',()=>{
