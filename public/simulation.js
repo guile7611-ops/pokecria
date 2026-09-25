@@ -172,8 +172,8 @@ export class Simulation {
       if(a.lunge){const length=Math.min(a.lunge,Math.max(0,distance(p,target)-p.radius-(target.radius||12)-2)),d=Math.max(1,distance(p,target)),dx=(target.x-p.x)/d,dy=(target.y-p.y)/d;for(let step=4;step<=length;step+=4){const x=p.x+dx*4,y=p.y+dy*4;if(!walkable(this.map,x,y,p.radius))break;p.x=x;p.y=y;}p.path=[];p.target=null;}
       if(target===e){const mult=effectiveness(a.type||'Normal',e.element);let dealt=0;for(let hit=0;hit<(a.hits||1)&&e.state!=='Dead';hit++)dealt+=this.damage(e,this.moveDamage(e,a,attackMultiplier,1/(a.hits||1)),a.type||'Normal',true,a.nonlethal);if(a.recoil&&dealt)p.hp=Math.max(1,p.hp-Math.max(1,Math.round(dealt*a.recoil)));if(a.lifesteal&&dealt)p.hp=Math.min(p.maxHp,p.hp+Math.round(dealt*a.lifesteal));
         if(!e.isBoss&&e.state!=='Dead'){if(a.stagger)e.staggerUntil=this.time+a.stagger;if(a.slow)e.slowUntil=this.time+a.slow;}this.applyEnemyEffect(e,a);
-        for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,effectiveness:effectivenessText(mult)});
-      }else this.emit('slash',{x:target.x,y:target.y,vfx:visual?.impact||a.vfx||`moves/${a.id}`,size:visual?.impactSize||78});
+        for(let hit=0;hit<(a.hits||1);hit++)this.emit('slash',{x:e.x+(hit?10:-10),y:e.y+(hit?-6:6),vfx:visual?.impact||a.vfx||'slash',size:visual?.impactSize||78,ability:a.id,effectiveness:effectivenessText(mult)});
+      }else this.emit('slash',{x:target.x,y:target.y,vfx:visual?.impact||a.vfx||`moves/${a.id}`,size:visual?.impactSize||78,ability:a.id});
     } else if(a.behavior==='area'){
       let x=a.selfCentered?p.x:aim.x,y=a.selfCentered?p.y:aim.y;const d=Math.hypot(x-p.x,y-p.y),range=a.range||0;if(range&&d>range){x=p.x+(x-p.x)/d*range;y=p.y+(y-p.y)/d*range;}const center={x,y};if(!walkable(this.map,x,y,0)||!lineOfSight(this.map,p,center))return false;let hits=0;for(const e of this.enemies)if(e.state!=='Dead'&&!e.defeated&&Math.hypot(e.x-x,e.y-y)<=a.radius+e.radius&&lineOfSight(this.map,center,e)){const mult=effectiveness(a.type||'Normal',e.element);this.damage(e,this.moveDamage(e,a,attackMultiplier),a.type||'Normal',true);this.applyEnemyEffect(e,a);hits++;}this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx||'impact',hits,ability:a.id,duration:a.id==='earthquake'?1.12:undefined});
     } else if(a.behavior==='rolling'){
@@ -192,14 +192,14 @@ export class Simulation {
       const targets=this.enemies.filter(e=>e.state!=='Dead'&&!e.defeated&&distance(e,center)<=a.radius+(e.radius||12)&&lineOfSight(this.map,center,e));
       if(!targets.length)return false;
       for(const e of targets)this.applyEnemyEffect(e,a,true);
-      this.emit('area',{x,y,size:a.radius*2,vfx:a.vfx,hits:targets.length});
+      this.emit('area',{x,y,size:Math.max(a.radius*2,visual?.impactSize||0),vfx:visual?.impact||a.vfx,hits:targets.length,ability:a.id});
     } else if(a.behavior==='cleanse'){
       for(const key of ['poison','burn','leech','yawnAt','sleepUntil'])p[key]=null;
       p.buffs=(p.buffs||[]).filter(b=>!String(b.id).startsWith('pvp-'));
       if(a.duration)p.buffs.push({id:a.id,remaining:a.duration,defenseBonus:a.defenseBonus||0});
       this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx,name:a.name});
     } else if(a.behavior==='buff'){
-      p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseBonus,speedMultiplier:a.speedMultiplier,typeBoost:a.typeBoost});this.emit('buff',{x:p.x,y:p.y,vfx:a.vfx||'buff',name:a.name});
+      p.buffs??=[];p.buffs=p.buffs.filter(b=>b.id!==a.id);p.buffs.push({id:a.id,remaining:a.duration,attackMultiplier:a.attackMultiplier,defenseBonus:a.defenseBonus,speedMultiplier:a.speedMultiplier,typeBoost:a.typeBoost});this.emit('buff',{x:p.x,y:p.y,vfx:visual?.impact||a.vfx||'buff',size:Math.max((a.radius||0)*2,visual?.impactSize||0),ability:a.id,name:a.name});
     }
     if (!['heal','buff'].includes(a.behavior)) {
       const target = aim;

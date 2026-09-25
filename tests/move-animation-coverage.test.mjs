@@ -29,7 +29,7 @@ test('audio palette exists once on disk and the complete audit lists every move'
 
 test('different combat behaviors retain different phase composition',()=>{
  const projectile=moveAnimationVisual(ABILITIES.hydroPump),melee=moveAnimationVisual(ABILITIES.iceFang),area=moveAnimationVisual(ABILITIES.earthquake),support=moveAnimationVisual(ABILITIES.recover),multi=moveAnimationVisual(ABILITIES.furySwipes);
- assert.equal(projectile.travel,'moves/hydroPump');assert.equal(melee.impact,'moves/iceFang');
+ assert.equal(projectile.travel,'moves/hydroPump');assert.equal(melee.impact,'priority/iceFang-impact');
  assert.notEqual(animationProfileFor(ABILITIES.earthquake).motif,animationProfileFor(ABILITIES.recover).motif);
  assert.notEqual(animationProfileFor(ABILITIES.furySwipes).motif,animationProfileFor(ABILITIES.hydroPump).motif);
  assert.ok(area.impactSize>melee.impactSize);assert.ok(support.castSize>0&&multi.impactSize>0);

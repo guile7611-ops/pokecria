@@ -47,7 +47,7 @@ export class Renderer {
  }
  priorityCastVfx(e,key,age){
   const actors=[],base=this.effect(e.vfx,e.x,e.y,`${key}-core`,age,e.size||82);actors.push(base);
-  if(['hydroCannon','fireBlast','solarSeed'].includes(e.ability)){const halo=this.effect(e.vfx,e.x,e.y,`${key}-halo`,age,(e.size||82)*1.35);halo.opacity=.38;halo.transform=`rotate(${-age*90}deg)`;actors.unshift(halo);}
+  if(['hydroCannon','fireBlast','solarSeed','fireSpin','iceFang','vineBurst'].includes(e.ability)){const halo=this.effect(e.vfx,e.x,e.y,`${key}-halo`,age,(e.size||82)*1.35);halo.opacity=.38;halo.transform=`rotate(${-age*90}deg)`;actors.unshift(halo);}
   return actors;
  }
  priorityImpactVfx(e,key,age){
@@ -61,6 +61,13 @@ export class Renderer {
   else if(e.ability==='ember')orbit(5,30,.28,.72);
   else if(e.ability==='aquaWave')orbit(3,44,.62,.58);
   else if(e.ability==='waterPulse'){for(let i=1;i<=3;i++){const ring=this.effect(e.vfx,e.x,e.y,`${key}-ring-${i}`,age+i*.06,size*(.72+i*.28));ring.opacity=.5-i*.1;actors.unshift(ring);}}
+  else if(e.ability==='vineBurst')orbit(4,48,.42,.72);
+  else if(e.ability==='smokescreen')orbit(8,Math.min(112,size*.34),.34,.48);
+  else if(e.ability==='fireSpin')orbit(8,Math.min(82,size*.34),.32,.76);
+  else if(e.ability==='bite')orbit(2,22,.58,.68);
+  else if(e.ability==='iceFang')orbit(6,42,.32,.82);
+  else if(e.ability==='sandAttack')orbit(7,Math.min(78,size*.34),.3,.55);
+  else if(e.ability==='mudSlap')orbit(6,Math.min(58,size*.32),.34,.66);
   return actors;
  }
  surfVfx(x,y,key,age,size=280){const actors=[],progress=Math.min(1,Math.max(0,age/.65)),pool=this.effect('moves/surfPool',x,y+10,`${key}-pool`,age,size);pool.opacity=.72;actors.push(pool);for(let i=1;i>=0;i--){const crest=this.effect('moves/surf',x-34+progress*(42+i*12),y-18+i*28,`${key}-crest-${i}`,age+i*.045,size*(i?.56:.76));crest.opacity=i?.48:.96;actors.push(crest);}return actors;}
@@ -90,7 +97,7 @@ export class Renderer {
    if(attack.behavior==='beam'&&this.sim.time<attack.fireAt){actors.push(this.effect(attack.visual?.cast||a.vfx,p.x,p.y,`charge-${attack.uid}`,this.sim.time,attack.visual?.castSize||90));continue;}
    if(attack.behavior==='channel'){for(let i=1;i<=6;i++){const length=i*a.range/7,wobble=Math.sin(this.sim.time*19+i*2)*i*4,x=p.x+attack.direction.x*length-attack.direction.y*wobble,y=p.y+attack.direction.y*length+attack.direction.x*wobble,v=this.effect(attack.visual?.travel||a.vfx,x,y,`channel-${attack.uid}-${i}`,this.sim.time+i*.06,30+i*10);v.transform=`rotate(${angle}deg)`;actors.push(v);}}
    else if(attack.behavior==='beam'&&attack.fired){for(let i=0;i<8;i++){const length=(i+.5)*a.range/8,v=this.effect(attack.visual?.travel||a.vfx,p.x+attack.direction.x*length,p.y+attack.direction.y*length,`beam-${attack.uid}-${i}`,this.sim.time,65+i*2);v.transform=`rotate(${angle}deg)`;actors.push(v);}}
-   else if(attack.behavior==='whip'){for(let i=1;i<=5;i++){const length=i*a.range/6,side=Math.sin(age*25+i*1.7)*17,x=p.x+attack.direction.x*length-attack.direction.y*side,y=p.y+attack.direction.y*length+attack.direction.x*side,v=this.effect(attack.visual?.travel||a.vfx,x,y,`whip-${attack.uid}-${i}`,this.sim.time,48);v.transform=`rotate(${angle}deg)`;actors.push(v);}}
+   else if(attack.behavior==='whip'){for(let lane=a.id==='vineBurst'?-1:0;lane<=(a.id==='vineBurst'?1:0);lane+=2)for(let i=1;i<=6;i++){const length=i*a.range/7,side=Math.sin(age*25+i*1.7+lane*.7)*17+lane*12,x=p.x+attack.direction.x*length-attack.direction.y*side,y=p.y+attack.direction.y*length+attack.direction.x*side,v=this.effect(attack.visual?.travel||a.vfx,x,y,`whip-${attack.uid}-${lane}-${i}`,this.sim.time+i*.035,a.id==='vineBurst'?62:48);v.transform=`rotate(${angle+lane*7}deg)`;v.opacity=.72+i*.045;actors.push(v);}}
   }
   for(const zone of this.sim.zones){const a=ABILITIES[zone.id],age=this.sim.time-(zone.until-a.duration),kind=zone.visual?.impact||a.vfx;const base=this.effect(kind,zone.x,zone.y,`zone-${zone.uid}`,age,Math.max(100,a.radius*1.8));base.opacity=.75;actors.push(base);
    if(zone.id==='inferno')for(let i=0;i<3;i++){const angle=this.sim.time*2.3+i*Math.PI*2/3,v=this.effect(zone.visual?.travel||a.vfx,zone.x+Math.cos(angle)*a.radius*.6,zone.y+Math.sin(angle)*a.radius*.35,`zone-flame-${zone.uid}-${i}`,this.sim.time+i*.2,70);actors.push(v);}
@@ -102,8 +109,8 @@ export class Renderer {
    if(['channel','beam','whip','zone'].includes(e.behavior)){
     if(e.behavior==='zone'){actors.push(this.effect(e.impactVfx||e.vfx,e.aimX,e.aimY,`online-zone-${e.from}-${i}`,age,Math.max(160,e.impactSize||0)));continue;}
     if(e.behavior==='beam'&&age<e.charge){actors.push(this.effect(e.castVfx||e.vfx,e.x,e.y,`online-charge-${e.from}-${i}`,age,e.castSize));continue;}
-    const count=e.behavior==='channel'?6:e.behavior==='beam'?8:5;
-    for(let j=1;j<=count;j++){const distance=j/(count+1),offset=e.behavior==='channel'?Math.sin(this.sim.time*18+j*2)*j*3:e.behavior==='whip'?Math.sin(this.sim.time*24+j*1.7)*17:0,dx=(e.aimX-e.x),dy=(e.aimY-e.y),length=Math.max(1,Math.hypot(dx,dy)),px=e.x+dx*distance-dy/length*offset,py=e.y+dy*distance+dx/length*offset,v=this.effect(e.vfx,px,py,`online-pattern-${e.from}-${i}-${j}`,age+j*.05,e.behavior==='beam'?70:e.behavior==='channel'?30+j*10:48);v.transform=`rotate(${angle}deg)`;actors.push(v);}continue;
+    const count=e.behavior==='channel'?6:e.behavior==='beam'?8:e.ability==='vineBurst'?6:5,lanes=e.ability==='vineBurst'?[-1,1]:[0];
+    for(const lane of lanes)for(let j=1;j<=count;j++){const distance=j/(count+1),offset=e.behavior==='channel'?Math.sin(this.sim.time*18+j*2)*j*3:e.behavior==='whip'?Math.sin(this.sim.time*24+j*1.7+lane*.7)*17+lane*12:0,dx=(e.aimX-e.x),dy=(e.aimY-e.y),length=Math.max(1,Math.hypot(dx,dy)),px=e.x+dx*distance-dy/length*offset,py=e.y+dy*distance+dx/length*offset,v=this.effect(e.vfx,px,py,`online-pattern-${e.from}-${i}-${lane}-${j}`,age+j*.05,e.behavior==='beam'?70:e.behavior==='channel'?30+j*10:e.ability==='vineBurst'?62:48);v.transform=`rotate(${angle+lane*7}deg)`;actors.push(v);}continue;
    }
    if(e.ability==='surf'){actors.push(...this.surfVfx(x,y,`online-surf-${e.from}-${i}`,age,e.behavior==='area'?Math.max(260,e.size||0):104));continue;}
    if(e.ability==='muddyWater'&&e.behavior==='wave'){const trail=Array.from({length:3},(_,j)=>({x:e.x+(e.aimX-e.x)*Math.max(0,t-(j+1)*.08),y:e.y+(e.aimY-e.y)*Math.max(0,t-(j+1)*.08)}));actors.push(...this.muddyWaterVfx(x,y,`online-muddy-${e.from}-${i}`,age,angle,154,trail));continue;}

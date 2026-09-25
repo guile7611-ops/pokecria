@@ -7,9 +7,9 @@ import {ABILITIES} from '../public/data.js';
 import {moveAnimationVisual,PRIORITY_MOVE_IDS} from '../public/move-animation-profiles.js';
 import {Simulation} from '../public/simulation.js';
 
-const ids=['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse'];
+const ids=['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse','vineBurst','smokescreen','fireSpin','bite','iceFang','sandAttack','mudSlap'];
 
-test('oito golpes prioritários usam fases grandes, próprias e distintas',async()=>{
+test('golpes prioritários usam fases grandes, próprias e distintas',async()=>{
  assert.deepEqual([...PRIORITY_MOVE_IDS],ids);
  const hashes=new Set();
  for(const id of ids){
@@ -29,6 +29,9 @@ test('oito golpes prioritários usam fases grandes, próprias e distintas',async
  assert.equal(ABILITIES.flame.pellets,1);
  assert.equal(ABILITIES.fireBlast.pellets,1);
  assert.ok(ABILITIES.fireBlast.splashRadius>=60);
+ assert.equal(ABILITIES.smokescreen.behavior,'buff');
+ assert.ok(ABILITIES.smokescreen.range>=350);
+ assert.ok(ABILITIES.smokescreen.radius>=160);
 });
 
 test('impactos locais informam o golpe para usar a coreografia correta',()=>{
@@ -40,4 +43,15 @@ test('impactos locais informam o golpe para usar a coreografia correta',()=>{
   for(let i=0;i<40&&!sim.events.some(e=>e.type==='impact');i++)sim.step(.025);
   if(id!=='ember')assert.ok(sim.events.some(event=>event.type==='impact'&&event.ability===id),id);
  }
+});
+
+test('golpes corpo a corpo e a cortina informam a identidade visual',()=>{
+ const sim=new Simulation('totodile'),foe=sim.enemies[0];
+ Object.assign(foe,{x:sim.player.x+55,y:sim.player.y,home:{x:sim.player.x+55,y:sim.player.y},hp:999,maxHp:999,state:'Idle',defeated:false});
+ sim.player.knownMoves.push('iceFang');sim.player.slots[0]='iceFang';sim.player.cooldowns={};
+ assert.ok(sim.cast(ABILITIES.iceFang,{x:foe.x,y:foe.y,targetId:foe.uid}));
+ assert.ok(sim.events.some(event=>event.type==='slash'&&event.ability==='iceFang'&&event.vfx==='priority/iceFang-impact'));
+ sim.player.cooldowns={};sim.player.knownMoves.push('smokescreen');sim.player.slots[0]='smokescreen';
+ assert.ok(sim.cast(ABILITIES.smokescreen,{x:foe.x,y:foe.y}));
+ assert.ok(sim.events.some(event=>event.type==='buff'&&event.ability==='smokescreen'&&event.size>=320));
 });

@@ -1,5 +1,9 @@
 import {EXTERNAL_MOVE_VFX} from './external-move-vfx.js';
-export const PRIORITY_MOVE_IDS=new Set(['leaf','ember','hydroCannon','aquaWave','solarSeed','flame','fireBlast','waterPulse']);
+const PRIORITY_VISUALS={
+ leaf:{castSize:82,travelSize:58,impactSize:112,trail:4,rotate:true},ember:{castSize:82,travelSize:58,impactSize:112,trail:4},hydroCannon:{castSize:118,travelSize:112,impactSize:210,trail:6,rotate:true},aquaWave:{castSize:82,travelSize:104,impactSize:112,trail:5,rotate:true},solarSeed:{castSize:82,travelSize:58,impactSize:138,trail:4},flame:{castSize:82,travelSize:58,impactSize:112,trail:4,rotate:true},fireBlast:{castSize:96,travelSize:88,impactSize:178,trail:4},waterPulse:{castSize:82,travelSize:70,impactSize:112,trail:4},
+ vineBurst:{castSize:92,travelSize:66,impactSize:142,trail:0,rotate:true},smokescreen:{castSize:100,travelSize:92,impactSize:330,trail:0},fireSpin:{castSize:92,travelSize:76,impactSize:230,trail:0},bite:{castSize:68,travelSize:62,impactSize:104,trail:0},iceFang:{castSize:74,travelSize:66,impactSize:126,trail:0},sandAttack:{castSize:82,travelSize:76,impactSize:240,trail:0},mudSlap:{castSize:76,travelSize:72,impactSize:180,trail:0}
+};
+export const PRIORITY_MOVE_IDS=new Set(Object.keys(PRIORITY_VISUALS));
 // Shared animation vocabulary for the runtime, the VFX builder and the audit.
 // The profile is deliberately derived from gameplay data instead of species so
 // newly imported moves automatically receive a fitting visual language.
@@ -57,7 +61,7 @@ export function animationProfileFor(ability){
 export function moveAnimationVisual(ability){
  if(!ability||ability.id==='basic')return null;
  const profile=animationProfileFor(ability),local=`moves/${ability.id}`,external=EXTERNAL_MOVE_VFX[ability.id],pmd=ability.vfx?.startsWith('pmd/');
- if(PRIORITY_MOVE_IDS.has(ability.id)){const root=`priority/${ability.id}`;return {cast:`${root}-cast`,travel:`${root}-travel`,impact:`${root}-impact`,castSize:ability.id==='hydroCannon'?118:ability.id==='fireBlast'?96:82,travelSize:ability.id==='hydroCannon'?112:ability.id==='aquaWave'?104:ability.id==='fireBlast'?88:ability.id==='waterPulse'?70:58,impactSize:ability.id==='hydroCannon'?210:ability.id==='fireBlast'?178:ability.id==='solarSeed'?138:112,trail:ability.id==='hydroCannon'?6:ability.id==='aquaWave'?5:4,rotate:['leaf','hydroCannon','aquaWave','flame'].includes(ability.id),motif:profile.motif,sound:profile.sound,bespoke:true};}
+ if(PRIORITY_MOVE_IDS.has(ability.id)){const root=`priority/${ability.id}`,settings=PRIORITY_VISUALS[ability.id];return {cast:`${root}-cast`,travel:`${root}-travel`,impact:`${root}-impact`,...settings,motif:profile.motif,sound:profile.sound,bespoke:true};}
  if(external)return {cast:local,travel:local,impact:local,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,motif:profile.motif,sound:profile.sound,external:external.source};
  const impact=pmd&&!['projectile','wave','beam','channel'].includes(ability.behavior)?ability.vfx:local;
  return {cast:local,travel:ability.vfx||local,impact,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,motif:profile.motif,sound:profile.sound};
