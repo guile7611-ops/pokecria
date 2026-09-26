@@ -7,12 +7,13 @@ import {ABILITIES,XP_CURVE} from '../public/data.js';
 import {MOVE_CATALOG} from '../public/move-catalog.js';
 import {Simulation} from '../public/simulation.js';
 import {PMD_MOVE_SPRITES} from '../public/pmd-attack-vfx.js';
+import {PXG_MOVE_VFX} from '../public/pxg-attack-vfx.js';
 
 test('every move has an eight-frame PNG sheet while official source aliases may share art',async()=>{
  const hashes=new Set();
  for(const move of Object.values(ABILITIES)){
   if(move.id==='basic')continue;
-  assert.equal(move.vfx,PMD_MOVE_SPRITES[move.id]?`pmd/${PMD_MOVE_SPRITES[move.id]}`:`moves/${move.id}`);
+  assert.equal(move.vfx,PXG_MOVE_VFX[move.id]?.travel||(PMD_MOVE_SPRITES[move.id]?`pmd/${PMD_MOVE_SPRITES[move.id]}`:`moves/${move.id}`));
   const bytes=await readFile(new URL(`../public/assets/sprites/vfx/moves/${move.id}.png`,import.meta.url));
   const meta=await sharp(bytes).metadata();
   const large=['surf','muddyWater'].includes(move.id);assert.equal(meta.width,large?1024:512,move.id);assert.equal(meta.height,large?128:64,move.id);

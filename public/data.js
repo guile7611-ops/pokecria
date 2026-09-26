@@ -6,6 +6,7 @@ import {LEVEL_MOVE_ABILITIES} from './level-move-abilities.js';
 import {ZA_MOVE_ABILITIES} from './za-move-abilities.js';
 import {GENERATED_LEVEL_MOVE_ABILITIES} from './generated-level-move-abilities.js';
 import {PMD_MOVE_SPRITES} from './pmd-attack-vfx.js';
+import {PXG_MOVE_VFX} from './pxg-attack-vfx.js';
 import {LEGENDS_ZA_LEARNSETS,LEGENDS_ZA_MOVE_METADATA} from './legends-za-data.js';
 import {SpawnRarityDefinitions,speciesRarity} from './world-definition.js';
 const BASE_PLAYER = { hp: 100, attack: 13, defense: 2, speed: 76, radius: 11, hpPerLevel: 9, attackPerLevel: 2 };
@@ -134,7 +135,7 @@ for(const move of GENERATED_LEVEL_MOVE_ABILITIES)ABILITIES[move.id]={...move,col
 for(const move of MOVE_CATALOG)ABILITIES[move.id]={...move,vfx:`moves/${move.id}`,catalogOnly:true,color:'#d9e8ff'};
 // Each equipped move has its own pre-rendered animation sheet, including
 // legacy starter moves. The catalog uses the same path convention.
-for(const ability of Object.values(ABILITIES))if(ability.id!=='basic')ability.vfx=PMD_MOVE_SPRITES[ability.id]?`pmd/${PMD_MOVE_SPRITES[ability.id]}`:`moves/${ability.id}`;
+for(const ability of Object.values(ABILITIES))if(ability.id!=='basic')ability.vfx=PXG_MOVE_VFX[ability.id]?.travel||(PMD_MOVE_SPRITES[ability.id]?`pmd/${PMD_MOVE_SPRITES[ability.id]}`:`moves/${ability.id}`);
 // Learnsets are populated from each species' own level-up table below. Only the
 // nine starters keep their original hand-authored tutorial progression.
 export const LEARNSETS = {};

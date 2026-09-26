@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {officialDamage} from '../public/official-mechanics.js';
 import {Simulation} from '../public/simulation.js';
 import {ABILITIES} from '../public/data.js';
+import {moveAnimationVisual} from '../public/move-animation-profiles.js';
 import {existsSync} from 'node:fs';
 
 function setup(starter='charmander',offsets=[70]){
@@ -17,7 +18,7 @@ test('Ice Fang lunges into melee, closes jaws, and briefly chills its target',()
  assert.equal(sim.cast(ABILITIES.iceFang,{x:e.x,y:e.y}),true);
  assert.ok(p.x>oldX);assert.ok(e.hp<1000);assert.equal(sim.projectiles.length,0);
  assert.ok(e.slowUntil>sim.time);assert.ok(e.staggerUntil>sim.time);
- assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx==='priority/iceFang-impact'));
+ assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx===moveAnimationVisual(ABILITIES.iceFang).impact));
 });
 
 test('Ice Fang can cast toward an online player without a wild target',()=>{
@@ -26,7 +27,7 @@ test('Ice Fang can cast toward an online player without a wild target',()=>{
  p.level=10;p.slots[2]='iceFang';
  assert.equal(sim.command({type:'cast',slot:2,x,y:p.y,remoteTarget:{x,y:p.y,radius:12}}),true);
  assert.ok(p.x<x);assert.equal(p.hp,hp);assert.ok(p.cooldowns.iceFang>0);
- assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx==='priority/iceFang-impact'));
+ assert.ok(sim.events.some(event=>event.type==='slash'&&event.vfx===moveAnimationVisual(ABILITIES.iceFang).impact));
 });
 
 test('Take Down and Rock Smash approach a selected wild target and strike once in range',()=>{

@@ -16,6 +16,7 @@ import {POKEBALLS,pokeballById} from './pokeballs.js';
 import {NATURES,STAT_KEYS} from './official-mechanics.js';
 import {playMoveAudio,preloadMoveAudio} from './move-audio.js';
 import {PRIORITY_MOVE_IDS} from './move-animation-profiles.js';
+import {PXG_MOVE_IDS} from './pxg-attack-vfx.js';
 const $ = id => document.getElementById(id);
 await cloud.bootstrap();
 let cloudGame=null;
@@ -81,10 +82,10 @@ const online = new OnlineClient({
     if(!entity||entity.scene!==(sim.map.scene||'world'))return;
     if(entity){entity.attackStart=sim.time;entity.attackUntil=sim.time+.45;entity.attackAnimation=['area','direct'].includes(behavior)?'Attack':'Shoot';entity.attackFacing={x:(aimX-x)/Math.max(1,Math.hypot(aimX-x,aimY-y)),y:(aimY-y)/Math.max(1,Math.hypot(aimX-x,aimY-y))};}
     const moving=['projectile','wave'].includes(behavior),duration=moving?Math.max(.25,Math.min(1.6,Math.hypot(aimX-x,aimY-y)/(ABILITIES[ability]?.speed||400))):.55;
-    if(['channel','beam','whip','zone'].includes(behavior)){const patternDuration=behavior==='beam'?(charge||.7)+.42:effectDuration||.4;renderer.networkEffects.push({from,ability,behavior,vfx,castVfx,impactVfx,x,y,aimX,aimY,time:sim.time,duration:patternDuration,charge:charge||0,size:travelSize||64,impactSize:impactSize||100,castSize:castSize||75});if(impactVfx&&PRIORITY_MOVE_IDS.has(ability))renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'impact',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+patternDuration*.72,duration:.65,size:impactSize});return;}
+    if(['channel','beam','whip','zone'].includes(behavior)){const patternDuration=behavior==='beam'?(charge||.7)+.42:effectDuration||.4;renderer.networkEffects.push({from,ability,behavior,vfx,castVfx,impactVfx,x,y,aimX,aimY,time:sim.time,duration:patternDuration,charge:charge||0,size:travelSize||64,impactSize:impactSize||100,castSize:castSize||75});if(impactVfx&&(PRIORITY_MOVE_IDS.has(ability)||PXG_MOVE_IDS.has(ability)))renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'impact',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+patternDuration*.72,duration:.65,size:impactSize});return;}
     if(castVfx)renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'cast',vfx:castVfx,x,y,aimX:x,aimY:y,time:sim.time,duration:.5,size:castSize});
     renderer.networkEffects.push({from,ability,behavior,vfx,x,y,aimX,aimY,time:sim.time,duration,size:behavior==='wave'?116:travelSize||(behavior==='area'?Math.max(64,Math.min(220,radius*2)):64),trail:castVfx&&moving?3:0});
-    if(impactVfx&&PRIORITY_MOVE_IDS.has(ability))renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'impact',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+(moving?duration:0),duration:.65,size:impactSize});
+    if(impactVfx&&(PRIORITY_MOVE_IDS.has(ability)||PXG_MOVE_IDS.has(ability)))renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'impact',vfx:impactVfx,x:aimX,y:aimY,aimX,aimY,time:sim.time+(moving?duration:0),duration:.65,size:impactSize});
     if(['water','hydroPump'].includes(ability))for(const id of targets||[]){const target=online.players.find(player=>player.id===id);if(!target)continue;const travelTime=Math.hypot(target.x-x,target.y-y)/(ABILITIES[ability]?.speed||370);renderer.networkEffects.push({from,ability,behavior:'stationary',phase:'impact',vfx:'pmd/0021',x:target.x,y:target.y,aimX:target.x,aimY:target.y,time:sim.time+travelTime,duration:.6,size:82});}
   },
   'pvp-hit':({nick,damage,hp,ability})=>{if(inCity(sim.player,sim.map.scene))return;sim.player.hp=Math.min(sim.player.hp,hp);sim.player.hitStart=sim.time;sim.player.hitUntil=sim.time+.25;if(ability==='basic')renderer.effects.push({x:sim.player.x,y:sim.player.y,time:sim.time,vfx:'slash'});note(`${nick} causou ${damage} de dano!`);if(sim.player.hp<=0&&!sim.player.dead){sim.player.dead=true;sim.player.deathStart=sim.time;sim.player.respawnIn=3;sim.player.path=[];sim.player.target=null;}},

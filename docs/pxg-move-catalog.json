@@ -1,0 +1,2687 @@
+{
+  "summary": {
+    "moves": 109,
+    "assets": 140
+  },
+  "moves": {
+    "absorb": {
+      "cast": {
+        "category": "effect",
+        "id": 14
+      },
+      "travel": {
+        "category": "effect",
+        "id": 14
+      },
+      "impact": {
+        "category": "effect",
+        "id": 14
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "absorb.lua",
+        "absorb2.lua"
+      ]
+    },
+    "acid": {
+      "cast": {
+        "category": "effect",
+        "id": 20
+      },
+      "travel": {
+        "category": "missile",
+        "id": 14
+      },
+      "impact": {
+        "category": "effect",
+        "id": 20
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "acid.lua"
+      ]
+    },
+    "ancientPower": {
+      "cast": {
+        "category": "effect",
+        "id": 39
+      },
+      "travel": {
+        "category": "missile",
+        "id": 9
+      },
+      "impact": {
+        "category": "effect",
+        "id": 273
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "ancient power.lua"
+      ]
+    },
+    "scratch": {
+      "cast": {
+        "category": "effect",
+        "id": 142
+      },
+      "travel": {
+        "category": "effect",
+        "id": 142
+      },
+      "impact": {
+        "category": "effect",
+        "id": 142
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "scratch.lua"
+      ]
+    },
+    "sandAttack": {
+      "cast": {
+        "category": "effect",
+        "id": 43
+      },
+      "travel": {
+        "category": "missile",
+        "id": 56
+      },
+      "impact": {
+        "category": "effect",
+        "id": 342
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "sandattack.lua"
+      ]
+    },
+    "quickAttack": {
+      "cast": {
+        "category": "effect",
+        "id": 5
+      },
+      "travel": {
+        "category": "effect",
+        "id": 5
+      },
+      "impact": {
+        "category": "effect",
+        "id": 113
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "quick attack.lua",
+        "quickattack.lua"
+      ]
+    },
+    "peck": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "effect",
+        "id": 3
+      },
+      "impact": {
+        "category": "effect",
+        "id": 3
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "peck.lua"
+      ]
+    },
+    "blizzard": {
+      "cast": {
+        "category": "effect",
+        "id": 41
+      },
+      "travel": {
+        "category": "missile",
+        "id": 7
+      },
+      "impact": {
+        "category": "effect",
+        "id": 265
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "blizzard.lua"
+      ]
+    },
+    "shadowBall": {
+      "cast": {
+        "category": "effect",
+        "id": 85
+      },
+      "travel": {
+        "category": "missile",
+        "id": 19
+      },
+      "impact": {
+        "category": "effect",
+        "id": 500
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "shadowball.lua"
+      ]
+    },
+    "sludgeBomb": {
+      "cast": {
+        "category": "effect",
+        "id": 114
+      },
+      "travel": {
+        "category": "missile",
+        "id": 38
+      },
+      "impact": {
+        "category": "effect",
+        "id": 114
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "sludgebomb.lua"
+      ]
+    },
+    "ember": {
+      "cast": {
+        "category": "effect",
+        "id": 16
+      },
+      "travel": {
+        "category": "missile",
+        "id": 4
+      },
+      "impact": {
+        "category": "effect",
+        "id": 114
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "ember.lua"
+      ]
+    },
+    "hydroCannon": {
+      "cast": {
+        "category": "effect",
+        "id": 65
+      },
+      "travel": {
+        "category": "missile",
+        "id": 86
+      },
+      "impact": {
+        "category": "effect",
+        "id": 207
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "hydro cannon fireman.lua",
+        "hydro cannon.lua"
+      ]
+    },
+    "aquaTail": {
+      "cast": {
+        "category": "effect",
+        "id": 54
+      },
+      "travel": {
+        "category": "missile",
+        "id": 32
+      },
+      "impact": {
+        "category": "effect",
+        "id": 206
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "aqua tail.lua"
+      ]
+    },
+    "chargeBeam": {
+      "cast": {
+        "category": "effect",
+        "id": 49
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 208
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "charge beam.lua"
+      ]
+    },
+    "thunderShock": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "missile",
+        "id": 40
+      },
+      "impact": {
+        "category": "effect",
+        "id": 48
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "thundershock.lua"
+      ]
+    },
+    "thunderbolt": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "missile",
+        "id": 41
+      },
+      "impact": {
+        "category": "effect",
+        "id": 48
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "thunderbolt.lua"
+      ]
+    },
+    "doubleKick": {
+      "cast": {
+        "category": "effect",
+        "id": 111
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 127
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "doublekick.lua"
+      ]
+    },
+    "confusion": {
+      "cast": {
+        "category": "effect",
+        "id": 133
+      },
+      "travel": {
+        "category": "effect",
+        "id": 133
+      },
+      "impact": {
+        "category": "effect",
+        "id": 247
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "confusion.lua"
+      ]
+    },
+    "confuseRay": {
+      "cast": {
+        "category": "effect",
+        "id": 137
+      },
+      "travel": {
+        "category": "effect",
+        "id": 137
+      },
+      "impact": {
+        "category": "effect",
+        "id": 247
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "confuseray.lua"
+      ]
+    },
+    "slash": {
+      "cast": {
+        "category": "effect",
+        "id": 160
+      },
+      "travel": {
+        "category": "effect",
+        "id": 160
+      },
+      "impact": {
+        "category": "effect",
+        "id": 160
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "slash.lua"
+      ]
+    },
+    "smokescreen": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 57
+      },
+      "impact": {
+        "category": "effect",
+        "id": 457
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "smokescreen.lua"
+      ]
+    },
+    "rainDance": {
+      "cast": {
+        "category": "effect",
+        "id": 1
+      },
+      "travel": {
+        "category": "missile",
+        "id": 2
+      },
+      "impact": {
+        "category": "effect",
+        "id": 1
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "raindance.lua"
+      ]
+    },
+    "discharge": {
+      "cast": {
+        "category": "effect",
+        "id": 49
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 231
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "discharge.lua"
+      ]
+    },
+    "rockSlide": {
+      "cast": {
+        "category": "effect",
+        "id": 27
+      },
+      "travel": {
+        "category": "missile",
+        "id": 9
+      },
+      "impact": {
+        "category": "effect",
+        "id": 273
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "rock slide.lua"
+      ]
+    },
+    "dreamEater": {
+      "cast": {
+        "category": "effect",
+        "id": 33
+      },
+      "travel": {
+        "category": "missile",
+        "id": 139
+      },
+      "impact": {
+        "category": "effect",
+        "id": 274
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "dreameater.lua"
+      ]
+    },
+    "drillPeck": {
+      "cast": {
+        "category": "effect",
+        "id": 110
+      },
+      "travel": {
+        "category": "missile",
+        "id": 110
+      },
+      "impact": {
+        "category": "effect",
+        "id": 110
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "drill peck.lua",
+        "drill peck2.lua",
+        "drillpeck.lua"
+      ]
+    },
+    "dynamicPunch": {
+      "cast": {
+        "category": "effect",
+        "id": 5
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 112
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "dynamic punch.lua",
+        "dynamicpunch.lua"
+      ]
+    },
+    "harden": {
+      "cast": {
+        "category": "effect",
+        "id": 144
+      },
+      "travel": {
+        "category": "effect",
+        "id": 144
+      },
+      "impact": {
+        "category": "effect",
+        "id": 264
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "harden.lua"
+      ]
+    },
+    "stunSpore": {
+      "cast": {
+        "category": "effect",
+        "id": 4
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 276
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "stunspore.lua"
+      ]
+    },
+    "fireBlast": {
+      "cast": {
+        "category": "effect",
+        "id": 36
+      },
+      "travel": {
+        "category": "missile",
+        "id": 4
+      },
+      "impact": {
+        "category": "effect",
+        "id": 282
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "fire blast.lua"
+      ]
+    },
+    "poisonSting": {
+      "cast": {
+        "category": "effect",
+        "id": 8
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 268
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "poison sting.lua",
+        "poisonsting.lua"
+      ]
+    },
+    "stringShot": {
+      "cast": {
+        "category": "effect",
+        "id": 45
+      },
+      "travel": {
+        "category": "missile",
+        "id": 23
+      },
+      "impact": {
+        "category": "effect",
+        "id": 286
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "string shot.lua",
+        "stringshot.lua"
+      ]
+    },
+    "firePunch": {
+      "cast": {
+        "category": "effect",
+        "id": 223
+      },
+      "travel": {
+        "category": "effect",
+        "id": 223
+      },
+      "impact": {
+        "category": "effect",
+        "id": 223
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "fire punch.lua"
+      ]
+    },
+    "razorLeaf": {
+      "cast": {
+        "category": "effect",
+        "id": 21
+      },
+      "travel": {
+        "category": "missile",
+        "id": 5
+      },
+      "impact": {
+        "category": "effect",
+        "id": 116
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "razor leaf.lua"
+      ]
+    },
+    "strength": {
+      "cast": {
+        "category": "effect",
+        "id": 118
+      },
+      "travel": {
+        "category": "missile",
+        "id": 11
+      },
+      "impact": {
+        "category": "effect",
+        "id": 118
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "strength.lua"
+      ]
+    },
+    "furyAttack": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 146
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "fury attack.lua",
+        "furyattack.lua"
+      ]
+    },
+    "furyCutter": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 146
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "fury cutter.lua"
+      ]
+    },
+    "futureSight": {
+      "cast": {
+        "category": "effect",
+        "id": 247
+      },
+      "travel": {
+        "category": "missile",
+        "id": 45
+      },
+      "impact": {
+        "category": "effect",
+        "id": 258
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "future sight.lua",
+        "futuresight.lua"
+      ]
+    },
+    "fireSpin": {
+      "cast": {
+        "category": "effect",
+        "id": 43
+      },
+      "travel": {
+        "category": "missile",
+        "id": 3
+      },
+      "impact": {
+        "category": "effect",
+        "id": 451
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "firespin.lua"
+      ]
+    },
+    "gunkShot": {
+      "cast": {
+        "category": "effect",
+        "id": 116
+      },
+      "travel": {
+        "category": "missile",
+        "id": 6
+      },
+      "impact": {
+        "category": "effect",
+        "id": 116
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "gunk shot.lua"
+      ]
+    },
+    "headbutt": {
+      "cast": {
+        "category": "effect",
+        "id": 111
+      },
+      "travel": {
+        "category": "effect",
+        "id": 111
+      },
+      "impact": {
+        "category": "effect",
+        "id": 128
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "headbutt.lua"
+      ]
+    },
+    "hyperBeam": {
+      "cast": {
+        "category": "effect",
+        "id": 150
+      },
+      "travel": {
+        "category": "effect",
+        "id": 150
+      },
+      "impact": {
+        "category": "effect",
+        "id": 244
+      },
+      "confidence": "visual",
+      "sourceFiles": [
+        "hyper beam.lua",
+        "hyperbeam.lua"
+      ]
+    },
+    "icePunch": {
+      "cast": {
+        "category": "effect",
+        "id": 43
+      },
+      "travel": {
+        "category": "effect",
+        "id": 43
+      },
+      "impact": {
+        "category": "effect",
+        "id": 112
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "ice punch.lua"
+      ]
+    },
+    "iceShard": {
+      "cast": {
+        "category": "effect",
+        "id": 52
+      },
+      "travel": {
+        "category": "missile",
+        "id": 45
+      },
+      "impact": {
+        "category": "effect",
+        "id": 52
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "iceshard.lua"
+      ]
+    },
+    "icyWind": {
+      "cast": {
+        "category": "effect",
+        "id": 42
+      },
+      "travel": {
+        "category": "missile",
+        "id": 29
+      },
+      "impact": {
+        "category": "effect",
+        "id": 365
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "icywind.lua"
+      ]
+    },
+    "tackle": {
+      "cast": {
+        "category": "effect",
+        "id": 148
+      },
+      "travel": {
+        "category": "missile",
+        "id": 148
+      },
+      "impact": {
+        "category": "effect",
+        "id": 148
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "tackle.lua"
+      ]
+    },
+    "ironTail": {
+      "cast": {
+        "category": "effect",
+        "id": 160
+      },
+      "travel": {
+        "category": "effect",
+        "id": 160
+      },
+      "impact": {
+        "category": "effect",
+        "id": 160
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "iron tail.lua"
+      ]
+    },
+    "water": {
+      "cast": {
+        "category": "effect",
+        "id": 65
+      },
+      "travel": {
+        "category": "missile",
+        "id": 32
+      },
+      "impact": {
+        "category": "effect",
+        "id": 79
+      },
+      "confidence": "visual",
+      "sourceFiles": [
+        "water gun.lua"
+      ]
+    },
+    "flamethrower": {
+      "cast": {
+        "category": "effect",
+        "id": 56
+      },
+      "travel": {
+        "category": "effect",
+        "id": 56
+      },
+      "impact": {
+        "category": "effect",
+        "id": 64
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "flamethrower.lua"
+      ]
+    },
+    "rockThrow": {
+      "cast": {
+        "category": "effect",
+        "id": 27
+      },
+      "travel": {
+        "category": "missile",
+        "id": 2
+      },
+      "impact": {
+        "category": "effect",
+        "id": 273
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "rock throw.lua"
+      ]
+    },
+    "leafBlade": {
+      "cast": {
+        "category": "effect",
+        "id": 17
+      },
+      "travel": {
+        "category": "missile",
+        "id": 5
+      },
+      "impact": {
+        "category": "effect",
+        "id": 305
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "leaf blade.lua"
+      ]
+    },
+    "leafStorm": {
+      "cast": {
+        "category": "effect",
+        "id": 21
+      },
+      "travel": {
+        "category": "missile",
+        "id": 5
+      },
+      "impact": {
+        "category": "effect",
+        "id": 418
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "leaf storm.lua"
+      ]
+    },
+    "lick": {
+      "cast": {
+        "category": "effect",
+        "id": 145
+      },
+      "travel": {
+        "category": "missile",
+        "id": 145
+      },
+      "impact": {
+        "category": "effect",
+        "id": 145
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "lick.lua"
+      ]
+    },
+    "megaKick": {
+      "cast": {
+        "category": "effect",
+        "id": 113
+      },
+      "travel": {
+        "category": "effect",
+        "id": 113
+      },
+      "impact": {
+        "category": "effect",
+        "id": 113
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "mega kick.lua"
+      ]
+    },
+    "megaPunch": {
+      "cast": {
+        "category": "effect",
+        "id": 112
+      },
+      "travel": {
+        "category": "effect",
+        "id": 112
+      },
+      "impact": {
+        "category": "effect",
+        "id": 112
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "mega punch.lua"
+      ]
+    },
+    "bite": {
+      "cast": {
+        "category": "effect",
+        "id": 139
+      },
+      "travel": {
+        "category": "effect",
+        "id": 139
+      },
+      "impact": {
+        "category": "effect",
+        "id": 146
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "bite.lua"
+      ]
+    },
+    "nightShade": {
+      "cast": {
+        "category": "effect",
+        "id": 18
+      },
+      "travel": {
+        "category": "missile",
+        "id": 19
+      },
+      "impact": {
+        "category": "effect",
+        "id": 470
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "nightshade.lua"
+      ]
+    },
+    "bodySlam": {
+      "cast": {
+        "category": "effect",
+        "id": 111
+      },
+      "travel": {
+        "category": "effect",
+        "id": 111
+      },
+      "impact": {
+        "category": "effect",
+        "id": 128
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "body slam.lua"
+      ]
+    },
+    "petalDance": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 21
+      },
+      "impact": {
+        "category": "effect",
+        "id": 3
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "petal dance.lua",
+        "petaldance.lua"
+      ]
+    },
+    "bugBite": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "effect",
+        "id": 3
+      },
+      "impact": {
+        "category": "effect",
+        "id": 3
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "bug bite.lua"
+      ]
+    },
+    "pinMissile": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 13
+      },
+      "impact": {
+        "category": "effect",
+        "id": 8
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "pin missile.lua",
+        "pinmissile.lua"
+      ]
+    },
+    "pluck": {
+      "cast": {
+        "category": "effect",
+        "id": 2
+      },
+      "travel": {
+        "category": "effect",
+        "id": 2
+      },
+      "impact": {
+        "category": "effect",
+        "id": 2
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "pluck.lua"
+      ]
+    },
+    "sleepPowder": {
+      "cast": {
+        "category": "effect",
+        "id": 33
+      },
+      "travel": {
+        "category": "effect",
+        "id": 33
+      },
+      "impact": {
+        "category": "effect",
+        "id": 480
+      },
+      "confidence": "visual",
+      "sourceFiles": []
+    },
+    "poisonPowder": {
+      "cast": {
+        "category": "effect",
+        "id": 220
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 480
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "poisonpowder.lua"
+      ]
+    },
+    "poisonFang": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "effect",
+        "id": 48
+      },
+      "impact": {
+        "category": "effect",
+        "id": 114
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "poison fang.lua"
+      ]
+    },
+    "poisonGas": {
+      "cast": {
+        "category": "effect",
+        "id": 114
+      },
+      "travel": {
+        "category": "effect",
+        "id": 114
+      },
+      "impact": {
+        "category": "effect",
+        "id": 114
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "poison gas.lua"
+      ]
+    },
+    "fireFang": {
+      "cast": {
+        "category": "effect",
+        "id": 5
+      },
+      "travel": {
+        "category": "effect",
+        "id": 5
+      },
+      "impact": {
+        "category": "effect",
+        "id": 146
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "fire fang.lua"
+      ]
+    },
+    "iceFang": {
+      "cast": {
+        "category": "effect",
+        "id": 147
+      },
+      "travel": {
+        "category": "effect",
+        "id": 147
+      },
+      "impact": {
+        "category": "effect",
+        "id": 147
+      },
+      "confidence": "visual",
+      "sourceFiles": []
+    },
+    "psychic": {
+      "cast": {
+        "category": "effect",
+        "id": 133
+      },
+      "travel": {
+        "category": "missile",
+        "id": 25
+      },
+      "impact": {
+        "category": "effect",
+        "id": 258
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "psychic.lua"
+      ]
+    },
+    "waterPulse": {
+      "cast": {
+        "category": "effect",
+        "id": 22
+      },
+      "travel": {
+        "category": "missile",
+        "id": 34
+      },
+      "impact": {
+        "category": "effect",
+        "id": 438
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "water pulse.lua"
+      ]
+    },
+    "dragonPulse": {
+      "cast": {
+        "category": "effect",
+        "id": 136
+      },
+      "travel": {
+        "category": "missile",
+        "id": 24
+      },
+      "impact": {
+        "category": "effect",
+        "id": 136
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "dragon pulse.lua"
+      ]
+    },
+    "iceBeam": {
+      "cast": {
+        "category": "effect",
+        "id": 97
+      },
+      "travel": {
+        "category": "missile",
+        "id": 14
+      },
+      "impact": {
+        "category": "effect",
+        "id": 265
+      },
+      "confidence": "visual",
+      "sourceFiles": [
+        "ice beam.lua",
+        "icebeam.lua"
+      ]
+    },
+    "solarBeam": {
+      "cast": {
+        "category": "effect",
+        "id": 87
+      },
+      "travel": {
+        "category": "effect",
+        "id": 87
+      },
+      "impact": {
+        "category": "effect",
+        "id": 244
+      },
+      "confidence": "visual",
+      "sourceFiles": [
+        "solar beam.lua"
+      ]
+    },
+    "gust": {
+      "cast": {
+        "category": "effect",
+        "id": 42
+      },
+      "travel": {
+        "category": "effect",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 263
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "gust.lua"
+      ]
+    },
+    "reflect": {
+      "cast": {
+        "category": "effect",
+        "id": 136
+      },
+      "travel": {
+        "category": "effect",
+        "id": 136
+      },
+      "impact": {
+        "category": "effect",
+        "id": 264
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "reflect.lua"
+      ]
+    },
+    "roar": {
+      "cast": {
+        "category": "effect",
+        "id": 2
+      },
+      "travel": {
+        "category": "effect",
+        "id": 2
+      },
+      "impact": {
+        "category": "effect",
+        "id": 2
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "roar.lua"
+      ]
+    },
+    "rockPolish": {
+      "cast": {
+        "category": "effect",
+        "id": 9
+      },
+      "travel": {
+        "category": "missile",
+        "id": 11
+      },
+      "impact": {
+        "category": "effect",
+        "id": 9
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "rockpolish.lua"
+      ]
+    },
+    "rockTomb": {
+      "cast": {
+        "category": "effect",
+        "id": 118
+      },
+      "travel": {
+        "category": "missile",
+        "id": 11
+      },
+      "impact": {
+        "category": "effect",
+        "id": 118
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "rock tomb.lua"
+      ]
+    },
+    "rollout": {
+      "cast": {
+        "category": "effect",
+        "id": 255
+      },
+      "travel": {
+        "category": "effect",
+        "id": 255
+      },
+      "impact": {
+        "category": "effect",
+        "id": 255
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "rollout.lua",
+        "rollout2.lua",
+        "rollout3.lua"
+      ]
+    },
+    "sandTomb": {
+      "cast": {
+        "category": "effect",
+        "id": 85
+      },
+      "travel": {
+        "category": "effect",
+        "id": 85
+      },
+      "impact": {
+        "category": "effect",
+        "id": 85
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "sandtomb.lua"
+      ]
+    },
+    "sandstorm": {
+      "cast": {
+        "category": "effect",
+        "id": 43
+      },
+      "travel": {
+        "category": "missile",
+        "id": 22
+      },
+      "impact": {
+        "category": "effect",
+        "id": 574
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "sandstorm.lua"
+      ]
+    },
+    "leechSeed": {
+      "cast": {
+        "category": "effect",
+        "id": 14
+      },
+      "travel": {
+        "category": "effect",
+        "id": 14
+      },
+      "impact": {
+        "category": "effect",
+        "id": 45
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "leech seed 2.lua",
+        "leech seed.lua"
+      ]
+    },
+    "synthesis": {
+      "cast": {
+        "category": "effect",
+        "id": 28
+      },
+      "travel": {
+        "category": "effect",
+        "id": 28
+      },
+      "impact": {
+        "category": "effect",
+        "id": 339
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "synthesis.lua"
+      ]
+    },
+    "slam": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "effect",
+        "id": 3
+      },
+      "impact": {
+        "category": "effect",
+        "id": 3
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "slam.lua"
+      ]
+    },
+    "spark": {
+      "cast": {
+        "category": "effect",
+        "id": 4
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 268
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "spark.lua"
+      ]
+    },
+    "splash": {
+      "cast": {
+        "category": "effect",
+        "id": 53
+      },
+      "travel": {
+        "category": "missile",
+        "id": 120
+      },
+      "impact": {
+        "category": "effect",
+        "id": 53
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "splash.lua"
+      ]
+    },
+    "stomp": {
+      "cast": {
+        "category": "effect",
+        "id": 118
+      },
+      "travel": {
+        "category": "effect",
+        "id": 118
+      },
+      "impact": {
+        "category": "effect",
+        "id": 118
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "stomp.lua"
+      ]
+    },
+    "stoneEdge": {
+      "cast": {
+        "category": "effect",
+        "id": 300
+      },
+      "travel": {
+        "category": "missile",
+        "id": 11
+      },
+      "impact": {
+        "category": "effect",
+        "id": 300
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "stoneedge.lua"
+      ]
+    },
+    "supersonic": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "missile",
+        "id": 15
+      },
+      "impact": {
+        "category": "effect",
+        "id": 31
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "super sonic.lua",
+        "supersonic.lua"
+      ]
+    },
+    "surf": {
+      "cast": {
+        "category": "effect",
+        "id": 50
+      },
+      "travel": {
+        "category": "missile",
+        "id": 32
+      },
+      "impact": {
+        "category": "effect",
+        "id": 207
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "surf.lua"
+      ]
+    },
+    "swift": {
+      "cast": {
+        "category": "effect",
+        "id": 13
+      },
+      "travel": {
+        "category": "missile",
+        "id": 33
+      },
+      "impact": {
+        "category": "effect",
+        "id": 298
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "swift.lua"
+      ]
+    },
+    "teleport": {
+      "cast": {
+        "category": "effect",
+        "id": 21
+      },
+      "travel": {
+        "category": "effect",
+        "id": 21
+      },
+      "impact": {
+        "category": "effect",
+        "id": 21
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "teleport.lua"
+      ]
+    },
+    "earthquake": {
+      "cast": {
+        "category": "effect",
+        "id": 127
+      },
+      "travel": {
+        "category": "missile",
+        "id": 127
+      },
+      "impact": {
+        "category": "effect",
+        "id": 127
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "Earthquake.lua"
+      ]
+    },
+    "thrash": {
+      "cast": {
+        "category": "effect",
+        "id": 111
+      },
+      "travel": {
+        "category": "missile",
+        "id": 26
+      },
+      "impact": {
+        "category": "effect",
+        "id": 111
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "thrash.lua"
+      ]
+    },
+    "thunder": {
+      "cast": {
+        "category": "effect",
+        "id": 41
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 231
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "thunder.lua"
+      ]
+    },
+    "thunderFang": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "effect",
+        "id": 48
+      },
+      "impact": {
+        "category": "effect",
+        "id": 146
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "thunder fang.lua"
+      ]
+    },
+    "thunderPunch": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "effect",
+        "id": 48
+      },
+      "impact": {
+        "category": "effect",
+        "id": 112
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "thunder punch.lua"
+      ]
+    },
+    "thunderWave": {
+      "cast": {
+        "category": "effect",
+        "id": 48
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 214
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "thunder wave.lua"
+      ]
+    },
+    "mudShot": {
+      "cast": {
+        "category": "effect",
+        "id": 120
+      },
+      "travel": {
+        "category": "missile",
+        "id": 2
+      },
+      "impact": {
+        "category": "effect",
+        "id": 271
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "mud shot.lua"
+      ]
+    },
+    "toxic": {
+      "cast": {
+        "category": "effect",
+        "id": 114
+      },
+      "travel": {
+        "category": "effect",
+        "id": 114
+      },
+      "impact": {
+        "category": "effect",
+        "id": 114
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "toxic.lua"
+      ]
+    },
+    "triAttack": {
+      "cast": {
+        "category": "effect",
+        "id": 13
+      },
+      "travel": {
+        "category": "missile",
+        "id": 22
+      },
+      "impact": {
+        "category": "effect",
+        "id": 253
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "triattack.lua"
+      ]
+    },
+    "tripleKick": {
+      "cast": {
+        "category": "effect",
+        "id": 3
+      },
+      "travel": {
+        "category": "effect",
+        "id": 3
+      },
+      "impact": {
+        "category": "effect",
+        "id": 48
+      },
+      "confidence": "reference",
+      "sourceFiles": [
+        "triple kick.lua"
+      ]
+    },
+    "twister": {
+      "cast": {
+        "category": "effect",
+        "id": 43
+      },
+      "travel": {
+        "category": "missile",
+        "id": 49
+      },
+      "impact": {
+        "category": "effect",
+        "id": 300
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "twister.lua"
+      ]
+    },
+    "vineWhip": {
+      "cast": {
+        "category": "effect",
+        "id": 51
+      },
+      "travel": {
+        "category": "effect",
+        "id": 51
+      },
+      "impact": {
+        "category": "effect",
+        "id": 573
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "vine whip.lua"
+      ]
+    },
+    "waterGun": {
+      "cast": {
+        "category": "effect",
+        "id": 65
+      },
+      "travel": {
+        "category": "missile",
+        "id": 32
+      },
+      "impact": {
+        "category": "effect",
+        "id": 79
+      },
+      "confidence": "visual",
+      "sourceFiles": [
+        "water gun.lua"
+      ]
+    },
+    "waterSpout": {
+      "cast": {
+        "category": "effect",
+        "id": 69
+      },
+      "travel": {
+        "category": "missile",
+        "id": 72
+      },
+      "impact": {
+        "category": "effect",
+        "id": 438
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "water spout.lua"
+      ]
+    },
+    "whirlwind": {
+      "cast": {
+        "category": "effect",
+        "id": 42
+      },
+      "travel": {
+        "category": "missile",
+        "id": 49
+      },
+      "impact": {
+        "category": "effect",
+        "id": 300
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "whirlwind.lua"
+      ]
+    },
+    "wingAttack": {
+      "cast": {
+        "category": "effect",
+        "id": 129
+      },
+      "travel": {
+        "category": "effect",
+        "id": 129
+      },
+      "impact": {
+        "category": "effect",
+        "id": 297
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "wing attack.lua",
+        "wingattack.lua"
+      ]
+    },
+    "zapCannon": {
+      "cast": {
+        "category": "effect",
+        "id": 40
+      },
+      "travel": {
+        "category": "missile",
+        "id": 42
+      },
+      "impact": {
+        "category": "effect",
+        "id": 253
+      },
+      "confidence": "high",
+      "sourceFiles": [
+        "zap cannon.lua"
+      ]
+    }
+  },
+  "assets": {
+    "effect-0014": {
+      "frames": 18,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0020": {
+      "frames": 10,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0014": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0039": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0009": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0273": {
+      "frames": 4,
+      "width": 2,
+      "height": 3
+    },
+    "effect-0142": {
+      "frames": 5,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0043": {
+      "frames": 9,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0056": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0342": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0005": {
+      "frames": 12,
+      "width": 3,
+      "height": 1
+    },
+    "effect-0113": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0003": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0041": {
+      "frames": 16,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0007": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0265": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0085": {
+      "frames": 21,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0019": {
+      "frames": 6,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0500": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0114": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0038": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0016": {
+      "frames": 12,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0004": {
+      "frames": 3,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0065": {
+      "frames": 18,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0086": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0207": {
+      "frames": 10,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0054": {
+      "frames": 10,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0032": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0206": {
+      "frames": 10,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0049": {
+      "frames": 11,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0042": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0208": {
+      "frames": 4,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0048": {
+      "frames": 9,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0040": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0041": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0111": {
+      "frames": 10,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0127": {
+      "frames": 4,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0133": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0247": {
+      "frames": 22,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0137": {
+      "frames": 14,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0160": {
+      "frames": 6,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0057": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0457": {
+      "frames": 20,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0001": {
+      "frames": 4,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0002": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0231": {
+      "frames": 4,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0027": {
+      "frames": 4,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0033": {
+      "frames": 16,
+      "width": 1,
+      "height": 2
+    },
+    "missile-0139": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0274": {
+      "frames": 18,
+      "width": 3,
+      "height": 2
+    },
+    "effect-0110": {
+      "frames": 12,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0110": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0112": {
+      "frames": 6,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0144": {
+      "frames": 18,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0264": {
+      "frames": 15,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0004": {
+      "frames": 3,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0015": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0276": {
+      "frames": 5,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0036": {
+      "frames": 12,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0282": {
+      "frames": 10,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0008": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0268": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0045": {
+      "frames": 17,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0023": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0286": {
+      "frames": 5,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0223": {
+      "frames": 4,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0021": {
+      "frames": 8,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0005": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0116": {
+      "frames": 9,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0118": {
+      "frames": 4,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0011": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0146": {
+      "frames": 6,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0045": {
+      "frames": 1,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0258": {
+      "frames": 25,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0003": {
+      "frames": 3,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0451": {
+      "frames": 16,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0006": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0128": {
+      "frames": 12,
+      "width": 4,
+      "height": 4
+    },
+    "effect-0150": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0244": {
+      "frames": 7,
+      "width": 3,
+      "height": 1
+    },
+    "effect-0052": {
+      "frames": 4,
+      "width": 2,
+      "height": 1
+    },
+    "effect-0042": {
+      "frames": 9,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0029": {
+      "frames": 1,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0365": {
+      "frames": 7,
+      "width": 3,
+      "height": 2
+    },
+    "effect-0148": {
+      "frames": 16,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0148": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0079": {
+      "frames": 10,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0056": {
+      "frames": 14,
+      "width": 5,
+      "height": 5
+    },
+    "effect-0064": {
+      "frames": 3,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0017": {
+      "frames": 4,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0305": {
+      "frames": 3,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0418": {
+      "frames": 3,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0145": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0145": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0139": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0018": {
+      "frames": 11,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0470": {
+      "frames": 16,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0021": {
+      "frames": 1,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0013": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0002": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0480": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0220": {
+      "frames": 3,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0147": {
+      "frames": 8,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0025": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0022": {
+      "frames": 10,
+      "width": 3,
+      "height": 3
+    },
+    "missile-0034": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0438": {
+      "frames": 10,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0136": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0024": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0097": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0087": {
+      "frames": 7,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0263": {
+      "frames": 3,
+      "width": 2,
+      "height": 3
+    },
+    "effect-0009": {
+      "frames": 10,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0255": {
+      "frames": 18,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0022": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0574": {
+      "frames": 9,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0028": {
+      "frames": 21,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0339": {
+      "frames": 9,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0053": {
+      "frames": 11,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0120": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0300": {
+      "frames": 12,
+      "width": 3,
+      "height": 5
+    },
+    "effect-0031": {
+      "frames": 4,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0050": {
+      "frames": 4,
+      "width": 2,
+      "height": 1
+    },
+    "effect-0013": {
+      "frames": 18,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0033": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0298": {
+      "frames": 18,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0127": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "missile-0026": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0214": {
+      "frames": 5,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0120": {
+      "frames": 12,
+      "width": 4,
+      "height": 2
+    },
+    "effect-0271": {
+      "frames": 5,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0253": {
+      "frames": 5,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0049": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0051": {
+      "frames": 12,
+      "width": 2,
+      "height": 2
+    },
+    "effect-0573": {
+      "frames": 7,
+      "width": 1,
+      "height": 2
+    },
+    "effect-0069": {
+      "frames": 12,
+      "width": 2,
+      "height": 2
+    },
+    "missile-0072": {
+      "frames": 1,
+      "width": 1,
+      "height": 1
+    },
+    "effect-0129": {
+      "frames": 3,
+      "width": 3,
+      "height": 2
+    },
+    "effect-0297": {
+      "frames": 4,
+      "width": 3,
+      "height": 3
+    },
+    "effect-0040": {
+      "frames": 5,
+      "width": 1,
+      "height": 1
+    }
+  }
+}

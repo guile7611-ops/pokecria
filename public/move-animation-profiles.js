@@ -1,4 +1,5 @@
 import {EXTERNAL_MOVE_VFX} from './external-move-vfx.js';
+import {PXG_MOVE_VFX} from './pxg-attack-vfx.js';
 const PRIORITY_VISUALS={
  leaf:{castSize:82,travelSize:58,impactSize:112,trail:4,rotate:true},ember:{castSize:82,travelSize:58,impactSize:112,trail:4},hydroCannon:{castSize:118,travelSize:112,impactSize:210,trail:6,rotate:true},aquaWave:{castSize:82,travelSize:104,impactSize:112,trail:5,rotate:true},solarSeed:{castSize:82,travelSize:58,impactSize:138,trail:4},flame:{castSize:82,travelSize:58,impactSize:112,trail:4,rotate:true},fireBlast:{castSize:96,travelSize:88,impactSize:178,trail:4},waterPulse:{castSize:82,travelSize:70,impactSize:112,trail:4},
  vineBurst:{castSize:92,travelSize:66,impactSize:142,trail:0,rotate:true},smokescreen:{castSize:100,travelSize:92,impactSize:330,trail:0},fireSpin:{castSize:92,travelSize:76,impactSize:230,trail:0},bite:{castSize:68,travelSize:62,impactSize:104,trail:0},iceFang:{castSize:74,travelSize:66,impactSize:126,trail:0},sandAttack:{castSize:82,travelSize:76,impactSize:240,trail:0},mudSlap:{castSize:76,travelSize:72,impactSize:180,trail:0},
@@ -46,11 +47,11 @@ export function animationProfileFor(ability){
   else motif=typeDefaults[ability.type]||'impact';
  }
  const behavior=ability.behavior||'direct',large=Number(ability.radius)>=70||Number(ability.power)>=100||['beam','channel','area','zone'].includes(behavior);
- const external=EXTERNAL_MOVE_VFX[ability.id];
+ const pxg=PXG_MOVE_VFX[ability.id],external=EXTERNAL_MOVE_VFX[ability.id];
  return {
   motif,
   sound:behavior==='heal'?'heal':behavior==='buff'?'buff':behavior==='debuff'?'debuff':soundByType[ability.type]||'impact',
-  source:external?.source|| (ability.vfx?.startsWith('pmd/')?'pmd+adaptive':'adaptive'),quality:external?'external-exact':ability.vfx?.startsWith('pmd/')?'sprite+adaptive':'adaptive',fallback:false,
+  source:pxg?'pxg-2026':external?.source|| (ability.vfx?.startsWith('pmd/')?'pmd+adaptive':'adaptive'),quality:pxg?`pxg-${pxg.confidence}`:external?'external-exact':ability.vfx?.startsWith('pmd/')?'sprite+adaptive':'adaptive',fallback:false,
   castSize:large?92:behavior==='direct'?58:70,
   travelSize:large?68:behavior==='projectile'?44:56,
   impactSize:large?Math.max(112,Number(ability.radius||0)*2):behavior==='direct'?74:88,
@@ -61,7 +62,10 @@ export function animationProfileFor(ability){
 
 export function moveAnimationVisual(ability){
  if(!ability||ability.id==='basic')return null;
- const profile=animationProfileFor(ability),local=`moves/${ability.id}`,external=EXTERNAL_MOVE_VFX[ability.id],pmd=ability.vfx?.startsWith('pmd/');
+ const profile=animationProfileFor(ability),local=`moves/${ability.id}`,pxg=PXG_MOVE_VFX[ability.id],external=EXTERNAL_MOVE_VFX[ability.id],pmd=ability.vfx?.startsWith('pmd/');
+ // Earthquake keeps the authored field-wide cracks and camera choreography.
+ // It remains in the PXG registry for complete catalog coverage.
+ if(pxg&&ability.id!=='earthquake')return {...pxg,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,...PRIORITY_VISUALS[ability.id],motif:profile.motif,sound:profile.sound,external:'pxg-2026'};
  if(PRIORITY_MOVE_IDS.has(ability.id)){const root=`priority/${ability.id}`,settings=PRIORITY_VISUALS[ability.id];return {cast:`${root}-cast`,travel:`${root}-travel`,impact:`${root}-impact`,...settings,motif:profile.motif,sound:profile.sound,bespoke:true};}
  if(external)return {cast:local,travel:local,impact:local,castSize:profile.castSize,travelSize:profile.travelSize,impactSize:profile.impactSize,trail:profile.trail,rotate:profile.rotate,motif:profile.motif,sound:profile.sound,external:external.source};
  const impact=pmd&&!['projectile','wave','beam','channel'].includes(ability.behavior)?ability.vfx:local;
